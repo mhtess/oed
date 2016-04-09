@@ -80,25 +80,40 @@
 
 \section{Introduction}
 
+Designing experiments is hard. 
+Minimally, you must have a hypothesis in hand, a space of possible experiments, and clarity to reason through the logic of your hypothesis in each possible experiment. 
+Psychology experiments have a number of additional complications. 
+For instance, data costs money and deciding on the number of participants for a study is another crucial decision variable. 
+
+Formal models of psychological phenomena are used to make specific hypotheses about observed data. 
+These hypotheses are more explicit than what can be achieved using verbal or qualitative theories. Despite the rising popularity of formal models in psychology, experiment design is still largely confined to the realm of expert intuition and folk theory.
+We present a general, turn-key approach to designing experiments that best disambiguate competing hypotheses using a Bayesian framework. 
+Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition). 
+
+We are not the first to attempt to develop a framework for optimal experiments in psychology. Previous attempts suffer from a number of pragmatic issues that impede the psychologist who wishes to readily apply optimal experiment design (OED) to their research.
+These include ad-hoc optimization criteria, which put the burden on researchers to have sufficient expertise to select a criterion; 
+a lack of established pipeline, requiring researchers to develop their own system for writing formal psychological models and the OED optimization engine; 
+and a lack of analysis in dealing with practical experimental concerns in psychology, including dealing with noisy responses from participants, determining ideal numbers of participants, and deciding upon appropriate dependent measures (i.e., linking functions).
+
 Doing the standard, active learning thing with probabilistic programs. 
 
-    \begin{itemize}
-        \item It is difficult to discriminate models of psychological processes
-        \item Experiments are expensive
-        \item We present a general, turn-key approach to design experiments that best disambiguate competing models using a Bayesian framework
-        \item This technique is not directly related to Bayesian models of cognition. It can be used on any (formal / probabilistic) model, including Bayesian models of cognition
-        \item Despite the previous attempts in this field, there are a number of pragmatic issues that make it difficult to readily apply OED techniques for psychology, including:
-        \begin{itemize}
-            \item A variety of proposed optimization criteria, which puts the burden on researchers to have sufficient expertise to select the appropriate approach
-            \item A lack of an established pipeline, requiring researchers to develop a language to formalize psychological models and write an OED optimization engine
-            \item A lack of analysis in dealing with practical experimental concerns such as:
-                \begin{itemize}
-                    \item Noisy responses from participants
-                    \item The ideal number of participants for a study
-                    \item The ambiguity of linking functions of dependent measures
-                \end{itemize}
-        \end{itemize}
-    \end{itemize}
+%    \begin{itemize}
+%        \item It is difficult to discriminate models of psychological processes
+%        \item Experiments are expensive
+%        \item We present a general, turn-key approach to design experiments that best disambiguate competing models using a Bayesian framework
+%        \item This technique is not directly related to Bayesian models of cognition. It can be used on any (formal / probabilistic) model, including Bayesian models of cognition
+%        \item Despite the previous attempts in this field, there are a number of pragmatic issues that make it difficult to readily apply OED techniques for psychology, including:
+%        \begin{itemize}
+%            \item A variety of proposed optimization criteria, which puts the burden on researchers to have sufficient expertise to select the appropriate approach
+%            \item A lack of an established pipeline, requiring researchers to develop a language to formalize psychological models and write an OED optimization engine
+%            \item A lack of analysis in dealing with practical experimental concerns such as:
+%                \begin{itemize}
+%                    \item Noisy responses from participants
+%                    \item The ideal number of participants for a study
+%                    \item The ambiguity of linking functions of dependent measures
+%                \end{itemize}
+%        \end{itemize}
+%    \end{itemize}
 
 
 \section{Bayesian model selection framework}
