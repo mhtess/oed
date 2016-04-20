@@ -178,19 +178,242 @@ x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \n
 
 Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
 
-In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a difficult task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire prompt space. This allows us to obtain a comprehensive analysis of the entire design space and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractible, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options. 
+In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a daunting task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire  space of experimental prompts. This allows us to obtain a comprehensive analysis of the entire design space, and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractable, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options. 
 
 It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
 \begin{align}
 x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \argmax_{x} I(M, Y_x) \notag \\
     &= \argmax_{x} \sum\limits_{y_x} \sum\limits_{m} p(m, y_x) \ln \left( \frac{p(m, y_x)}{p(m)p(y_x)}\right). \label{eq:mi}
 \end{align}
-This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses. This relationship, along with similar identities, will be useful for proving intrinsic properies about OED in Section~\ref{s:npart:ss:math}.
-
-
+This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses. 
+%This relationship, along with similar identities, will be useful for proving intrinsic properties about OED in Section~\ref{s:npart:ss:math}.
 
 
 \section{Case study 1: Subjective randomness}
+\label{s:tutorial}
+
+This section presents a tutorial on how to use optimal experiment design in conjunction with a probabilistic programming language to disambiguate two models of subjective randomness. The case study begins with a short introduction to WebPPL, probabilistic programming language; followed by an example that illustrates the pipeline of formalizing cognitive models using WebPPL; and concludes with a summary of the OED analysis. 
+
+\subsection{Models of subjective randomness}
+\label{s:tutorial:ss:randomness}
+
+Human judgments about randomness are systemic and nonuniform across equally random outcomes -- for example, a sequence of heads and tails such as `HTHTTTHH' is often considered to be more random than the sequence `HHHHHHHH'. Although we have strong intuitions regarding the randomness of these sequences, both sequences are actually equally likely to be produced from flipping a fair coin. In fact, there is strong evidence that people have compelling preferences for certain sequences when considering random processes ~\cite{goodfellow38:jep}. The apparent discrepancy between our intuitions about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature. 
+
+In this case study, we consider two models of randomness judgements: independent flips from a biased coin and a sequence of flips from a Markov chain. These models are not expected to fully characterize the observed intricacies of human judgements about randomness, but they provide a practical case study for understanding how optimal experiment design can be used to differentiate competing models. 
+
+For this scenario, the participants will be prompted to judge the randomness of a four flip coin sequence by reporting whether the next flip from the same coin will come up heads. Following the formalization outlined in Section~\ref{s:bayes}, the space of subjective randomness models under consideration is $\mathcal{M} \in \{m_b, m_m\}$, where $m_b$ and $m_m$ correspond to the biased coin model and the Markov coin model, respectively. The space of experimental prompts, $\mathcal{X}$, is the set of all four flip coin sequences, and the space of responses, $\mathcal{Y}$, is a choice between heads or tails.
+
+\subsubsection{Biased coin model}
+\label{s:tutorial:sss:biased}
+
+The first model of subjective randomness is a biased coin model, which assumes that the coin is weighted with an unknown bias and each coin flip is independent. The coin bias is inferred from the experiment prompt sequence, and it is subsequently used to predict the next coin flip. The model will be formalized mathematically and in WebPPL to illustrate how one can translate a model between both frameworks.
+
+We begin with the generative model of the biased coin model, which follows a Bernoulli distribution with an unknown bias parameter. Let the random variable $X$ represent the probability of observing the outcome of a coin flip, where the flip outcome can take on two values, $x \in \{\textrm{H},\textrm{T}\}$, representing heads or tails, respectively. Next, let the random variable $\Theta_b$ represent the uncertainty of the coin bias, where the bias parameter, $\theta_b \in [0,1]$, denotes the probability of a heads outcome. The probability of observing a coin flip outcome is then defined conditionally with respect to the bias parameter as:
+\begin{align}
+    P(X = \textrm{H} | \Theta_b = \theta_b) &= \theta_b \notag \\ 
+    P(X = \textrm{T} | \Theta_b = \theta_b) &= 1 - \theta_b \label{eq:bcoin_x}.
+\end{align}
+Assuming that the experiment response, $Y$, is drawn from the same coin, the probability of observing a response given the bias parameter is similarly defined as: 
+\begin{align}
+    P(Y = \textrm{H} | \Theta_b = \theta_b) &= \theta_b \notag \\ 
+    P(Y = \textrm{T} | \Theta_b = \theta_b) &= 1 - \theta_b \label{eq:bcoin_y}.
+\end{align}
+
+The coin bias, $\Theta_b$, is inferred from the experiment prompt, which is an $n$-length coin flip sequence, $x_0, x_1, \dots, x_n$. Applying Bayes theorem along with a prior distribution over the bias parameter, $p(\theta_b)$, the distribution of the bias parameter can be computed using:
+\begin{align}
+    p(\theta_b | x_0, x_1, \dots, x_n) &= \frac{p(x_0,x_1, \dots, x_n | \theta_b)p(\theta_b)} {\sum\limits_{\theta'_b} p(x_0, x_1, \dots, x_n | \theta'_b)p(\theta'_b)} \label{eq:bcoin_bayes}.
+\end{align}
+
+Using the property that each observation is an identical and independent sample from the generative biased coin, Eq.~\ref{eq:bcoin_bayes} can be decomposed into its elementary terms:
+\begin{align}
+    p(\theta_b | x_0, x_1, \dots, x_n) &= \frac{p(x_0 | \theta_b) p(x_1 | \theta_b) \dots p(x_n | \theta_b) p(\theta_b)} {\sum\limits_{\theta '_b} p(x_0 | \theta'_b) p(x_1 | \theta'_b) \dots p(x_n | \theta'_b) p(\theta'_b)} \label{eq:bcoin_iid},
+\end{align}
+where the probability $p(x_i | \theta_b)$ is given by Eq.~\ref{eq:bcoin_x}.
+
+Finally, the probability of observing a model response for the biased coin model can be computed using:
+\begin{align}
+    p(y_{x_0 x_1 \dots x_n} | m_b) = \sum \limits_{\theta_b} p(y | \theta_b) p(\theta_b |  x_0, x_1, \dots, x_n),
+\end{align}
+where the probabilities $p(y | \theta_b)$ and $p(\theta_b | x_0, x_1, \dots, x_n)$ are given by Eqs.~\ref{eq:bcoin_y} and~\ref{eq:bcoin_iid}, respectively. 
+
+\begin{figure}[h]
+\begin{Verbatim}[numbers=left,numbersep=1pt,frame=single,commandchars=\\\{\},fontfamily=courier,fontsize=\scriptsize]
+// Helper functions and model parameters \label{ln:wbc_help_s}
+var categorical = function(v,p) {return v[discrete(p)];}
+var coin_prior     = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99];
+var coin_prior_pmf = [1.00, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.00]; \label{ln:wbc_help_e}
+
+// Bias coin model
+var bias_coin_erp = function(sequence) \{
+  var bias_coin = function() \{
+    var inferred_bias_erp = Enumerate(function() \{ \label{ln:wbc_infer_s}
+      var bias_p = categorical(coin_prior, coin_prior_pmf); 
+      var sequence_factor = sum(map(function(x) \{
+                                      return (x == 'H') ? Math.log(bias_p) : 
+                                                          Math.log(1-bias_p);\}, 
+                                sequence));
+      factor(sequence_factor);
+      return bias_p;
+    \}); \label{ln:wbc_infer_e}
+
+    var bias_p = sample(inferred_bias_erp); \label{ln:wbc_sample}
+    return flip(bias_p); \label{ln:wbc_flip}
+  \};
+
+  return Enumerate(bias_coin); \label{ln:wbc_enum}
+\};
+\end{Verbatim}
+\centering
+\caption{A WebPPL code snippet that models the randomness judgement from the biased coin model given a coin sequence.}
+\label{fig:webppl_biased_coin}
+\end{figure}
+
+The WebPPL program for the biased coin model is shown in Fig.~\ref{fig:webppl_biased_coin}. The program begins with defining general utility code (lines~\ref{ln:wbc_help_s}-\ref{ln:wbc_help_e}): a helper function for sampling from a categorical distribution and the manual definition of the model parameter prior distributions, which are assumed to be uninformative prior or the uniform distribution. 
+
+Following a similar progression as the mathemetical model, the WebPPL biased coin model first infers the bias coin parameter from the experiment prompt coin sequence (lines~\ref{ln:wbc_infer_s}-\ref{ln:wbc_infer_e}). A random bias parameter is sampled from the prior distribution, and is used to compute the probability of observing the coin flip sequence given the sampled prior distribution. An bias parameter is then sampled from the marginal distribution conditioned on the coin sequence (line \ref{ln:wbc_sample}) and a response of heads or tails is computed by flipping a random coin based on the sampled bias parameter (line \ref{ln:wbc_flip}). The distribution of responses is computed by enumerating over the space of responses (line \ref{ln:wbc_enum}). Note how the complexity of the mathemtical model of the biased coin model be readily described using WebPPL via composition of generative models and probabilistic inference. 
+
+\subsubsection{Markov coin model}
+\label{s:tutorial:sss:markov}
+The second model of subjective randomness is a Markov coin model, which assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip. The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence, and it is subsequently used to predict the next coin flip. Again, the model will be formalized mathematically and in WebPPL to illustrate how one can translate a model between both frameworks.
+
+We begin with the generative model of a two state Markov process, where the system is characterized by states and the corresponding probability to transition between them. Let the sequence of random variables $X_1, X_2, \dots, X_n$ represent the probability of observing a sequence of coin flip outcomes, where each flip outcome can take on two values, $x_i \in \{H,T\}, \forall i \in \{0, \dots, n\}$, representing heads or tails, respectively. Next, let the random variable $\Theta_t$ represent the uncertainty of transitioning between coin flip outcomes, where the transition parameter, $\theta_t \in [0,1]$, denotes the probability that the current outcome is different than the previous outcome. The probability of observing a coin flip outcome is then defined conditionally with respect to the previous outcome and the bias parameter as:
+\begin{align}
+    P(X_i = \textrm{H} | X_{i-1} = \textrm{T}, \Theta_t = \theta_t) = P(X_i = \textrm{T} | X_{i-1} = \textrm{H}, \Theta_t = \theta_t) &= \theta_t \notag \\ 
+    P(X_i = \textrm{H} | X_{i-1} = \textrm{H}, \Theta_t = \theta_t) = P(X_i = \textrm{T} | X_{i-1} = \textrm{T}, \Theta_t = \theta_t) &= 1 - \theta_t \label{eq:tcoin_x}.
+\end{align}
+Assuming that the experiment response, $Y$, is drawn from the same process, the probability of observing a response given the transition parameter is similarly defined using the last coin flip outcome as: 
+\begin{align}
+    P(Y = \textrm{H} | X_n = \textrm{T}, \Theta_t = \theta_t) = P(Y = \textrm{T}| X_n = \textrm{H}, \Theta_t = \theta_t) &= \theta_t \notag \\ 
+    P(Y = \textrm{H} | X_n = \textrm{H}, \Theta_t = \theta_t) = P(Y = \textrm{T} | X_n = \textrm{T}, \Theta_t = \theta_t) &= 1 - \theta_t \label{eq:tcoin_y}.
+\end{align}
+
+The coin bias, $\Theta_t$, is inferred from the experiment prompt, which is an $n$-length coin flip sequence, $x_0, x_1, \dots, x_n$. Applying Bayes theorem along with a prior distribution over the transition parameter, $p(\theta_t)$, the distribution of the bias parameter can be computed using:
+\begin{align}
+    p(\theta_t | x_0, x_1, \dots, x_n) &= \frac{p(x_0, x_1, \dots, x_n | \theta_t)p(\theta_t)} {\sum\limits_{\theta'_t} p(x_0, x_1, \dots, x_n | \theta'_t)p(\theta'_t)} \label{eq:tcoin_bayes}.
+\end{align}
+
+Using the property that each observation comes from the Markov process, Eq.~\ref{eq:tcoin_bayes} can be simplified using conditional probabilities:
+\begin{align}
+    p(\theta_t | x_0, x_1, \dots x_n) &= \frac{p(x_1 | x_0, \theta_t) \dots p(x_n | x_{n-1}, \theta_t) p(\theta_b)} {\sum\limits_{\theta '_t} p(x_1 | x_0, \theta'_b) \dots p(x_n | x_{n-1}, \theta'_t) p(\theta'_t)} \label{eq:tcoin_markov},
+\end{align}
+where the probability $p(x_i | x_{i-1}, \theta_t)$ is given by Eq.~\ref{eq:tcoin_x}. Note that since the first outcome is observed and has no dependence, it is deterministic -- $p(x_0) = 1$.
+
+Finally, the probability of observing a model response for the Markov coin model can be computed using: \begin{align}
+    p(y_{x_0, x_1, \dots, x_n} | m_t) = \sum \limits_{\theta_t} p(y | x_n, \theta_t) p(\theta_t |  x_0, x_1, \dots, x_n),
+\end{align}
+where the probabilities $p(y | x_n, \theta_t)$ and $p(\theta_t | x_0, x_1, \dots, x_n)$ are given by Eqs.~\ref{eq:tcoin_y} and~\ref{eq:tcoin_markov}, respectively. 
+
+\begin{figure}[h]
+\begin{Verbatim}[numbers=left,numbersep=1pt,frame=single,commandchars=\\\{\},fontfamily=courier,fontsize=\scriptsize,firstnumber=last]
+var markov_coin_erp = function(sequence) \{
+  var markov_coin = function() \{
+    var inferred_trans_erp = Enumerate(function() \{ \label{ln:wmc_infer_s}
+      var trans_p = categorical(coin_prior, coin_prior_pmf);
+      var sequence_factor = sum(map2(function(x,y) \{
+                                       return (x == y) ? Math.log(1-trans_p) : 
+                                                         Math.log(trans_p);\}, 
+                                sequence.slice(0,sequence.length-1), 
+                                sequence.slice(1,sequence.length)));
+      factor(sequence_factor);
+      return trans_p;
+    \}); \label{ln:wmc_infer_e}
+
+    var trans_p = sample(inferred_trans_erp); \label{ln:wmc_sample}
+    return flip((last(sequence) == 'H') ? 1-trans_p : trans_p); \label{ln:wmc_flip}
+  \};
+
+  return Enumerate(markov_coin); \label{ln:wmc_enum}
+\};
+\end{Verbatim}
+\centering
+\caption{A WebPPL code snippet that models the randomness judgement from the Markov coin model given a coin sequence, continued from Fig.~\ref{fig:webppl_biased_coin}.}
+\label{fig:webppl_markov_coin}
+\end{figure}
+
+The WebPPL program for the Markov coin model is shown in Fig.~\ref{fig:webppl_markov_coin}.  Following the framework of the mathemetical model, the WebPPL Markov coin model first infers the transition coin parameter from the experiment prompt coin sequence (lines~\ref{ln:wmc_infer_s}-\ref{ln:wmc_infer_e}). A random transition parameter is sampled from the prior distribution (Fig.~\ref{fig:webppl_biased_coin} lines~\ref{ln:wbc_help_s}-\ref{ln:wbc_help_e}), and is used to compute the probability of observing the coin flip sequence given the sampled prior distribution. A transition parameter is then sampled from the marginal distribution conditioned on the coin sequence (line \ref{ln:wmc_sample}) and a response of heads or tails is computed by flipping a random transition based on the sampled transition parameter and the last coin in the observed sequence (line \ref{ln:wmc_flip}). The distribution of responses is computed by enumerating over the space of responses (line \ref{ln:wmc_enum}). 
+
+\subsection{Optimal experiment design}
+
+The optimal experiment design execution in WebPPL is shown in Fig.~\ref{fig:webppl_oed}. First, the list of four flip coin sequences is manually enumerated. The \texttt{OED} function, which computes the argument of Eq.~\ref{eq:oed} for each of the experiments, is then called with an object that encapsulates the space of models and experiments. The two ERP-generating model functions, \texttt{bias\_coin\_erp} and \texttt{markov\_coin\_erp}, which were previously defined in Figs.~\ref{fig:webppl_biased_coin} and~\ref{fig:webppl_markov_coin}, respectively, are supplied in the object property \texttt{models}. Similarly, the list of arguments are supplied in the object property \texttt{experiments}. The model belief prior, $p(m)$, is supplied with the optional object property \texttt{model\_belief} as a list of probabilities that correspond to the model belief for each model. If no model belief distribution is specified, as in Fig.~\ref{fig:webppl_oed}, then it is assumed to be a uniform distribution. 
+
+\begin{figure}[h]
+\begin{Verbatim}[numbers=left,numbersep=1pt,frame=single,commandchars=\\\{\},fontfamily=courier,fontsize=\scriptsize,firstnumber=last]
+// Execute the models and compute the information gain
+var expt_list= ['HHHH', 'HHHT', 'HHTH', 'HHTT', 'HTHH', 'HTHT', 'HTTH', 'HTTT', 
+                'THHH', 'THHT', 'THTH', 'THTT', 'TTHH', 'TTHT', 'TTTH', 'TTTT'];
+
+var data = OED(\{models: [bias_coin_erp, markov_coin_erp], 
+                experiments: expt_list\})
+\end{Verbatim}
+\centering
+\caption{A WebPPL code snippet that calls the OED computational engine for the randomness judgement models, continued from Fig.~\ref{fig:webppl_markov_coin}.}
+\label{fig:webppl_oed}
+\end{figure}
+
+\subsection{Results and discussion}
+
+Executing the WebPPL code described in Figs.~\ref{fig:webppl_biased_coin}-\ref{fig:webppl_oed} returns a data structure that provides the information gain for each specified experiment. The results of executing experiment design for this randomness judgement case study is shown in Fig.~\ref{fig:coin}.
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=3in]{img/coin.eps}
+\caption{The information gain for all four flip coin sequences experiment prompts.}
+\label{fig:coin}
+\end{figure}
+
+The results of the experiment design should be consistent with our intuitions about differentiating between the biased and Markov coin models. The most informative experiment prompts are the symmetric pair of coin sequences `HTHT' and `THTH'. The source of this information gain can be understood by analyzing the models independently. Using the `HTHT' coin sequence as an example, the bias coin observes two heads and two tails, infers that the bias should be centered around a fair weighting, and thus, does not favor either heads or tails as the next coin flip. In comparison, the Markov coin model infers that the flip sequence is alternating, and thus strongly favors the heads as the next coin flip in the sequence. By exploiting this difference in predictions, one can easily determine the underlying model from the response.
+
+Following the same logic, the least informative experiment prompts are the symmetric pair of coin sequences `HHHH' and `TTTT'. Again, using the `HHHH' coin sequence as an example, the bias coin observes heads outcomes and thus infers that the coin is heavily biased towards heads outcome for the next coin. The Markov coin model infers that the flip sequence is unlikely to transition, and thus, also strongly favors a heads outcome for the next coin. Although each model has differing rationales for their predictions, they share the same prediction which makes it very difficult to determine the underlying model from an response. 
+
+Furthermore, optimal experiment design is a powerful tool for obtaining general insights about both the experiment space and the candidate models. For example, the information gain is symmetric with respect to heads and tails symbol inversion. This should be expected as both models preserve their predictive distributions if the symbols are flipped. By observing general trends in the information gain of experiments, one can get a deeper understanding of the capabilities and limitations of the candidate models.
+
+%    \begin{itemize}
+%        \item Overview
+%            \begin{itemize}
+%                \item This case study is a toy example on disambiguating two models of subjective randomness
+%                \item The purpose of this case study is to illustrate the pipeline of formalizing cognitive models using a probabilistic programming language and applying OED to find the optimal experiment
+%            \end{itemize}
+%        \item Models of subjective randomness
+%            \begin{itemize}
+%                \item We present two simple but plausible cognitive models of subjective randomness in the domain of random sequences
+%                    \begin{enumerate}
+%                        \item Independent flips from an identical coin
+%                            \begin{itemize}
+%                                \item Each event in the sequence is obtained from the same Bernoulli distribution
+%                                \item The parameter of the Bernoulli distribution is inferred from the sequence
+%                            \end{itemize}
+%                        \item Flips from a Markov chain
+%                            \begin{itemize}
+%                                \item The sequence is generated from a Markov chain, where the outcome of an event depends on the previous event
+%                                \item The transition parameter of the Markov chain is inferred from the sequence
+%                            \end{itemize}
+%                    \end{enumerate}
+%                \item \emph{Include: graphical models of the two coin models}
+%                \item \emph{Include: Church models of the two coin models}
+%            \end{itemize}
+%        \item Optimal experiment design
+%            \begin{itemize}
+%                \item We aim to present participants with a four event sequence and prompt them for the outcome of the next event
+%                \item This is a simple experiment space with 16 possible prompts, which we exhaustively evaluate the information gain
+%                \item \emph{Include: code example for invoking OED for this problem}
+%            \end{itemize}
+%        \item Results and discussion
+%            \begin{itemize}
+%                \item The optimal sequence is the symmetric pair of `0101' and '1010'
+%                    \begin{itemize}
+%                        \item The Markov model strongly predicts an alternating event, while the iid model does not favor either outcome
+%                        \item The drastic difference between these predictions makes it easy to identify the underlying model
+%                    \end{itemize}
+%                \item The worst sequence is the symmetric pair of `0000' and '1111'
+%                    \begin{itemize}
+%                        \item Both models predict the same outcome, which is the repetition of the sequence
+%                        \item As both models predict the same response, it is difficult to distinguish these models given this experiment prompt
+%                    \end{itemize}
+%                \item These results should agree with our intuitions about disambiguating these two models of subjective randomness
+%                \item \emph{Include: plot of information gain for each sequence}
+%            \end{itemize}
+%    \end{itemize}
+
 \section{Case study 2: Category learning}
 \section{Relationship to previous work}
 \section{Discussion}
