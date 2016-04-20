@@ -14,12 +14,30 @@
 
 \usepackage[utf8]{inputenc} % allow utf-8 input
 \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
-\usepackage{hyperref}       % hyperlinks
+%\usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{fancyvrb}
+\usepackage{multirow}
+\usepackage{color}
+
+\definecolor{Red}{RGB}{255,0,0}
+\newcommand{\red}[1]{\textcolor{Red}{#1}}  
+\definecolor{Green}{RGB}{10,200,100}
+\definecolor{Blue}{RGB}{10,100,200}
+\newcommand{\ndg}[1]{\textcolor{Green}{[ndg: #1]}}  
+\newcommand{\mht}[1]{\textcolor{Blue}{[mht: #1]}}  
+
+\usepackage[ruled,vlined]{algorithm2e}
+
+\newcommand{\ud}{\,\mathrm{d}}
+\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+
 
 \title{Practical optimal experiment design for psychology}
 
@@ -79,23 +97,29 @@
 \end{abstract}
 
 \section{Introduction}
+\ndg{Doing the standard, active learning thing with probabilistic programs. }
 
 Designing experiments is hard. 
-Minimally, you must have a hypothesis in hand, a space of possible experiments, and clarity to reason through the logic of your hypothesis in each possible experiment. 
-Psychology experiments have a number of additional complications. 
-For instance, data costs money and deciding on the number of participants for a study is another crucial decision variable. 
+At the very least, you must have a hypothesis in hand, a space of possible experiments, and clarity to reason through the logic of your hypothesis in each possible experiment. 
+Experiments on human behavior have a number of added complications. 
+For instance, human data is noisy and sensitive to dependent measure of the task. Further, human data costs money and deciding on the number of participants for a study is another crucial decision variable. 
 
 Formal models of psychological phenomena are used to make specific hypotheses about observed data. 
 These hypotheses are more explicit than what can be achieved using verbal or qualitative theories. Despite the rising popularity of formal models in psychology, experiment design is still largely confined to the realm of expert intuition and folk theory.
-We present a general, turn-key approach to designing experiments that best disambiguate competing hypotheses using a Bayesian framework. 
+We present a general, turn-key approach to designing experiments that best disambiguates competing hypotheses using a Bayesian framework. 
 Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition). 
 
-We are not the first to attempt to develop a framework for optimal experiments in psychology. Previous attempts suffer from a number of pragmatic issues that impede the psychologist who wishes to readily apply optimal experiment design (OED) to their research.
+We are not the first to attempt to develop a framework for optimal experiments in psychology. Previous attempts, however, suffer from a number of pragmatic issues that impede the psychologist who wishes to readily apply optimal experiment design (OED) to their research.
 These include ad-hoc optimization criteria, which put the burden on researchers to have sufficient expertise to select a criterion; 
 a lack of established pipeline, requiring researchers to develop their own system for writing formal psychological models and the OED optimization engine; 
-and a lack of analysis in dealing with practical experimental concerns in psychology, including dealing with noisy responses from participants, determining ideal numbers of participants, and deciding upon appropriate dependent measures (i.e., linking functions).
+and a lack of analysis in dealing with practical experimental concerns in psychology, including dealing with noisy responses from participants, determining ideal numbers of participants, and deciding upon appropriate dependent measures or linking functions.
 
-Doing the standard, active learning thing with probabilistic programs. 
+In this paper, we introduce practical optimal experiment design for psychological research using a Bayesian model selection framework. 
+We apply this framework to two case studies: subjective randomness and categorization.
+The first case study highlights the details of application for a simple space of experiments.
+The second study applies OED to a larger space of possible experiments and validates our theoretical analysis by running the optimal experiment.
+We conclude by highlighting the generality of the approach and areas of future work.
+
 
 %    \begin{itemize}
 %        \item It is difficult to discriminate models of psychological processes
@@ -117,303 +141,61 @@ Doing the standard, active learning thing with probabilistic programs.
 
 
 \section{Bayesian model selection framework}
+\label{s:bayes}
+\mht{I changed ``experimental prompt'' to ``experimental condition''}
+
+In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}. 
+%This section provides a preliminary overview of the general mathematic concepts, with additional theoretical analysis in Sections~\ref{s:class:ss:math} and \ref{s:npart:ss:math}, which examines the role of model parameterization and the number of participants, respectively.
+
+Before applying experiment design, one must define the experiment design space as well as the set of candidate models to be distinguished. The experiment design space characterizes the set of all design considerations that can be directly manipulated by the experimenter to generate distinct experimental conditions. Next, the experimenter must define a set of formal models that can predict the likelihood of observing a response for each experimental condition. 
+
+Formally, for a set of experimental conditions, $\mathcal{X}$, let the choice of experiment be defined as $x \in \mathcal{X}$. Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be a random variable that describes the distribution over the possible outcomes of the experiment $x$. Also, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest. Each model defines a stochastic relationship between experimental conditions and responses. For a given model $m$, let the probability of observing an outcome $y$ given an experimental condition $x$ be defined as $x \rightarrow Y_x: P(Y_x = y_x | M = m)$.\footnote{
+As a brief aside on notation, we will use upper case symbols to represent random variables and lower case symbols to represent their corresponding realizations. For brevity, the probability of observing a particular realization will often be written without the random variable and using only the lower case symbol -- $p(y_x|m)$ represents $P(Y_x = y_x | M = m)$.
+}
+
+There is a collection of candidate models and hence, the goal of OED is to reason over the uncertainty of which model best represents the underlying phenomenon of interest. We quantify this uncertainty as a probability distribution, $p(m)$. We refer to this distribution as the \emph{prior model belief distribution} as it expresses the uncertainty before any \red{experiment design} \mht{--> experimental data?} can be taken into account. The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available. 
+
+The next step is to consider how the model belief distribution should update to a \emph{posterior model belief distribution} as a result of observing a response \mht{after observing some experimental data? or after observing a single data point?}. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is defined as:
+\begin{align}
+p(m|y_x) = \frac{p(y_x|m)p(m)}{\sum\limits_{m'} p(y_x|m')p(m')}. \label{eq:bayes}
+\end{align}
+This formulation allows us to compute the posterior, $p(m|y_x)$, solely as a function of the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
+
+The \emph{efficacy} of an experiment is defined by its ability to differentiate between the candidate models, or equivalently, induce a change in our belief in the model. We quantify this change using the Kullback-Liebler divergence (KL divergence), a non-symmetric relative measure between two probability distributions, to compute the information gain between the posterior and prior distributions for a given experimental condition:
+\begin{align}
+D_{\text{KL}}\left(p(m|y_x) || p(m)\right) = \sum\limits_m p(m|y_x) \ln \left( \frac{p(m|y_x)}{p(m)}\right). \label{eq:kl}
+\end{align}
+This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models. For our framework, we use the natural logarithm, which corresponds to measuring information with the unit \emph{nats}. This choice was a matter of preference, and logarithms with different bases, such as 2 or 10, are also reasonable choices. 
+
+So far, we've examined the information gain for a specific response, $y_x$.
+Of course, the full set of the participants' responses are not deterministic; hence, we must consider the whole data set. 
+Thus, the optimal experiment is the condition $x^*$ that maximizes the expected KL divergence over the space of responses:
+
+\begin{align}
+x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \notag \\
+    &= \argmax_{x} \sum\limits_{y_x} \left[\sum\limits_{m'} p(y_x|m')p(m')\right] D_{\text{KL}}(p(m|y_x) || p(m)). \label{eq:oed}
+\end{align}
+
+Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
+
+In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a difficult task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire prompt space. This allows us to obtain a comprehensive analysis of the entire design space and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractible, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options. 
+
+It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
+\begin{align}
+x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \argmax_{x} I(M, Y_x) \notag \\
+    &= \argmax_{x} \sum\limits_{y_x} \sum\limits_{m} p(m, y_x) \ln \left( \frac{p(m, y_x)}{p(m)p(y_x)}\right). \label{eq:mi}
+\end{align}
+This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses. This relationship, along with similar identities, will be useful for proving intrinsic properies about OED in Section~\ref{s:npart:ss:math}.
+
+
+
+
 \section{Case study 1: Subjective randomness}
 \section{Case study 2: Category learning}
 \section{Relationship to previous work}
-\newpage
-\subsection{Retrieval of style files}
+\section{Discussion}
 
-The style files for NIPS and other conference information are
-available on the World Wide Web at
-\begin{center}
-  \url{http://www.nips.cc/}
-\end{center}
-The file \verb+nips_2016.pdf+ contains these instructions and
-illustrates the various formatting requirements your NIPS paper must
-satisfy.
+The purpose of \red{our(?)} OED approach is to quantify the ability of an experiment to differentiate competing computational models. Our approach leverages Bayesian inference to reason about which model best describes a given phenomenon. By using the models' predictions to compute the likelihood of observing a particular response to an experiment, this approach provides a rational method for updating the change in belief about model uncertainty when such responses are observed. This change in belief is then quantified using information theoretic measures, and by maximizing these measures, OED allows one to find experiments that should maximally change the uncertainty of the beliefs in our models. 
 
-The only supported style file for NIPS 2016 is \verb+nips_2016.sty+,
-rewritten for \LaTeXe{}.  \textbf{Previous style files for \LaTeX{}
-  2.09, Microsoft Word, and RTF are no longer supported!}
-
-The new \LaTeX{} style file contains two optional arguments:
-\verb+final+, which creates a camera-ready copy, and \verb+nonatbib+,
-which will not load the \verb+natbib+ package for you in case of
-package clash.
-
-At submission time, please omit the \verb+final+ option. This will
-anonymize your submission and add line numbers to aid review.  Please
-do \emph{not} refer to these line numbers in your paper as they will
-be removed during generation of camera-ready copies.
-
-The file \verb+nips_2016.tex+ may be used as a ``shell'' for writing
-your paper. All you have to do is replace the author, title, abstract,
-and text of the paper with your own.
-
-The formatting instructions contained in these style files are
-summarized in Sections \ref{gen_inst}, \ref{headings}, and
-\ref{others} below.
-
-\section{General formatting instructions}
-\label{gen_inst}
-
-The text must be confined within a rectangle 5.5~inches (33~picas)
-wide and 9~inches (54~picas) long. The left margin is 1.5~inch
-(9~picas).  Use 10~point type with a vertical spacing (leading) of
-11~points.  Times New Roman is the preferred typeface throughout, and
-will be selected for you by default.  Paragraphs are separated by
-\nicefrac{1}{2}~line space (5.5 points), with no indentation.
-
-The paper title should be 17~point, initial caps/lower case, bold,
-centered between two horizontal rules. The top rule should be 4~points
-thick and the bottom rule should be 1~point thick. Allow
-\nicefrac{1}{4}~inch space above and below the title to rules. All
-pages should start at 1~inch (6~picas) from the top of the page.
-
-For the final version, authors' names are set in boldface, and each
-name is centered above the corresponding address. The lead author's
-name is to be listed first (left-most), and the co-authors' names (if
-different address) are set to follow. If there is only one co-author,
-list both author and co-author side by side.
-
-Please pay special attention to the instructions in Section \ref{others}
-regarding figures, tables, acknowledgments, and references.
-
-\section{Headings: first level}
-\label{headings}
-
-All headings should be lower case (except for first word and proper
-nouns), flush left, and bold.
-
-First-level headings should be in 12-point type.
-
-\subsection{Headings: second level}
-
-Second-level headings should be in 10-point type.
-
-\subsubsection{Headings: third level}
-
-Third-level headings should be in 10-point type.
-
-\paragraph{Paragraphs}
-
-There is also a \verb+\paragraph+ command available, which sets the
-heading in bold, flush left, and inline with the text, with the
-heading followed by 1\,em of space.
-
-\section{Citations, figures, tables, references}
-\label{others}
-
-These instructions apply to everyone.
-
-\subsection{Citations within the text}
-
-The \verb+natbib+ package will be loaded for you by default.
-Citations may be author/year or numeric, as long as you maintain
-internal consistency.  As to the format of the references themselves,
-any style is acceptable as long as it is used consistently.
-
-The documentation for \verb+natbib+ may be found at
-\begin{center}
-  \url{http://mirrors.ctan.org/macros/latex/contrib/natbib/natnotes.pdf}
-\end{center}
-Of note is the command \verb+\citet+, which produces citations
-appropriate for use in inline text.  For example,
-\begin{verbatim}
-   \citet{hasselmo} investigated\dots
-\end{verbatim}
-produces
-\begin{quote}
-  Hasselmo, et al.\ (1995) investigated\dots
-\end{quote}
-
-If you wish to load the \verb+natbib+ package with options, you may
-add the following before loading the \verb+nips_2016+ package:
-\begin{verbatim}
-   \PassOptionsToPackage{options}{natbib}
-\end{verbatim}
-
-If \verb+natbib+ clashes with another package you load, you can add
-the optional argument \verb+nonatbib+ when loading the style file:
-\begin{verbatim}
-   \usepackage[nonatbib]{nips_2016}
-\end{verbatim}
-
-As submission is double blind, refer to your own published work in the
-third person. That is, use ``In the previous work of Jones et
-al.\ [4],'' not ``In our previous work [4].'' If you cite your other
-papers that are not widely available (e.g., a journal paper under
-review), use anonymous author names in the citation, e.g., an author
-of the form ``A.\ Anonymous.''
-
-\subsection{Footnotes}
-
-Footnotes should be used sparingly.  If you do require a footnote,
-indicate footnotes with a number\footnote{Sample of the first
-  footnote.} in the text. Place the footnotes at the bottom of the
-page on which they appear.  Precede the footnote with a horizontal
-rule of 2~inches (12~picas).
-
-Note that footnotes are properly typeset \emph{after} punctuation
-marks.\footnote{As in this example.}
-
-\subsection{Figures}
-
-All artwork must be neat, clean, and legible. Lines should be dark
-enough for purposes of reproduction. The figure number and caption
-always appear after the figure. Place one line space before the figure
-caption and one line space after the figure. The figure caption should
-be lower case (except for first word and proper nouns); figures are
-numbered consecutively.
-
-You may use color figures.  However, it is best for the figure
-captions and the paper body to be legible if the paper is printed in
-either black/white or in color.
-\begin{figure}[h]
-  \centering
-  \fbox{\rule[-.5cm]{0cm}{4cm} \rule[-.5cm]{4cm}{0cm}}
-  \caption{Sample figure caption.}
-\end{figure}
-
-\subsection{Tables}
-
-All tables must be centered, neat, clean and legible.  The table
-number and title always appear before the table.  See
-Table~\ref{sample-table}.
-
-Place one line space before the table title, one line space after the
-table title, and one line space after the table. The table title must
-be lower case (except for first word and proper nouns); tables are
-numbered consecutively.
-
-Note that publication-quality tables \emph{do not contain vertical
-  rules.} We strongly suggest the use of the \verb+booktabs+ package,
-which allows for typesetting high-quality, professional tables:
-\begin{center}
-  \url{https://www.ctan.org/pkg/booktabs}
-\end{center}
-This package was used to typeset Table~\ref{sample-table}.
-
-\begin{table}[t]
-  \caption{Sample table title}
-  \label{sample-table}
-  \centering
-  \begin{tabular}{lll}
-    \toprule
-    \multicolumn{2}{c}{Part}                   \\
-    \cmidrule{1-2}
-    Name     & Description     & Size ($\mu$m) \\
-    \midrule
-    Dendrite & Input terminal  & $\sim$100     \\
-    Axon     & Output terminal & $\sim$10      \\
-    Soma     & Cell body       & up to $10^6$  \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
-\section{Final instructions}
-
-Do not change any aspects of the formatting parameters in the style
-files.  In particular, do not modify the width or length of the
-rectangle the text should fit into, and do not change font sizes
-(except perhaps in the \textbf{References} section; see below). Please
-note that pages should be numbered.
-
-\section{Preparing PDF files}
-
-Please prepare submission files with paper size ``US Letter,'' and
-not, for example, ``A4.''
-
-Fonts were the main cause of problems in the past years. Your PDF file
-must only contain Type 1 or Embedded TrueType fonts. Here are a few
-instructions to achieve this.
-
-\begin{itemize}
-
-\item You should directly generate PDF files using \verb+pdflatex+.
-
-\item You can check which fonts a PDF files uses.  In Acrobat Reader,
-  select the menu Files$>$Document Properties$>$Fonts and select Show
-  All Fonts. You can also use the program \verb+pdffonts+ which comes
-  with \verb+xpdf+ and is available out-of-the-box on most Linux
-  machines.
-
-\item The IEEE has recommendations for generating PDF files whose
-  fonts are also acceptable for NIPS. Please see
-  \url{http://www.emfield.org/icuwb2010/downloads/IEEE-PDF-SpecV32.pdf}
-
-\item \verb+xfig+ "patterned" shapes are implemented with bitmap
-  fonts.  Use "solid" shapes instead.
-
-\item The \verb+\bbold+ package almost always uses bitmap fonts.  You
-  should use the equivalent AMS Fonts:
-\begin{verbatim}
-   \usepackage{amsfonts}
-\end{verbatim}
-followed by, e.g., \verb+\mathbb{R}+, \verb+\mathbb{N}+, or
-\verb+\mathbb{C}+ for $\mathbb{R}$, $\mathbb{N}$ or $\mathbb{C}$.  You
-can also use the following workaround for reals, natural and complex:
-\begin{verbatim}
-   \newcommand{\RR}{I\!\!R} %real numbers
-   \newcommand{\Nat}{I\!\!N} %natural numbers
-   \newcommand{\CC}{I\!\!\!\!C} %complex numbers
-\end{verbatim}
-Note that \verb+amsfonts+ is automatically loaded by the
-\verb+amssymb+ package.
-
-\end{itemize}
-
-If your file contains type 3 fonts or non embedded TrueType fonts, we
-will ask you to fix it.
-
-\subsection{Margins in \LaTeX{}}
-
-Most of the margin problems come from figures positioned by hand using
-\verb+\special+ or other commands. We suggest using the command
-\verb+\includegraphics+ from the \verb+graphicx+ package. Always
-specify the figure width as a multiple of the line width as in the
-example below:
-\begin{verbatim}
-   \usepackage[pdftex]{graphicx} ...
-   \includegraphics[width=0.8\linewidth]{myfile.pdf}
-\end{verbatim}
-See Section 4.4 in the graphics bundle documentation
-(\url{http://mirrors.ctan.org/macros/latex/required/graphics/grfguide.pdf})
-
-A number of width problems arise when \LaTeX{} cannot properly
-hyphenate a line. Please give LaTeX hyphenation hints using the
-\verb+\-+ command when necessary.
-
-\subsubsection*{Acknowledgments}
-
-Use unnumbered third level headings for the acknowledgments. All
-acknowledgments go at the end of the paper. Do not include
-acknowledgments in the anonymized submission, only in the final paper.
-
-\section*{References}
-
-References follow the acknowledgments. Use unnumbered first-level
-heading for the references. Any choice of citation style is acceptable
-as long as you are consistent. It is permissible to reduce the font
-size to \verb+small+ (9 point) when listing the references. {\bf
-  Remember that you can use a ninth page as long as it contains
-  \emph{only} cited references.}
-\medskip
-
-\small
-
-[1] Alexander, J.A.\ \& Mozer, M.C.\ (1995) Template-based algorithms
-for connectionist rule extraction. In G.\ Tesauro, D.S.\ Touretzky and
-T.K.\ Leen (eds.), {\it Advances in Neural Information Processing
-  Systems 7}, pp.\ 609--616. Cambridge, MA: MIT Press.
-
-[2] Bower, J.M.\ \& Beeman, D.\ (1995) {\it The Book of GENESIS:
-  Exploring Realistic Neural Models with the GEneral NEural SImulation
-  System.}  New York: TELOS/Springer--Verlag.
-
-[3] Hasselmo, M.E., Schnell, E.\ \& Barkai, E.\ (1995) Dynamics of
-learning and recall at excitatory recurrent synapses and cholinergic
-modulation in rat hippocampal region CA3. {\it Journal of
-  Neuroscience} {\bf 15}(7):5249-5262.
 
 \end{document}
