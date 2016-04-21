@@ -192,23 +192,21 @@ This reformulation uses a well-known identity between mutual information and the
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
 
-This section presents a tutorial on how to use optimal experiment design in conjunction with a probabilistic programming language to disambiguate two models of subjective randomness. The case study begins with a short introduction to WebPPL, probabilistic programming language; followed by an example that illustrates the pipeline of formalizing cognitive models using WebPPL; and concludes with a summary of the OED analysis. 
+To demonstrate the functionality of practical OED, we present a case study about subjective randomness. Human judgments about randomness are systemic and nonuniform across equally random outcomes -- for example, a sequence of heads and tails such as `HTHTTTHH' is often considered to be more random than the sequence `HHHHHHHH'. Although people have strong intuitions regarding the randomness of these sequences, both sequences are actually equally likely to be produced from flipping a fair coin. In fact, there is strong evidence that people have compelling preferences for certain sequences when considering random processes ~\cite{goodfellow38:jep}. The apparent discrepancy between our intuitions about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature. 
+
+In this case study, we consider two models of randomness judgements: independent flips from a biased coin and a sequence of flips from a Markov chain. These models are not supposed to fully characterize the neither intricacies of human judgments about randomness nor all hypotheses one could have about subjective randomness; rather, they provide a practical case study for understanding how optimal experiment design can be used to differentiate competing models. 
 
 \subsection{Models of subjective randomness}
 \label{s:tutorial:ss:randomness}
 
-Human judgments about randomness are systemic and nonuniform across equally random outcomes -- for example, a sequence of heads and tails such as `HTHTTTHH' is often considered to be more random than the sequence `HHHHHHHH'. Although we have strong intuitions regarding the randomness of these sequences, both sequences are actually equally likely to be produced from flipping a fair coin. In fact, there is strong evidence that people have compelling preferences for certain sequences when considering random processes ~\cite{goodfellow38:jep}. The apparent discrepancy between our intuitions about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature. 
-
-In this case study, we consider two models of randomness judgements: independent flips from a biased coin and a sequence of flips from a Markov chain. These models are not expected to fully characterize the observed intricacies of human judgements about randomness, but they provide a practical case study for understanding how optimal experiment design can be used to differentiate competing models. 
-
-For this scenario, the participants will be prompted to judge the randomness of a four flip coin sequence by reporting whether the next flip from the same coin will come up heads. Following the formalization outlined in Section~\ref{s:bayes}, the space of subjective randomness models under consideration is $\mathcal{M} \in \{m_b, m_m\}$, where $m_b$ and $m_m$ correspond to the biased coin model and the Markov coin model, respectively. The space of experimental prompts, $\mathcal{X}$, is the set of all four flip coin sequences, and the space of responses, $\mathcal{Y}$, is a choice between heads or tails.
+In this scenario, the participants will be prompted to judge the randomness of a sequence of four coin flips sequence by reporting whether or not the next flip from the same coin will come up heads. Following the formalism outlined in Section~\ref{s:bayes}, the space of subjective randomness models under consideration is $\mathcal{M} \in \{m_b, m_m\}$, where $m_b$ and $m_m$ correspond to the biased coin model and the Markov coin model, respectively. The space of experimental prompts, $\mathcal{X}$, is the set of all four flip coin sequences, and the space of responses, $\mathcal{Y}$, is a choice between heads or tails.
 
 \subsubsection{Biased coin model}
 \label{s:tutorial:sss:biased}
 
 The first model of subjective randomness is a biased coin model, which assumes that the coin is weighted with an unknown bias and each coin flip is independent. The coin bias is inferred from the experiment prompt sequence, and it is subsequently used to predict the next coin flip. The model will be formalized mathematically and in WebPPL to illustrate how one can translate a model between both frameworks.
 
-We begin with the generative model of the biased coin model, which follows a Bernoulli distribution with an unknown bias parameter. Let the random variable $X$ represent the probability of observing the outcome of a coin flip, where the flip outcome can take on two values, $x \in \{\textrm{H},\textrm{T}\}$, representing heads or tails, respectively. Next, let the random variable $\Theta_b$ represent the uncertainty of the coin bias, where the bias parameter, $\theta_b \in [0,1]$, denotes the probability of a heads outcome. The probability of observing a coin flip outcome is then defined conditionally with respect to the bias parameter as:
+The generative model of the biased coin model follows a Bernoulli distribution with an unknown bias parameter. Let the random variable $X$ represent the probability of observing the outcome of a coin flip, where the flip outcome can take on two values, $x \in \{\textrm{H},\textrm{T}\}$, representing heads or tails, respectively. Next, let the random variable $\Theta_b$ represent the uncertainty of the coin bias, where the bias parameter, $\theta_b \in [0,1]$, denotes the probability of a heads outcome. The probability of observing a coin flip outcome is then defined conditionally with respect to the bias parameter as:
 \begin{align}
     P(X = \textrm{H} | \Theta_b = \theta_b) &= \theta_b \notag \\ 
     P(X = \textrm{T} | \Theta_b = \theta_b) &= 1 - \theta_b \label{eq:bcoin_x}.
@@ -238,10 +236,23 @@ where the probabilities $p(y | \theta_b)$ and $p(\theta_b | x_0, x_1, \dots, x_n
 
 \begin{figure}[h]
 \begin{Verbatim}[numbers=left,numbersep=1pt,frame=single,commandchars=\\\{\},fontfamily=courier,fontsize=\scriptsize]
+
+var coin_weights     = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99];
+
+var biasedCoin = function(sequence) \{
+	Enumerate(function() \{
+		var p = uniformDraw(coin_weights);
+		var isFair = flip(0.5)
+		
+
+
+
+
+
 // Helper functions and model parameters \label{ln:wbc_help_s}
 var categorical = function(v,p) {return v[discrete(p)];}
-var coin_prior     = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99];
-var coin_prior_pmf = [1.00, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.00]; \label{ln:wbc_help_e}
+var coin_weights     = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.99];
+var weight_prior_pmf = [1.00, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.00]; \label{ln:wbc_help_e}
 
 // Bias coin model
 var bias_coin_erp = function(sequence) \{
@@ -420,5 +431,7 @@ Furthermore, optimal experiment design is a powerful tool for obtaining general 
 
 The purpose of \red{our(?)} OED approach is to quantify the ability of an experiment to differentiate competing computational models. Our approach leverages Bayesian inference to reason about which model best describes a given phenomenon. By using the models' predictions to compute the likelihood of observing a particular response to an experiment, this approach provides a rational method for updating the change in belief about model uncertainty when such responses are observed. This change in belief is then quantified using information theoretic measures, and by maximizing these measures, OED allows one to find experiments that should maximally change the uncertainty of the beliefs in our models. 
 
+%\bibliographystyle{ieeetr}
+%\bibliography{oed_nips_2016}
 
 \end{document}
