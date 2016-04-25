@@ -137,7 +137,7 @@
 \section{Introduction}
 \ndg{Doing the standard, active learning thing with probabilistic programs. }
 
-Designing experiments is hard. 
+Designing scientific experiments is hard. 
 At the very least, you must have a hypothesis in hand, a space of possible experiments, and clarity to reason through the logic of your hypothesis in each possible experiment. 
 Experiments on human behavior have a number of added complications. 
 For instance, human data is noisy and sensitive to dependent measure of the task. Further, human data costs money and deciding on the number of participants for a study is another crucial decision variable. 
@@ -158,6 +158,8 @@ The first case study highlights the details of application for a simple space of
 The second study applies OED to a larger space of possible experiments and validates our theoretical analysis by running the optimal experiment.
 We conclude by highlighting the generality of the approach and areas of future work.
 
+
+\ndg{all the parts are here. needs smoothing. make it clearer that using PPL to represent hypotheses is a key step in making the system practical.}
 
 %    \begin{itemize}
 %        \item It is difficult to discriminate models of psychological processes
@@ -180,6 +182,11 @@ We conclude by highlighting the generality of the approach and areas of future w
 
 \section{Bayesian model selection framework}
 \label{s:bayes}
+
+\ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
+
+\ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
+
 \mht{I changed ``experimental prompt'' to ``experimental condition''}
 
 In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}. 
@@ -190,8 +197,9 @@ Before applying experiment design, one must define the experiment design space a
 Formally, for a set of experimental conditions, $\mathcal{X}$, let the choice of experiment be defined as $x \in \mathcal{X}$. Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be a random variable that describes the distribution over the possible outcomes of the experiment $x$. Also, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest. Each model defines a stochastic relationship between experimental conditions and responses. For a given model $m$, let the probability of observing an outcome $y$ given an experimental condition $x$ be defined as $x \rightarrow Y_x: P(Y_x = y_x | M = m)$.\footnote{
 As a brief aside on notation, we will use upper case symbols to represent random variables and lower case symbols to represent their corresponding realizations. For brevity, the probability of observing a particular realization will often be written without the random variable and using only the lower case symbol -- $p(y_x|m)$ represents $P(Y_x = y_x | M = m)$.
 }
+\ndg{should we have model explicit in this notation: $Y_{x,m}$?}
 
-There is a collection of candidate models and hence, the goal of OED is to reason over the uncertainty of which model best represents the underlying phenomenon of interest. We quantify this uncertainty as a probability distribution, $p(m)$. We refer to this distribution as the \emph{prior model belief distribution} as it expresses the uncertainty before any \red{experiment design} \mht{--> experimental data?} can be taken into account. The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available. 
+There is a collection of candidate models and hence, the goal of OED is to reason over the uncertainty of which model best represents the underlying phenomenon of interest. We quantify this uncertainty as a probability distribution, $p(m)$. We refer to this distribution as the \emph{prior model belief distribution} as it expresses the uncertainty before any experimental data is taken into account. The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available. 
 
 The next step is to consider how the model belief distribution should update to a \emph{posterior model belief distribution} as a result of observing a response \mht{after observing some experimental data? or after observing a single data point?}. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is defined as:
 \begin{align}
@@ -216,7 +224,7 @@ x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \n
 
 Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
 
-In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a daunting task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire  space of experimental prompts. This allows us to obtain a comprehensive analysis of the entire design space, and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractable, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options. 
+In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. \ndg{?} The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a daunting task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire  space of experimental prompts. This allows us to obtain a comprehensive analysis of the entire design space, and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractable, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options.  \ndg{move this to dicussion?}
 
 It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
 \begin{align}
@@ -225,7 +233,7 @@ x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \a
 \end{align}
 This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses. 
 %This relationship, along with similar identities, will be useful for proving intrinsic properties about OED in Section~\ref{s:npart:ss:math}.
-
+\ndg{if this doesn't get used in this version of the paper, then move to footnote?}
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
