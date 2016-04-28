@@ -219,25 +219,23 @@ We use upper case symbols to represent random variables and lower case symbols t
 }
 \ndg{should we have model explicit in this notation: $Y_{x,m}$?} \mht{I think so. Does the little $y$ take the subscript too?}
 
-The goal of OED is to reason over the uncertainty $M$ of which model $m$ best represents the underlying phenomenon of interest. We quantify this uncertainty as a probability distribution, $p(m)$. 
-This distribution is the \emph{prior model belief distribution}: It expresses the uncertainty before any experimental data is observed. 
+The goal of OED is to reason over the uncertainty $M$ of which model $m$ best represents the underlying phenomenon of interest. We quantify this uncertainty as a \emph{prior model belief distribution}, $p(m)$: It expresses the uncertainty before any experimental data is observed. 
 %The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available.
-
-The model belief distribution updates to a \emph{posterior model belief distribution} as a result of observing a response \mht{after observing some experimental data? or after observing a single data point?}. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is defined as:
+The model belief distribution updates to a \emph{posterior model belief distribution} by observing a response. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is:
 \begin{align}
 p(m|y_x) = \frac{p(y_x|m)p(m)}{\sum\limits_{m'} p(y_x|m')p(m')}. \label{eq:bayes}
 \end{align}
-This formulation allows us to compute the posterior, $p(m|y_x)$, solely as a function of the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
+The posterior, $p(m|y_x)$, is solely a function of the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
 
-The \emph{efficacy} of an experiment is defined by its ability to differentiate between the candidate models, or equivalently, induce a change in our belief in the model. We quantify this change using the Kullback-Liebler divergence (KL divergence), a non-symmetric relative measure between two probability distributions, to compute the information gain between the posterior and prior distributions for a given experimental condition:
+The \emph{efficacy} of an experiment is defined by its ability to differentiate between the candidate models, or equivalently, induce a change in our belief in the model. We quantify this change using the Kullback-Liebler divergence (KL divergence), a non-symmetric relative measure between two probability distributions, to compute the information gain between the posterior and prior distributions for a given experimental:
 \begin{align}
 D_{\text{KL}}\left(p(m|y_x) || p(m)\right) = \sum\limits_m p(m|y_x) \ln \left( \frac{p(m|y_x)}{p(m)}\right). \label{eq:kl}
 \end{align}
-This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models. For our framework, we use the natural logarithm, which corresponds to measuring information with the unit \emph{nats}. This choice was a matter of preference, and logarithms with different bases, such as 2 or 10, are also reasonable choices.
+This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models.\footnote{For our framework, we use the natural logarithm, which corresponds to measuring information with the unit \emph{nats}.This choice was a matter of preference, and logarithms with different bases, such as 2 or 10, are also reasonable choices.}
 
 So far, we've examined the information gain for a specific response, $y_x$.
-Of course, the full set of the participants' responses are not deterministic; hence, we must consider the whole data set.
-Thus, the optimal experiment is the condition $x^*$ that maximizes the expected KL divergence over the space of responses:
+Of course, human data is not deterministic; so, we must consider the whole data set.
+The optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
 
 \begin{align}
 x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \notag \\
@@ -245,10 +243,7 @@ x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \n
 \end{align}
 
 Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
-
-In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. \ndg{?} The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a daunting task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire  space of experimental prompts. This allows us to obtain a comprehensive analysis of the entire design space, and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractable, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options.  \ndg{move this to dicussion?}
-
-It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
+\footnote{It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
 \begin{align}
 x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \argmax_{x} I(M, Y_x) \notag \\
     &= \argmax_{x} \sum\limits_{y_x} \sum\limits_{m} p(m, y_x) \ln \left( \frac{p(m, y_x)}{p(m)p(y_x)}\right). \label{eq:mi}
@@ -256,6 +251,8 @@ x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \a
 This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses.
 %This relationship, along with similar identities, will be useful for proving intrinsic properties about OED in Section~\ref{s:npart:ss:math}.
 \ndg{if this doesn't get used in this version of the paper, then move to footnote?}
+}
+This OED framework is available as a package for the probabilisitic programming language WebPPL, and can be found at \url{https://github.com/mhtess/webppl-oed}
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
@@ -534,6 +531,11 @@ The empirical results verify the OED predictions that the optimal experiment bet
 \section{Discussion}
 
 The purpose of \red{our(?)} OED approach is to quantify the ability of an experiment to differentiate competing computational models. Our approach leverages Bayesian inference to reason about which model best describes a given phenomenon. By using the models' predictions to compute the likelihood of observing a particular response to an experiment, this approach provides a rational method for updating the change in belief about model uncertainty when such responses are observed. This change in belief is then quantified using information theoretic measures, and by maximizing these measures, OED allows one to find experiments that should maximally change the uncertainty of the beliefs in our models.
+
+
+In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. \ndg{?} The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a daunting task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire  space of experimental prompts. This allows us to obtain a comprehensive analysis of the entire design space, and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractable, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options.  \ndg{move this to dicussion?}
+
+
 
 \lou{say some stuff about OED for non-psych experiments}
 
