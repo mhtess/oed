@@ -180,7 +180,7 @@ We conclude by highlighting the generality of the approach and areas of future w
 
 \section{Bayesian model selection framework}
 \label{s:bayes}
-\mht{I changed ``experimental prompt'' to ``experimental condition''}
+\mht{I changed ``experimental prompt'' to ``experimental condition''; but actually I think i will change it back...}
 
 In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}. 
 %This section provides a preliminary overview of the general mathematic concepts, with additional theoretical analysis in Sections~\ref{s:class:ss:math} and \ref{s:npart:ss:math}, which examines the role of model parameterization and the number of participants, respectively.
@@ -318,60 +318,14 @@ Additionally, optimal experiment design can be used to gain general insights abo
 
 \subsection{Experiments?}
 
-%    \begin{itemize}
-%        \item Overview
-%            \begin{itemize}
-%                \item This case study is a toy example on disambiguating two models of subjective randomness
-%                \item The purpose of this case study is to illustrate the pipeline of formalizing cognitive models using a probabilistic programming language and applying OED to find the optimal experiment
-%            \end{itemize}
-%        \item Models of subjective randomness
-%            \begin{itemize}
-%                \item We present two simple but plausible cognitive models of subjective randomness in the domain of random sequences
-%                    \begin{enumerate}
-%                        \item Independent flips from an identical coin
-%                            \begin{itemize}
-%                                \item Each event in the sequence is obtained from the same Bernoulli distribution
-%                                \item The parameter of the Bernoulli distribution is inferred from the sequence
-%                            \end{itemize}
-%                        \item Flips from a Markov chain
-%                            \begin{itemize}
-%                                \item The sequence is generated from a Markov chain, where the outcome of an event depends on the previous event
-%                                \item The transition parameter of the Markov chain is inferred from the sequence
-%                            \end{itemize}
-%                    \end{enumerate}
-%                \item \emph{Include: graphical models of the two coin models}
-%                \item \emph{Include: Church models of the two coin models}
-%            \end{itemize}
-%        \item Optimal experiment design
-%            \begin{itemize}
-%                \item We aim to present participants with a four event sequence and prompt them for the outcome of the next event
-%                \item This is a simple experiment space with 16 possible prompts, which we exhaustively evaluate the information gain
-%                \item \emph{Include: code example for invoking OED for this problem}
-%            \end{itemize}
-%        \item Results and discussion
-%            \begin{itemize}
-%                \item The optimal sequence is the symmetric pair of `0101' and '1010'
-%                    \begin{itemize}
-%                        \item The Markov model strongly predicts an alternating event, while the iid model does not favor either outcome
-%                        \item The drastic difference between these predictions makes it easy to identify the underlying model
-%                    \end{itemize}
-%                \item The worst sequence is the symmetric pair of `0000' and '1111'
-%                    \begin{itemize}
-%                        \item Both models predict the same outcome, which is the repetition of the sequence
-%                        \item As both models predict the same response, it is difficult to distinguish these models given this experiment prompt
-%                    \end{itemize}
-%                \item These results should agree with our intuitions about disambiguating these two models of subjective randomness
-%                \item \emph{Include: plot of information gain for each sequence}
-%            \end{itemize}
-%    \end{itemize}
 
 \section{Case study 2: Category learning}
 
+We now consider a more elaborate example in the domain of category learning. The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them. Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon. As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}. 
 
-This section presents a real-world case study on how optimal experiment design can be used to differentiate competing models in the domain of classification learning. This case study builds on the classic experiment from Medin and Schaffer~\cite{medin78:pr}, and illustrates how computational approaches to experiment design can often outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes. This section begins with a review of Medin and Schaffer's work on classification learning, followed by a description of the experiment design setup, and then concludes with analyzing empirical results from human participants obtained using Amazon's Mechanical Turk. 
+ This case study builds on the classic experiment from Medin and Schaffer~\cite{medin78:pr}, and illustrates how computational approaches to experiment design can often outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes. 
 
 \subsection{Models of Classification Learning}
-The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them. Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon. As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}. 
 
 In this case study, we consider two formal models of classification learning: the Context Theory model and the Independent Cue model, which were the two models originally compared by Medin and Schaffer. These models were selected since they are well-known computational models that are well-suited for comparison described in a classic paper on classification learning. Furthermore, the authors describe their experiment design process in detail to explain how it is capable of differentiating the two candidate models, making this scenario ideal for evaluating whether automated experiment design approaches can outperform expert intuition. 
 
@@ -383,7 +337,7 @@ Before introducing the classification models, it is useful to discuss the notati
 
 \subsubsection{Context Theory Model}
 
-The first classification model is the Context Theory model, which is built upon seven explicitly stated assumptions~\cite{medin78:pr}. For the purposes of computational experiment design, the two most relevant cognitive assumptions are that category judgements are based on the retrieval of exemplar information and that the overall similarity of two stimuli are comprised of multiplicative combinations between the similarity of retrival cues. These assumptions are formalized as a statistical model that uses a sum of product computation to determine the probability a stimulus will be associated with a given category.
+The first classification model is the Context Theory model, which is built upon seven explicitly stated assumptions~\cite{medin78:pr}. For the purposes of computational experiment design, the two most relevant cognitive assumptions are that category judgements are based on the retrieval of exemplar information and that the overall similarity of two stimuli are comprised of multiplicative combinations between the similarity of retrieval cues. These assumptions are formalized as a statistical model that uses a sum of product computation to determine the probability a stimulus will be associated with a given category.
 
 Formally, let the variables $x_A$ and $x_B$ represent the sets of stimuli that correspond to exemplars in category A and category B, respectively. Furthermore, let the variable $x_s$ represent the set of stimuli that correspond to the probe stimuli, which is mutually exclusive with the category exemplars. Let the random variable $Y \in \{A,B\}^{|x_s|}$ represent the probability that each probe stimuli is classified to belong in a corresponding category. Let the variable $c_i$ represent the $i$th cue dimension and let the variable $w_i$ represent the corresponding model weighting parameter. The probability that the Context Theory model will classify the $k$th probe stimuli, $x_{sk}$, in the category $y_k$ is then defined as:
 \begin{align}
