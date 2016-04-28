@@ -198,13 +198,23 @@ Our general system opens a number of rich areas for future development, which we
 \label{s:bayes}
 
 
+Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses. 
+The Bayesian cognitive modeling framework factors out the \emph{cognitive}, or belief-updating, component from the mapping from latent beliefs to observed responses (so-called \emph{linking function}).
+The cognitive model expresses the hypothesis, and the scientific community is often interested in which cognitive model (i.e. which hypothesis) best explains ``the data''.
+``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments. 
+We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models. 
+
+The most general notion of an ``experiment'' includes different parameters such as the number of participants and the dependent measure of the task.  
+This allows us to address experiment design concerns such as: ``which experimental prompt should I use?'', ``how many participants do I need?'', ``should I use a forced-choice dependent measure or a likert scale?''
+
+
 \ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
 
 \ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
 
 \mht{I changed ``experimental prompt'' to ``experimental condition''}
 
-In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}.
+%In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}.
 %This section provides a preliminary overview of the general mathematic concepts, with additional theoretical analysis in Sections~\ref{s:class:ss:math} and \ref{s:npart:ss:math}, which examines the role of model parameterization and the number of participants, respectively.
 
 Before applying experiment design, one must define the experiment design space as well as the set of candidate models to be distinguished. The experiment design space characterizes the set of all design considerations that can be directly manipulated by the experimenter to generate distinct experimental conditions. Next, the experimenter must define a set of formal models that can predict the likelihood of observing a response for each experimental condition.
