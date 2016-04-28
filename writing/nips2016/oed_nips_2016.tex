@@ -197,6 +197,9 @@ Our general system opens a number of rich areas for future development, which we
 \section{Bayesian model selection framework}
 \label{s:bayes}
 
+\ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
+
+\ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
 
 Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses. 
 The Bayesian cognitive modeling framework factors out the \emph{cognitive}, or belief-updating, component from the mapping from latent beliefs to observed responses (so-called \emph{linking function}).
@@ -204,29 +207,23 @@ The cognitive model expresses the hypothesis, and the scientific community is of
 ``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments. 
 We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models. 
 
-The most general notion of an ``experiment'' includes different parameters such as the number of participants and the dependent measure of the task.  
-This allows us to address experiment design concerns such as: ``which experimental prompt should I use?'', ``how many participants do I need?'', ``should I use a forced-choice dependent measure or a likert scale?''
-
-
-\ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
-
-\ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
-
-\mht{I changed ``experimental prompt'' to ``experimental condition''}
-
-%In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}.
-%This section provides a preliminary overview of the general mathematic concepts, with additional theoretical analysis in Sections~\ref{s:class:ss:math} and \ref{s:npart:ss:math}, which examines the role of model parameterization and the number of participants, respectively.
-
-Before applying experiment design, one must define the experiment design space as well as the set of candidate models to be distinguished. The experiment design space characterizes the set of all design considerations that can be directly manipulated by the experimenter to generate distinct experimental conditions. Next, the experimenter must define a set of formal models that can predict the likelihood of observing a response for each experimental condition.
-
-Formally, for a set of experimental conditions, $\mathcal{X}$, let the choice of experiment be defined as $x \in \mathcal{X}$. Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be a random variable that describes the distribution over the possible outcomes of the experiment $x$. Also, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest. Each model defines a stochastic relationship between experimental conditions and responses. For a given model $m$, let the probability of observing an outcome $y$ given an experimental condition $x$ be defined as $x \rightarrow Y_x: P(Y_x = y_x | M = m)$.\footnote{
-As a brief aside on notation, we will use upper case symbols to represent random variables and lower case symbols to represent their corresponding realizations. For brevity, the probability of observing a particular realization will often be written without the random variable and using only the lower case symbol -- $p(y_x|m)$ represents $P(Y_x = y_x | M = m)$.
+For a set of possible experiments, $\mathcal{X}$, let the choice of experiment be defined as $x \in \mathcal{X}$.\footnote{
+The most general notion of an ``experiment'' includes different design considerations such as the experimental prompt or item, the number of participants and the dependent measure of the task.  For the derivation, we consider all of these as part of the ``experiment''. \mht{<-- not sure this is right.}
+} 
+Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be defined as a random variable that describes the distribution over the possible responses to the experiment $x$. 
+Finally, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest. 
+\mht{ Is it confusing that  $\mathcal{M}$ is the set of candidate models, but $M \in \mathcal{M}$ is not a model?}
+A model $m$ defines a stochastic relationship between the experimental setup and responses.
+For a given model $m$, let the probability of observing a response $y$ given an experiment $x$ be defined as $x \rightarrow Y_{x,m}: P(Y_{x,m} = y_{x,m} | M = m)$.\footnote{
+We use upper case symbols to represent random variables and lower case symbols to represent their corresponding realizations. For brevity, the probability of observing a particular realization will often be written without the random variable and using only the lower case symbol -- $p(y_{x,m} |m)$ represents $P(Y_{x,m} = y_{x,m} | M = m)$.
 }
-\ndg{should we have model explicit in this notation: $Y_{x,m}$?}
+\ndg{should we have model explicit in this notation: $Y_{x,m}$?} \mht{I think so. Does the little $y$ take the subscript too?}
 
-There is a collection of candidate models and hence, the goal of OED is to reason over the uncertainty of which model best represents the underlying phenomenon of interest. We quantify this uncertainty as a probability distribution, $p(m)$. We refer to this distribution as the \emph{prior model belief distribution} as it expresses the uncertainty before any experimental data is taken into account. The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available.
+The goal of OED is to reason over the uncertainty $M$ of which model $m$ best represents the underlying phenomenon of interest. We quantify this uncertainty as a probability distribution, $p(m)$. 
+This distribution is the \emph{prior model belief distribution}: It expresses the uncertainty before any experimental data is observed. 
+%The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available.
 
-The next step is to consider how the model belief distribution should update to a \emph{posterior model belief distribution} as a result of observing a response \mht{after observing some experimental data? or after observing a single data point?}. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is defined as:
+The model belief distribution updates to a \emph{posterior model belief distribution} as a result of observing a response \mht{after observing some experimental data? or after observing a single data point?}. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is defined as:
 \begin{align}
 p(m|y_x) = \frac{p(y_x|m)p(m)}{\sum\limits_{m'} p(y_x|m')p(m')}. \label{eq:bayes}
 \end{align}
@@ -266,6 +263,19 @@ This reformulation uses a well-known identity between mutual information and the
 To demonstrate the functionality of practical OED, we present a case study about subjective randomness. Human judgments about randomness are systemic and nonuniform across equally random outcomes -- for example, a sequence of heads and tails such as `HTHTTTHH' is often considered to be more random than the sequence `HHHHHHHH'. Although people have strong intuitions regarding the randomness of these sequences, both sequences are actually equally likely to be produced from flipping a fair coin. In fact, there is strong evidence that people have compelling preferences for certain sequences when considering random processes ~\cite{goodfellow38:jep}. The apparent discrepancy between our intuitions about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature.
 
 In this case study, we consider two models of randomness judgements: independent flips from a biased coin and a sequence of flips from a Markov chain. These models are not supposed to fully characterize the neither intricacies of human judgments about randomness nor all hypotheses one could have about subjective randomness; rather, they provide a practical case study for understanding how optimal experiment design can be used to differentiate competing models.
+
+
+%For now, we focus on the experimental prompt, and return to other design considerations in the Discussion.
+
+ % Could be used in overview;;;;
+%Before applying experiment design, one must define the experiment design space as well as the set of candidate models to be distinguished. The experiment design space characterizes the set of all design considerations that can be directly manipulated by the experimenter to generate distinct experimental conditions. Next, the experimenter must define a set of formal models that can predict the likelihood of observing a response for each experimental condition.
+
+%This allows us to address experiment design concerns such as: ``which experimental prompt should I use?'', ``how many participants do I need?'', ``should I use a forced-choice dependent measure or a likert scale?''
+
+
+%In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}.
+%This section provides a preliminary overview of the general mathematic concepts, with additional theoretical analysis in Sections~\ref{s:class:ss:math} and \ref{s:npart:ss:math}, which examines the role of model parameterization and the number of participants, respectively.
+
 
 \subsection{Models of subjective randomness}
 \label{s:tutorial:ss:randomness}
