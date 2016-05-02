@@ -142,7 +142,7 @@
 Designing scientific experiments is hard.
 Scientists must have hypotheses and reason over a potentially large space of possible experiments.
 Studying human behavior has additional complications.
-Human data is noisy and sensitive to dependent measure of the task. 
+Human data is noisy and sensitive to dependent measure of the task.
 Further, human data is expensive and one must balance expected statistical power with the constraints of a limited budget to decide on the number of participants to run.
 
 Formal models of psychological phenomena alleviate some of these issues.
@@ -152,16 +152,16 @@ This need not be the case: If both the set of hypotheses and the space of experi
 
 We present a general, principled, and turnkey approach to designing experiments that uses Bayesian computation to find experiments that
 best disambiguate competing hypotheses.
-The framework is implemented in a \emph{probabilisitic programming language} (PPL). 
-PPLs are a convenient way to represent explicit hypotheses about the data. 
-We make it so the same language can be used to formalize hypotheses as well as run optimal experiment design (OED). 
+The framework is implemented in a \emph{probabilisitic programming language} (PPL).
+PPLs are a convenient way to represent explicit hypotheses about the data.
+We make it so the same language can be used to formalize hypotheses as well as run optimal experiment design (OED).
 This is a crucial step in making a practical OED system.
 
 %Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition).
 
-We are not the first to attempt to develop a framework for optimal experiments in psychology. 
+We are not the first to attempt to develop a framework for optimal experiments in psychology.
 Previous attempts, however, suffer from a number of pragmatic issues that impede the scientist who wishes to readily apply OED to their research.
-These include ad-hoc optimization criteria, a lack of established pipeline, 
+These include ad-hoc optimization criteria, a lack of established pipeline,
 and a lack of analysis in dealing with practical experimental concerns specific to psychology, including dealing with noisy responses from participants, determining ideal numbers of participants, and deciding upon appropriate dependent measures or linking functions.
 Taken together, these issues put the burden on researchers to have sufficient expertise to adapt the OED system to their specific problem and
 require researchers to develop their own system for writing formal psychological models and the OED optimization engine.
@@ -201,17 +201,17 @@ Our general system opens a number of rich areas for future development, which we
 
 \ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
 
-Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses. 
+Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses.
 The Bayesian cognitive modeling framework factors out the \emph{cognitive}, or belief-updating, component from the mapping from latent beliefs to observed responses (so-called \emph{linking function}).
 The cognitive model expresses the hypothesis, and the scientific community is often interested in which cognitive model (i.e. which hypothesis) best explains ``the data''.
-``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments. 
-We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models. 
+``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments.
+We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models.
 
 For a set of possible experiments, $\mathcal{X}$, let the choice of experiment be defined as $x \in \mathcal{X}$.\footnote{
 The most general notion of an ``experiment'' includes different design considerations such as the experimental prompt or item, the number of participants and the dependent measure of the task.  For the derivation, we consider all of these as part of the ``experiment''. \mht{<-- not sure this is right.}
-} 
-Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be defined as a random variable that describes the distribution over the possible responses to the experiment $x$. 
-Finally, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest. 
+}
+Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be defined as a random variable that describes the distribution over the possible responses to the experiment $x$.
+Finally, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest.
 \mht{ Is it confusing that  $\mathcal{M}$ is the set of candidate models, but $M \in \mathcal{M}$ is not a model?}
 A model $m$ defines a stochastic relationship between the experimental setup and responses.
 For a given model $m$, let the probability of observing a response $y$ given an experiment $x$ be defined as $x \rightarrow Y_{x,m}: P(Y_{x,m} = y_{x,m} | M = m)$.\footnote{
@@ -219,7 +219,7 @@ We use upper case symbols to represent random variables and lower case symbols t
 }
 \ndg{should we have model explicit in this notation: $Y_{x,m}$?} \mht{I think so. Does the little $y$ take the subscript too?}
 
-The goal of OED is to reason over the uncertainty $M$ of which model $m$ best represents the underlying phenomenon of interest. We quantify this uncertainty as a \emph{prior model belief distribution}, $p(m)$: It expresses the uncertainty before any experimental data is observed. 
+The goal of OED is to reason over the uncertainty $M$ of which model $m$ best represents the underlying phenomenon of interest. We quantify this uncertainty as a \emph{prior model belief distribution}, $p(m)$: It expresses the uncertainty before any experimental data is observed.
 %The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available.
 The model belief distribution updates to a \emph{posterior model belief distribution} by observing a response. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is:
 \begin{align}
@@ -257,11 +257,11 @@ This OED framework is available as a package for the probabilisitic programming 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
 
-We demonstrate the functionality of practical OED with a case study about subjective randomness. 
-Human judgments about randomness are surprisingly systematic and nonuniform across equally random outcomes -- for example, a sequence of outcomes of coin flips \lstinline{HTHTTTHH} is considered to be more random than the sequence \lstinline{HHHHHHHH}. Of course, any sequence of coin flips is as equally likely than any other sequence, yet human intuitions strongly favor certain sequences when judging randomness ~\cite{goodfellow38:jep, griffiths01:cogsci}. 
+We demonstrate the functionality of practical OED with a case study about subjective randomness.
+Human judgments about randomness are surprisingly systematic and nonuniform across equally random outcomes -- for example, a sequence of outcomes of coin flips \lstinline{HTHTTTHH} is considered to be more random than the sequence \lstinline{HHHHHHHH}. Of course, any sequence of coin flips is as equally likely than any other sequence, yet human intuitions strongly favor certain sequences when judging randomness ~\cite{goodfellow38:jep, griffiths01:cogsci}.
 %This discrepancy between human intuitions and statistical fact about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature.
 
-There are several hypotheses one might have about what underlies human intuitions about randomness. Here, we consider two such hypothesis: (a) \emph{Weighted coin hypothesis}: Participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), and (b) \emph{Markov coin hypothesis}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes. 
+There are several hypotheses one might have about what underlies human intuitions about randomness. Here, we consider two such hypothesis: (a) \emph{Weighted coin hypothesis}: Participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), and (b) \emph{Markov coin hypothesis}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes.
 
 %Consider two models of randomness judgements: independent flips from a biased coin and a sequence of flips from a Markov chain. These models are not supposed to fully characterize the neither intricacies of human judgments about randomness nor all hypotheses one could have about subjective randomness; rather, they provide a practical case study for understanding how optimal experiment design can be used to differentiate competing models.
 
@@ -281,13 +281,13 @@ There are several hypotheses one might have about what underlies human intuition
 %\subsection{Models of subjective randomness}
 %\label{s:tutorial:ss:randomness}
 
-We consider the experimental scenario wherein participants will observed the outcomes of a coin being flipping four times and be prompted to predict whether the next flip will come up heads or tails. The space of subjective randomness models under consideration is $\mathcal{M} \in \{m_w, m_m\}$, where $m_w$ and $m_m$ correspond to the weighted coin model and the Markov coin model, respectively. 
+We consider the experimental scenario wherein participants will observed the outcomes of a coin being flipping four times and be prompted to predict whether the next flip will come up heads or tails. The space of subjective randomness models under consideration is $\mathcal{M} \in \{m_w, m_m\}$, where $m_w$ and $m_m$ correspond to the weighted coin model and the Markov coin model, respectively.
 The space of experimental prompts, $\mathcal{X}$, is the set of all sequences comprised of four flip coin flips, and the space of responses, $\mathcal{Y}$, is a choice between heads or tails.
 
 \subsubsection{Weighted coin model}
 \label{s:tutorial:sss:biased}
 
-The weighted coin model assumes that the coin has some unknown bias and each coin flip is independent. 
+The weighted coin model assumes that the coin has some unknown bias and each coin flip is independent.
 The coin weight is inferred from the experiment prompt sequence (on a trial-by-trial basis), and it is subsequently used to predict the next coin flip. We show the model in the probabilistic programming language WebPPL \cite{dippl}.
 %
 \begin{lstlisting}[caption=Biased coin model]
@@ -328,13 +328,13 @@ var markovCoin = function(seq) {
 }
 \end{lstlisting}
 %
-This model samples a coin weight \lstinline{transition_p} from a discretized uniform distribution over weights. 
+This model samples a coin weight \lstinline{transition_p} from a discretized uniform distribution over weights.
 At each point in the sequence, we examine what the previous outcome was (\lstinline{x?}): If the last outcome was heads, the probability that this outcome is heads is \lstinline{1-transition_p}; if the last outcome was tails, the probability that this outcome is heads is \lstinline{transition_p}. Thus, the sequence of outcomes follows a Markov process.
 
 \subsection{Optimal experiment design}
 
-The optimal experiment design execution in WebPPL is shown in Fig.~\ref{fig:webppl_oed}. 
-The list of coin sequences of four flips is manually enumerated. 
+The optimal experiment design execution in WebPPL is shown in Fig.~\ref{fig:webppl_oed}.
+The list of coin sequences of four flips is manually enumerated.
 The OED system is available as a package for WebPPL, and has a simple interface (Listing \ref{code:oed}).
 The \lstinline{OED} function computes the argument of Eq.~\ref{eq:oed} for each of the experiments.
 The model belief prior, $p(m)$, is supplied with the optional object property \lstinline{model_belief} as a list of probabilities that correspond to the model belief for each model. If we do not specify a prior, then it is assumed to be uniform.
@@ -360,14 +360,14 @@ Executing the WebPPL code described above returns a data structure that provides
 \label{fig:coin}
 \end{figure}
 
-The most informative experiment prompts are the symmetric pair of coin sequences `HTHT' and `THTH'. 
-In this case, the weighted coin observes two heads and two tails and infers that the bias should be centered around 0.5; this model does not favor either heads or tails as the next coin flip. 
-In comparison, the Markov coin model infers that the flip sequence is alternating, and thus strongly favors the heads as the next coin flip in the first sequence, and tails for the second sequence. 
+The most informative experiment prompts are the symmetric pair of coin sequences `HTHT' and `THTH'.
+In this case, the weighted coin observes two heads and two tails and infers that the bias should be centered around 0.5; this model does not favor either heads or tails as the next coin flip.
+In comparison, the Markov coin model infers that the flip sequence is alternating, and thus strongly favors the heads as the next coin flip in the first sequence, and tails for the second sequence.
 %By exploiting this difference in predictions, one can easily determine the underlying model from the response.
 
-Following the same logic, the least informative experiment prompts are the symmetric pair of coin sequences `HHHH' and `TTTT'. 
-For \lstinline{HHHH}, the bias coin observes all heads and infers that the coin is heavily biased towards a heads outcome for the next coin. 
-The Markov coin model infers that the flip sequence is unlikely to transition, and thus, also strongly favors a heads outcome for the next coin. 
+Following the same logic, the least informative experiment prompts are the symmetric pair of coin sequences `HHHH' and `TTTT'.
+For \lstinline{HHHH}, the bias coin observes all heads and infers that the coin is heavily biased towards a heads outcome for the next coin.
+The Markov coin model infers that the flip sequence is unlikely to transition, and thus, also strongly favors a heads outcome for the next coin.
 Although each model has differing rationales for their predictions, they share the same prediction which makes it very difficult to determine the underlying model from an response.
 
 Optimal experiment design can be used to gain general insights about both the experiment space and the candidate models. For example, the information gain is symmetric with respect to heads and tails symbol inversion.  In the case of coin flips, it is intuitive why this is the case. When we move to more complicated experimental and modeling spaces, one can get a deeper understanding of the capabilities and limitations of the candidate models by observing the information gain of experiments.
@@ -377,19 +377,19 @@ Optimal experiment design can be used to gain general insights about both the ex
 
 \section{Case study 2: Category learning}
 
-We now consider a more elaborate example in the domain of category learning. The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them. Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon. As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}. 
+We now consider a more elaborate example in the domain of category learning. The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them. Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon. As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
 
- This case study builds on the classic experiment from Medin and Schaffer~\cite{medin78:pr}, and illustrates how computational approaches to experiment design can often outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes. 
+ This case study builds on the classic experiment from Medin and Schaffer~\cite{medin78:pr}, and illustrates how computational approaches to experiment design can often outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \subsection{Models of Classification Learning}
 
-In this case study, we consider two formal models of classification learning: the Context Theory model and the Independent Cue model, which were the two models originally compared by Medin and Schaffer. These models were selected since they are well-known computational models that are well-suited for comparison described in a classic paper on classification learning. Furthermore, the authors describe their experiment design process in detail to explain how it is capable of differentiating the two candidate models, making this scenario ideal for evaluating whether automated experiment design approaches can outperform expert intuition. 
+In this case study, we consider two formal models of classification learning: the Context Theory model and the Independent Cue model, which were the two models originally compared by Medin and Schaffer. These models were selected since they are well-known computational models that are well-suited for comparison described in a classic paper on classification learning. Furthermore, the authors describe their experiment design process in detail to explain how it is capable of differentiating the two candidate models, making this scenario ideal for evaluating whether automated experiment design approaches can outperform expert intuition.
 
 Following the experimental setup of Medin and Schaffer, participants are provided with exemplars from two categories and prompted to classify a set of stimuli individually (described in further detail in Section~\ref{ss:ms_setup}). The space of classification learning models under consideration is $\mathcal{M} \in \{m_{ct}, m_{ic}\}$, where $m_{ct}$ and $m_{ic}$ correspond to the Context Theory model and the Independent Cue model, respectively. The space of experimental prompts, $\mathcal{X}$, is the joint set of all possible training exemplars and probe stimuli, and the space of responses, $\mathcal{Y}$, is set the classifications of all the probe stimuli.
 
 \subsubsection{Notation}
 
-Before introducing the classification models, it is useful to discuss the notation for representing stimuli. The stimuli to be classified is represented as a composition of binary properties of four cue dimensions: color (red or blue), form (triangle or circle), size (large or small), and number (one or two). Each stimuli can be described using a binary code with `0' and `1' representing one of the properties, respectively. For example, using the dimension ordering of color, form, size and number, the notation `1001' might refer to a single small red circle, while `0110' would refer to a stimulus comprised of two large blue triangles. This binary code makes it easy to compare the similarity of stimuli: `1111' and `1101' differ only in size, while `0101' and `1101' differ only in color. 
+Before introducing the classification models, it is useful to discuss the notation for representing stimuli. The stimuli to be classified is represented as a composition of binary properties of four cue dimensions: color (red or blue), form (triangle or circle), size (large or small), and number (one or two). Each stimuli can be described using a binary code with `0' and `1' representing one of the properties, respectively. For example, using the dimension ordering of color, form, size and number, the notation `1001' might refer to a single small red circle, while `0110' would refer to a stimulus comprised of two large blue triangles. This binary code makes it easy to compare the similarity of stimuli: `1111' and `1101' differ only in size, while `0101' and `1101' differ only in color.
 
 \subsubsection{Context Theory Model}
 
@@ -401,7 +401,7 @@ Formally, let the variables $x_A$ and $x_B$ represent the sets of stimuli that c
 \end{align}
 where $d$ is the size of the cue dimensions, and $f_{ct}$ is the similarity measure:
 \begin{align}
-    f_{ct}(x_{ski}, x_{ji}, w_i) = 
+    f_{ct}(x_{ski}, x_{ji}, w_i) =
         \begin{dcases}
             1  , & \text{if } x_{ski} = x_{ji}\\
             w_i, & \text{otherwise}
@@ -416,28 +416,28 @@ Stimulus & \multicolumn{4}{c}{Pattern} & & Stimulus & \multicolumn{4}{c}{Pattern
   & $c_1$ & $c_2$ & $c_3$ & $c_4$ & & & $c_1$ & $c_2$ & $c_3$ & $c_4$  \\ \cline{2-5} \cline{8-11}
 $s_1$ & 1 & 0 & 1 & 1 & & $s_4$ & 0 & 0 & 0 & 0 \\
 $s_2$ & 1 & 1 & 1 & 0 & & $s_5$ & 0 & 0 & 1 & 1 \\
-$s_3$ & 1 & 1 & 1 & 1 & & $s_6$ & 1 & 1 & 0 & 0 
+$s_3$ & 1 & 1 & 1 & 1 & & $s_6$ & 1 & 1 & 0 & 0
 \end{tabular}
 \vspace{1cm}
 \newline
 \begin{tabular}{ccccc}
 \multicolumn{5}{c}{Probe Stimuli} \\
 Stimulus & \multicolumn{4}{c}{Pattern} \\
-  & $c_1$ & $c_2$ & $c_3$ & $c_4$ \\ \cline{2-5} 
-$s_7$ & 1 & 0 & 1 & 0 
+  & $c_1$ & $c_2$ & $c_3$ & $c_4$ \\ \cline{2-5}
+$s_7$ & 1 & 0 & 1 & 0
 \end{tabular}
 \centering
 \caption{An example set of stimuli for Category A, Category B, and probe stimuli.}
 \label{fig:cat_example}
 \end{figure}
 
-To clarify the computation of Eq.~\ref{eq:ct_base}, consider the example shown in Fig.~\ref{fig:cat_example}. Using the provided set of stimuli, the probability that the probe stimulus will be classified in Category A is: 
+To clarify the computation of Eq.~\ref{eq:ct_base}, consider the example shown in Fig.~\ref{fig:cat_example}. Using the provided set of stimuli, the probability that the probe stimulus will be classified in Category A is:
 \begin{align}
-    p(A | x_s, x_A, x_B, w_1, \dots, w_d) 
+    p(A | x_s, x_A, x_B, w_1, \dots, w_d)
         &= \frac{(1\!\cdot\!1\!\cdot\!1\!\cdot\!w_4) + (1\!\cdot\!w_2\!\cdot\!1\!\cdot\!1) + (1\!\cdot\!w_2\!\cdot\!1\!\cdot\!w_4)}{ \splitfrac{(1\!\cdot\!1\!\cdot\!1\!\cdot\!w_4) + (1\!\cdot\!w_2\!\cdot\!1\!\cdot\!1) + (1\!\cdot\!w_2 \cdot\!1\!\cdot\!w_4)}{+ (w_1\!\cdot\!1\!\cdot\!w_3\!\cdot\!1) + (w_1\!\cdot\!1\!\cdot\!1\!\cdot\!w_4) + (1\!\cdot w_2\!\cdot\!w_3\!\cdot\!1)}} \notag \\
-        &= \frac{w_4 + w_2 + w_2w_4}{w_4 + w_2 + w_2w_4 + w_1w_3 + w_1w_4 + w_2w_3}. 
+        &= \frac{w_4 + w_2 + w_2w_4}{w_4 + w_2 + w_2w_4 + w_1w_3 + w_1w_4 + w_2w_3}.
 \end{align}
-If all four parameters were equal to 0.3, then the probe stimulus $s_7$ should be classified in Category A with a probability of 0.72. 
+If all four parameters were equal to 0.3, then the probe stimulus $s_7$ should be classified in Category A with a probability of 0.72.
 
 As the model parameters are not a part of the experiment design, they must be marginalized out by using a prior distribution over the model parameter, $p(w_i)$:
 \begin{align}
@@ -445,12 +445,12 @@ As the model parameters are not a part of the experiment design, they must be ma
 \end{align}
 which leverages the property that each model parameter, $w_i$, is independent.
 
-Finally, the probability of classifying a set of probe stimuli for the Context Theory model is computed using: 
+Finally, the probability of classifying a set of probe stimuli for the Context Theory model is computed using:
 \begin{align}
     p(y_{1,\{x_{s1}, x_A, x_B\}}, \dots, y_{n,\{x_{sn}, x_A, x_B\}} | m_{ct}) &=  \prod\limits_{k=1}^{|x_s|} p(y_k|x_{sk}, x_A, x_B).
 \end{align}
 
-The WebPPL program for the Context Theory model is shown in Fig.~\ref{fig:webppl_ct}. TODO: The program begins with defining general utility code (lines~\ref{ln:wbc_help_s}-\ref{ln:wbc_help_e}): a helper function for sampling from a categorical distribution and the manual definition of the model parameter prior distributions, which are assumed to be uninformative prior or the uniform distribution. Talk about prior distributions. Talk briefly about the model. 
+The WebPPL program for the Context Theory model is shown in Fig.~\ref{fig:webppl_ct}. TODO: The program begins with defining general utility code (lines~\ref{ln:wbc_help_s}-\ref{ln:wbc_help_e}): a helper function for sampling from a categorical distribution and the manual definition of the model parameter prior distributions, which are assumed to be uninformative prior or the uniform distribution. Talk about prior distributions. Talk briefly about the model.
 
 
 \subsubsection{Independent Cue Model}
@@ -466,10 +466,10 @@ This is formalized as a rank-ordering model that uses an additive computation to
 The first thing we need to consider is the information value and wthe associated weighting factor. When a pattern is presented to be classified at some point, the value associated witht eh color dimension will be sampled. If red is sampled, then the information would be positive since red is more closely associated with category A than B. If blue were sampled, then the information would be negative. This all depends on how informative each cue dimension is. Since this is all weighted anyways, we only really care about the relative information of each cue dimension, which we compute by computing the difference of positive examples over the total number of examples. The formulation is as follows:
 
 \begin{align}
-    f_{ic,A}(x_s, x_A, x_B, i) &= 
+    f_{ic,A}(x_s, x_A, x_B, i) &=
         \begin{dcases}
             \frac{\sum\limits_{x_a \in x_A} x_{ai} - \sum\limits_{x_b \in x_B} x_{bi}} {\sum\limits_{x_a \in x_A} x_{ai} + \sum\limits_{x_b \in x_B} x_{bi}}, & \text{if } x_{si} = 1 \\
-            \frac{\sum\limits_{x_a \in x_A} (1-x_{ai}) - \sum\limits_{x_b \in x_B} (1-x_{bi})} {\sum\limits_{x_a \in x_A} (1-x_{ji}) + \sum\limits_{x_b \in x_B} (1-x_{bi})}, & \text{otherwise } 
+            \frac{\sum\limits_{x_a \in x_A} (1-x_{ai}) - \sum\limits_{x_b \in x_B} (1-x_{bi})} {\sum\limits_{x_a \in x_A} (1-x_{ji}) + \sum\limits_{x_b \in x_B} (1-x_{bi})}, & \text{otherwise }
         \end{dcases}
 \end{align}
 
@@ -484,7 +484,7 @@ Formulation into evidence? This gives a rank-ordering model.
 To convert this rank-ordering model into a statistical one, we use a log-linear transformation to convert the relative associations into probabilities. Something about bayesian interpretation?
 
 \begin{align}
-    P(Y=A| x_s, x_A, x_B, w_0, w_1, \dots, w_d, \alpha) &= 
+    P(Y=A| x_s, x_A, x_B, w_0, w_1, \dots, w_d, \alpha) &=
         \begin{dcases}
             \frac{1}{1 + e^{-\alpha \left(w_0 + \sum \limits_{i=1}^d w_i f_{ic,A}(y, x, i)\right)}}, & \text{if } x_s \in \{x_A \cup x_B\}\\
             \frac{1}{1 + e^{-\alpha \left(\sum \limits_{i=1}^d w_i f_{ic,A}(y, x, i)\right)}}, & \text{otherwise }
@@ -496,7 +496,7 @@ $P(Y=B| x_s, x_A, x_B, w_0, w_1, \dots, w_d, \alpha) = 1- P(Y=A| x_s, x_A, x_B, 
 Example.
 
 \begin{align}
-    p(y | x_s, x_A, x_B) &=  
+    p(y | x_s, x_A, x_B) &=
         \begin{dcases}
             p(y|x_s, x_A, x_B, w_0, w_1, \dots, w_d, \alpha) p(w_0) p(w_1) \dots p(w_d) p(\alpha), & \text{if } x_s \in \{x_a \cup x_b\}\\
             p(y|x_s, x_A, x_B, w_1, \dots, w_d, \alpha) p(w_1) \dots p(w_d) p(\alpha), & \text{otherwise}
@@ -504,9 +504,9 @@ Example.
 \end{align}
 since each $w_i$ is independent.
 
-For a collection of stimuli, 
+For a collection of stimuli,
 \begin{align}
-    p(y_{1,\{x_{s1}, x_A, x_B\}}, \dots, y_{n,\{x_{sn}, x_A, x_B\}} | m_{ic}) &=  \prod\limits_{k=1}^n p(y_k|x_{sk}, x_A, x_B) 
+    p(y_{1,\{x_{s1}, x_A, x_B\}}, \dots, y_{n,\{x_{sn}, x_A, x_B\}} | m_{ic}) &=  \prod\limits_{k=1}^n p(y_k|x_{sk}, x_A, x_B)
 \end{align}
 
 code?
@@ -518,7 +518,7 @@ Although MS provide sound arguments for their experiment design, does their expe
 
 Constrained to the same MS experiment space, we exhaustively evaluated the 933 valid and unique experiments in terms of expected information gain
 
-In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes. 
+In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \subsection{Results and Discussion}
 
