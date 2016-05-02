@@ -146,31 +146,27 @@ Human data is noisy and sensitive to dependent measure of the task.
 Further, human data is expensive and one must balance expected statistical power with the constraints of a limited budget to decide on the number of participants to run.
 
 Formal models of psychological phenomena alleviate some of these issues.
-Models are used to make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of ideas.
-Exploring models is time-consuming however, and searching through a large space of possible experiments is still largely driven by the scientist's intuition and folk theory.
-This need not be the case: If both the set of hypotheses and the space of experiments are stipulated explicitly, then \red{computation can drive experiment design}. \mht{<--replace computation with active learning; or otherwise, make less vague?}
+Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of ideas.
+However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
+This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
-We present a general, principled, and turnkey approach to designing experiments that uses Bayesian computation to find experiments that
-best disambiguate competing hypotheses.
-The framework is implemented in a \emph{probabilisitic programming language} (PPL).
+We present a general, principled, and turnkey approach to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
+The framework is implemented in a \emph{probabilistic programming language} (PPL).
 PPLs are a convenient way to represent explicit hypotheses about the data.
 We make it so the same language can be used to formalize hypotheses as well as run optimal experiment design (OED).
-This is a crucial step in making a practical OED system.
+This is a crucial step in making a practical OED system. \lou{as explained, this doesn't seem so crucial to me.}
 
 %Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition).
 
 We are not the first to attempt to develop a framework for optimal experiments in psychology.
-Previous attempts, however, suffer from a number of pragmatic issues that impede the scientist who wishes to readily apply OED to their research.
-These include ad-hoc optimization criteria, a lack of established pipeline,
-and a lack of analysis in dealing with practical experimental concerns specific to psychology, including dealing with noisy responses from participants, determining ideal numbers of participants, and deciding upon appropriate dependent measures or linking functions.
-Taken together, these issues put the burden on researchers to have sufficient expertise to adapt the OED system to their specific problem and
-require researchers to develop their own system for writing formal psychological models and the OED optimization engine.
+Previous attempts \lou{citations?}, however, suffer from a number of pragmatic issues, including ad-hoc optimization criteria, lack of an established pipeline, and failure to accommodate common worries in psychology experiments (e.g., dealing with noisy responses, determining sample sizes, and selecting dependent measures or linking functions).
+% Taken together, these issues put the burden on researchers to have sufficient expertise to adapt the OED system to their specific problem and require researchers to develop their own system for writing formal psychological models and the OED optimization engine.
 
-In this paper, we resolve these issues using a principled and general Bayesian model selection framework implemented in a practical modeling system.
-We apply this framework to two case studies: the psychology of subjective randomness and categorization.
+In this paper, we resolve these issues using a Bayesian model selection framework implemented in a practical modeling system.
+We apply this framework to two case studies: perceptions of subjective randomness and category learning.
 The first case study highlights the details of application for a simple space of experiments.
 The second study applies OED to a more realistic space of possible experiments and validates our theoretical analysis by running the optimal experiment.
-Our general system opens a number of rich areas for future development, which we discuss briefly at the end.
+Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
 %\ndg{all the parts are here. needs smoothing. make it clearer that using PPL to represent hypotheses is a key step in making the system practical.}
