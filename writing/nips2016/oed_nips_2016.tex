@@ -227,7 +227,7 @@ The \emph{efficacy} of an experiment is defined by its ability to differentiate 
 \begin{align}
 D_{\text{KL}}\left(p(m|y_x) || p(m)\right) = \sum\limits_m p(m|y_x) \ln \left( \frac{p(m|y_x)}{p(m)}\right). \label{eq:kl}
 \end{align}
-This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models.\footnote{For our framework, we use the natural logarithm, which corresponds to measuring information with the unit \emph{nats}.This choice was a matter of preference, and logarithms with different bases, such as 2 or 10, are also reasonable choices.}
+This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models.
 
 So far, we've examined the information gain for a specific response, $y_x$.
 Of course, human data is not deterministic; so, we must consider the whole data set.
@@ -239,53 +239,36 @@ x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \n
 \end{align}
 
 Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
-\footnote{It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
-\begin{align}
-x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \argmax_{x} I(M, Y_x) \notag \\
-    &= \argmax_{x} \sum\limits_{y_x} \sum\limits_{m} p(m, y_x) \ln \left( \frac{p(m, y_x)}{p(m)p(y_x)}\right). \label{eq:mi}
-\end{align}
-This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses.
-%This relationship, along with similar identities, will be useful for proving intrinsic properties about OED in Section~\ref{s:npart:ss:math}.
-\ndg{if this doesn't get used in this version of the paper, then move to footnote?}
-}
-This OED framework is available as a package for the probabilisitic programming language WebPPL, and can be found at \url{https://github.com/mhtess/webppl-oed}
+% \footnote{It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
+% \begin{align}
+% x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \argmax_{x} I(M, Y_x) \notag \\
+%     &= \argmax_{x} \sum\limits_{y_x} \sum\limits_{m} p(m, y_x) \ln \left( \frac{p(m, y_x)}{p(m)p(y_x)}\right). \label{eq:mi}
+% \end{align}
+% This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses.
+% %This relationship, along with similar identities, will be useful for proving intrinsic properties about OED in Section~\ref{s:npart:ss:math}.
+% \ndg{if this doesn't get used in this version of the paper, then move to footnote?}
+% }
+This OED framework is available as a package for the probabilisitic programming language WebPPL \cite{dippl}, and can be found at \url{https://github.com/mhtess/webppl-oed}
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
 
-We demonstrate the functionality of practical OED with a case study about subjective randomness.
-Human judgments about randomness are surprisingly systematic and nonuniform across equally random outcomes -- for example, a sequence of outcomes of coin flips \lstinline{HTHTTTHH} is considered to be more random than the sequence \lstinline{HHHHHHHH}. Of course, any sequence of coin flips is as equally likely than any other sequence, yet human intuitions strongly favor certain sequences when judging randomness ~\cite{goodfellow38:jep, griffiths01:cogsci}.
+Human judgments about randomness are surprisingly systematic and nonuniform across equally random outcomes -- for example, a sequence of outcomes of coin flips \lstinline{HTHTTTHH} is considered to be more random than the sequence \lstinline{HHHHHHHH} ~\cite{goodfellow38:jep, griffiths01:cogsci}.
 %This discrepancy between human intuitions and statistical fact about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature.
 
-There are several hypotheses one might have about what underlies human intuitions about randomness. Here, we consider two such hypothesis: (a) \emph{Weighted coin hypothesis}: Participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), and (b) \emph{Markov coin hypothesis}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes.
+There are many hypotheses one might have about what underlies human intuitions about randomness.
+Here, we consider two simple hypotheses: (a) \emph{Weighted coin}: Participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), and (b) \emph{Markov coin}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes.
+We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
-%Consider two models of randomness judgements: independent flips from a biased coin and a sequence of flips from a Markov chain. These models are not supposed to fully characterize the neither intricacies of human judgments about randomness nor all hypotheses one could have about subjective randomness; rather, they provide a practical case study for understanding how optimal experiment design can be used to differentiate competing models.
+Formally, the set of models is $\{m_{\textrm{weighted}}, m_{\text{markov}}\}$, the set of experimental designs $\mathcal{X}$ is the set of all possible sequences of four coin flips, and the set of responses $\mathcal{Y}$ is a choice between heads or tails for the fifth flip.
 
-
-%For now, we focus on the experimental prompt, and return to other design considerations in the Discussion.
-
- % Could be used in overview;;;;
-%Before applying experiment design, one must define the experiment design space as well as the set of candidate models to be distinguished. The experiment design space characterizes the set of all design considerations that can be directly manipulated by the experimenter to generate distinct experimental conditions. Next, the experimenter must define a set of formal models that can predict the likelihood of observing a response for each experimental condition.
-
-%This allows us to address experiment design concerns such as: ``which experimental prompt should I use?'', ``how many participants do I need?'', ``should I use a forced-choice dependent measure or a likert scale?''
-
-
-%In this section, we describe the mathematical and theoretical framework of practical OED in detail. Although this section is intended to provide readers with a rigorous and formal foundation for understanding the principles behind our approach, an open source computational implementation is readily available for those who are interested in applying practical OED to their own models \red{(REF)}.
-%This section provides a preliminary overview of the general mathematic concepts, with additional theoretical analysis in Sections~\ref{s:class:ss:math} and \ref{s:npart:ss:math}, which examines the role of model parameterization and the number of participants, respectively.
-
-
-%\subsection{Models of subjective randomness}
-%\label{s:tutorial:ss:randomness}
-
-We consider the experimental scenario wherein participants will observed the outcomes of a coin being flipping four times and be prompted to predict whether the next flip will come up heads or tails. The space of subjective randomness models under consideration is $\mathcal{M} \in \{m_w, m_m\}$, where $m_w$ and $m_m$ correspond to the weighted coin model and the Markov coin model, respectively.
-The space of experimental prompts, $\mathcal{X}$, is the set of all sequences comprised of four flip coin flips, and the space of responses, $\mathcal{Y}$, is a choice between heads or tails.
-
-\subsubsection{Weighted coin model}
+\subsection{Weighted coin model}
 \label{s:tutorial:sss:biased}
 
 The weighted coin model assumes that the coin has some unknown bias and each coin flip is independent.
-The coin weight is inferred from the experiment prompt sequence (on a trial-by-trial basis), and it is subsequently used to predict the next coin flip. We show the model in the probabilistic programming language WebPPL \cite{dippl}.
-%
+The coin weight is inferred from the experiment prompt sequence (on a trial-by-trial basis), and it is subsequently used to predict the next coin flip. We show the model in Listing~\ref{lst:m_weighted}.
+
+\label{lst:m_weighted}
 \begin{lstlisting}[caption=Biased coin model]
 var coin_weights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
 
@@ -303,7 +286,7 @@ The model first samples a coin weight \lstinline{bias_p} from a discretized unif
 
 
 
-\subsubsection{Markov coin model}
+\subsection{Markov coin model}
 \label{s:tutorial:sss:markov}
 The Markov coin model assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip. The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence (again, on a trial-by-trial basis), and is subsequently used to predict the next coin flip.
 %
@@ -327,46 +310,31 @@ var markovCoin = function(seq) {
 This model samples a coin weight \lstinline{transition_p} from a discretized uniform distribution over weights.
 At each point in the sequence, we examine what the previous outcome was (\lstinline{x?}): If the last outcome was heads, the probability that this outcome is heads is \lstinline{1-transition_p}; if the last outcome was tails, the probability that this outcome is heads is \lstinline{transition_p}. Thus, the sequence of outcomes follows a Markov process.
 
-\subsection{Optimal experiment design}
+\subsection{Results of optimal experiment design}
 
-The optimal experiment design execution in WebPPL is shown in Fig.~\ref{fig:webppl_oed}.
-The list of coin sequences of four flips is manually enumerated.
-The OED system is available as a package for WebPPL, and has a simple interface (Listing \ref{code:oed}).
-The \lstinline{OED} function computes the argument of Eq.~\ref{eq:oed} for each of the experiments.
-The model belief prior, $p(m)$, is supplied with the optional object property \lstinline{model_belief} as a list of probabilities that correspond to the model belief for each model. If we do not specify a prior, then it is assumed to be uniform.
-
-\begin{lstlisting}[caption=OED call]
-// Execute the models and compute the information gain
-var expt_list= ['HHHH','HHHT','HHTH','HHTT','HTHH','HTHT','HTTH',
-  'HTTT','THHH','THHT','THTH','THTT','TTHH','TTHT','TTTH','TTTT'];
-
-var results = OED({models: [weightedCoin, markovCoin],
-                   experiments: expt_list})
-\end{lstlisting}
-\label{code:oed}
-%
-\subsection{Results and discussion}
-%
-Executing the WebPPL code described above returns a data structure that provides the information gain for each specified experiment. The results of executing experiment design for this randomness judgement case study is shown in Fig.~\ref{fig:coin}.
+We run OED by calling the \lstinline{OED} function on a distribution of models and a distribution of experiments; it then returns the expected information gain for every experiment (Fig.~\ref{fig:run-coin}).
 
 \begin{figure}[h!]
-\centering
+\underline{\textsf{Input:}}
+\begin{lstlisting}
+OED({models: Enumerate(function() { uniformDraw([weight, markov]) }),
+     experiments: Enumerate(function() { repeat(4, flip) })})
+\end{lstlisting}
+
+\underline{\textsf{Output:}}\\
 \includegraphics[width=3in]{img/coin.eps}
-\caption{The information gain for all four flip coin sequences experiment prompts.}
-\label{fig:coin}
+\caption{Running OED in the subjective randomness domain}
+\lou{make this figure in ggplot, clean it up}
+\label{fig:run-coin}
 \end{figure}
 
-The most informative experiment prompts are the symmetric pair of coin sequences `HTHT' and `THTH'.
-In this case, the weighted coin observes two heads and two tails and infers that the bias should be centered around 0.5; this model does not favor either heads or tails as the next coin flip.
-In comparison, the Markov coin model infers that the flip sequence is alternating, and thus strongly favors the heads as the next coin flip in the first sequence, and tails for the second sequence.
-%By exploiting this difference in predictions, one can easily determine the underlying model from the response.
+We see that \lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
+Inuitively, this is sensible -- the weighted model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov infers that the probability of transitioning from one outcome to the other is quite high and assigns high probability to the opposite of the last observed value (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
-Following the same logic, the least informative experiment prompts are the symmetric pair of coin sequences `HHHH' and `TTTT'.
-For \lstinline{HHHH}, the bias coin observes all heads and infers that the coin is heavily biased towards a heads outcome for the next coin.
-The Markov coin model infers that the flip sequence is unlikely to transition, and thus, also strongly favors a heads outcome for the next coin.
-Although each model has differing rationales for their predictions, they share the same prediction which makes it very difficult to determine the underlying model from an response.
-
-Optimal experiment design can be used to gain general insights about both the experiment space and the candidate models. For example, the information gain is symmetric with respect to heads and tails symbol inversion.  In the case of coin flips, it is intuitive why this is the case. When we move to more complicated experimental and modeling spaces, one can get a deeper understanding of the capabilities and limitations of the candidate models by observing the information gain of experiments.
+We also see that \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments.
+Informally, this is because the models make the same predictions for these experiments.
+For instance, for \lstinline{HHHH}, the weighted model infers a high probability of heads and so assigns high probability of heads to the next flip.
+The Markov model infers a low probability of transitioning from heads to tails, so it also assigns a high probability of heads to the next flip.
 
 \subsection{Experiments?}
 
@@ -375,7 +343,7 @@ Optimal experiment design can be used to gain general insights about both the ex
 
 We now consider a more elaborate example in the domain of category learning. The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them. Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon. As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
 
- This case study builds on the classic experiment from Medin and Schaffer~\cite{medin78:pr}, and illustrates how computational approaches to experiment design can often outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
+ This case study builds on the classic experiment from Medin and Schaffer~\cite{medin78:pr}, and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \subsection{Models of Classification Learning}
 
