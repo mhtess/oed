@@ -82,7 +82,7 @@ function make_slides(f) {
     keyPressHandler : function(event) {
       var keyCode = event.which;
 
-      if (keyCode != 81 && keyCode != 80 && keyCode != 32) {
+      if (keyCode != 84 && keyCode != 72 && keyCode != 32) {
         // If a key that we don't care about is pressed, re-attach the handler (see the end of this script for more info)
         $(document).one("keydown", _s.keyPressHandler);
 
@@ -116,7 +116,7 @@ function make_slides(f) {
       exp.data_trials.push({
         "trial_type" : "coins",
         "sequence":_s.stim,
-        "response" : response,
+        "response" : exp.coinButtons[response],
         "rt":_s.rt,
       });
     }
@@ -166,14 +166,18 @@ function init() {
 
   var coin = ["H ","T "]
   exp.condition = '4_coins';
-  exp.buttonCodes = {80:"P", 81:"Q"};
-  exp.coinButtons = _.object(_.zip(["heads-key","tails-key"],
-                            _.shuffle(["P","Q"])));
+  exp.buttonCodes = {84:"T", 72:"H"};
+  exp.coinButtons = {
+    "heads-key": "H",
+    "tails-key": "T"
+  }
+  // _.object(_.zip(["heads-key","tails-key"],
+  //                           _.shuffle(["H","T"])));
 
 
   exp.keyDictionary = {
-    "heads-key": "H",
-    "tails-key": "T"
+    "heads-key": "Heads",
+    "tails-key": "Tails"
   }
 
   exp.trials = [];
@@ -183,7 +187,7 @@ function init() {
   exp.instructions = "elaborate_instructions";
 
 
-  exp.stims = _.shuffle(makeCoinSeq(coin,3));
+  exp.stims = _.shuffle(makeCoinSeq(coin,3)).slice(0,1);
 
   exp.prevalence_levels = [_.shuffle(prev_levels),_.shuffle(prev_levels),_.shuffle(prev_levels)];
 
@@ -196,7 +200,7 @@ function init() {
       screenUW: exp.width
     };
   //blocks of the experiment:
-   exp.structure=["coins","i0", "coins","check",'subj_info', 'thanks'];
+   exp.structure=['i0','coins', 'thanks']//,"i0", "coins","check",'subj_info', 'thanks'];
 
   exp.data_trials = [];
   //make corresponding slides:

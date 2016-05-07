@@ -15,7 +15,7 @@
 */
 }
 
-#fair-key, #unfair-key {
+#heads-key, #tails-key {
   background-color: #e3e3e3;
   padding: 2px;
   border: 1px outset #cccccc;
@@ -24,7 +24,7 @@
   font-size: 15px;
 }
 
-#Pkey-reminder, #Qkey-reminder{
+#Tkey-reminder, #Hkey-reminder{
     margin-top:20px;
 }
 
@@ -37,13 +37,13 @@
   font-size: 25px;
 }
 
-#p-reminder {
+#h-reminder {
     position: absolute;
     right: 0;
     width: 100px;
 }
 
-#q-reminder {
+#t-reminder {
     position: absolute;
     left: 0;
     width: 100px;
