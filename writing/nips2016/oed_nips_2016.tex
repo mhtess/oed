@@ -389,7 +389,54 @@ Using OED, we find that there are many superior experiments that Medin and Schaf
 
 \cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
 
+\begin{lstlisting}[caption=Exemplar model (TODO: clearer input/output types)]
+var exemplar = function(as, bs) {
+  var weights = repeat(4, function() { uniform(0,5) })
+  Enumerate(function() {
+    var object = repeat(4, function() { flip() ? 1 : 0});
+    var sim = function(x,y) {
+      product(map3(
+         function(xi,yi, wi) { (xi == yi) ? 1 : wi },
+         x, y, weights))
+    };
+    var aSims = sum(map(function(a) { return sim(object, a) }, as));
+    var bSims = sum(map(function(b) { return sim(object, b) }, bs));
+    condition(flip(ssa / (ssa + ssb)));
+    return {object: object, prob: prob}
+  })
+}
+\end{lstlisting}
+
 \cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
+
+\begin{lstlisting}[caption=Prototype model]
+var prototype = function(as, bs) {
+  var alpha = TODO();
+  var bias = TODO();
+  var weights = TODO();
+  var recall = append(as,bs);
+  Enumerate(function() {
+    var object = repeat(4, function() { flip() ? 1 : 0});
+
+    var dimEvidenceForA = function(i) {
+      var matchingObjects = filter(function(x) { x[i] == object[i] }, recall);
+      var n = matchingObjects.length;
+      var matchingAs = filter(function(x) { contains(as, x) }, matchingObjects);
+      var nA = matchingAs.length;
+      var nB = n - nA;
+      return weights[i] * (nA - nB)/n;
+    }
+
+    var totalEvidence = sum(map(dimEvidenceForA,[0,1,2,3])) + (contains(recall, object) ? bias : 0);
+
+    // TODO: use bias argument
+    var prob = 1 / (1 + exp(-alpha * totalEvidence));
+    condition(flip(prob));
+
+    return {object: object, prob: prob};
+  })
+}
+\end{lstlisting}
 
 \subsection{Experiments}
 
@@ -403,12 +450,14 @@ Using OED, we find that there are many superior experiments that Medin and Schaf
 
 \cas{we enumerated the 933 valid and unique (up to permuting the dimensions) experiments in terms of expected information gain.}
 
-MS is a suboptimal experiment that ranks in the 30$^\text{th}$ percentile with respect to expected information gain (Fig.~\ref{fig:dist})
+\cas{we found that the MS experiment was not the best. TODO: reproduce daniel's results (Fig.~\ref{fig:dist})}
+
+\cas{the optimal experiment that we found was TODO}
 
 \begin{figure}[h!]
 \centering
 \includegraphics[width=3.2in]{img/dist.eps}
-\caption{The distribution of optimal experiments with the MS bin highlighted in red.}
+\caption{The distribution of optimal experiments with the MS bin highlighted in red. TODO: add predictions of MS and opt experiment}
 \label{fig:dist}
 \end{figure}
 
@@ -417,15 +466,9 @@ However, this prediction has a relatively small magnitude and comes at the expen
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously
 \lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
 
-\lou{cut this part?}
-The empirical results verify the OED predictions that the optimal experiment better disambiguates the two models (Fig.~\ref{fig:empirical})
-\begin{figure}[h!]
-\centering
-\includegraphics[width=3.2in]{img/empirical.eps}
-\caption{Empirical information gain from $(n=40)$ Mechanical Turk participants. Error bars indicate standard error.}
-\label{fig:empirical}
-\end{figure}
+\cas{we conducted the actual experiments. empirical information gain from MS was TODO, empirical information gain from opt was TODO.}
 
+\cas{explain different scales for theoretical versus empirical information gain}
 
 \section{Relationship to previous work}
 \section{Discussion}
