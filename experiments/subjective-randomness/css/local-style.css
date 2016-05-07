@@ -8,30 +8,51 @@
     font-size: 18px;
     margin-left: 100px;
     margin-right: 100px;
+    text-align:justify;
 
 /*    width: 600px;
     text-align: center;
 */
 }
 
-.slide {
-	/*pad the inside of the slide*/
-	padding-top: 10px;
-	padding-left: 20px;
-	padding-right: 20px;
-
-    /*center slide within the window*/
-	margin: auto auto;
-	margin-top: 0px;
-
-	/*all elements in a slide will be centered by default*/
-    text-align: center;
-
-    border: 1px solid #04abe3;
-    width: 800px;
-    height: 600px;
-
-    /*could explicitly set the following, but these are the defaults for me (chrome, linux)*/
-    font-size: 20px;
-    background-color: rgb(255,255,255);
+#fair-key, #unfair-key {
+  background-color: #e3e3e3;
+  padding: 2px;
+  border: 1px outset #cccccc;
+  font-family: Courier New;
+  font-weight: bold;
+  font-size: 15px;
 }
+
+#Pkey-reminder, #Qkey-reminder{
+    margin-top:20px;
+}
+
+.reminder-key {
+  background-color: #e3e3e3;
+  padding: 2px;
+  border: 1px outset #cccccc;
+  font-family: Courier New;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+#p-reminder {
+    position: absolute;
+    right: 0;
+    width: 100px;
+}
+
+#q-reminder {
+    position: absolute;
+    left: 0;
+    width: 100px;
+}
+
+#reminders {
+    position: relative;
+    margin: 0 auto;
+    margin-top:100px;
+    width: 500px;
+}
+
