@@ -373,12 +373,11 @@ The ability to form concepts and abstract rules is an integral component of cogn
 Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon.
 As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
 
-\lou{use ``exemplar'' and ``prototype''?}
-This case study builds on a classic paper by Medin and Schaffer~\cite{medin78:pr}, who considered two competing models of category learning -- the so-called \emph{context model} and the \emph{independent cue model} -- and sought to distinguish them by running a cleverly designed experiment.
-Medin and Schaffer found that the context model better fit the results of this experiment, so they concluded that it was a better model of human category learning.
+This case study builds on a classic paper by Medin and Schaffer~\cite{medin78:pr}, who considered two competing models of category learning -- the so-called \emph{exemplar model} and the \emph{prototype model} -- and sought to distinguish them by running a cleverly designed experiment.
+Medin and Schaffer found that the exemplar model better fit the results of this experiment, so they concluded that it was a better model of human category learning.
 
 Here, we ask: from an information-theoretic perspective, how good was the experiment that Medin and Schaffer designed?
-Using OED, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the context and independent cue models are not state of the art models of human category learning. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear and tractable set of possible experiments.}
+Using OED, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the exemplar and prototype models, as expressed in the Medin and Schaffer work, are not state of the art models. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear and tractable set of possible experiments.}
 
 %\lou{worth noting that having oed allows us to determine information-theoretic value of the MS experiment.}
 
@@ -388,9 +387,9 @@ Using OED, we find that there are many superior experiments that Medin and Schaf
 
 \cas{both models are classifiers that take as input an object (a vector of boolean features) and return as output a probability distribution on a/b categorization}
 
-\cas{context model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
+\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
 
-\cas{independent cue model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
+\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
 
 \subsection{Experiments}
 
