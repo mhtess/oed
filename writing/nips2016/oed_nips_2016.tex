@@ -25,6 +25,11 @@
 \usepackage{fancyvrb}
 \usepackage{multirow}
 \usepackage{color}
+% HT http://tex.stackexchange.com/a/151987/41154
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+  #1\;\delimsize\|\;#2%
+}
+\newcommand{\dkl}{D_\textrm{KL}\infdivx}
 
 \usepackage{listings}
 \definecolor{lightgray}{rgb}{.9,.9,.9}
@@ -224,7 +229,7 @@ The posterior, $p(m|y_x)$, is solely a function of the model predictions, $p(y_x
 
 The \emph{efficacy} of an experiment is defined by its ability to differentiate between the candidate models, or equivalently, induce a change in our belief in the model. We quantify this change using the Kullback-Liebler divergence (KL divergence), a non-symmetric relative measure between two probability distributions, to compute the information gain between the posterior and prior distributions for a given experimental:
 \begin{align}
-D_{\text{KL}}\left(p(m|y_x) || p(m)\right) = \sum\limits_m p(m|y_x) \ln \left( \frac{p(m|y_x)}{p(m)}\right). \label{eq:kl}
+\dkl{ p(m|y_x) }{ p(m) }  = \sum\limits_m p(m|y_x) \ln \left( \frac{p(m|y_x)}{p(m)}\right). \label{eq:kl}
 \end{align}
 This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models.
 
@@ -233,8 +238,8 @@ Of course, human data is not deterministic; so, we must consider the whole data 
 The optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
 
 \begin{align}
-x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \notag \\
-    &= \argmax_{x} \sum\limits_{y_x} \left[\sum\limits_{m'} p(y_x|m')p(m')\right] D_{\text{KL}}(p(m|y_x) || p(m)). \label{eq:oed}
+x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) \dkl{ p(m|y_x) }{ p(m) } \notag \\
+    &= \argmax_{x} \sum\limits_{y_x} \left[\sum\limits_{m'} p(y_x|m')p(m')\right] \dkl{p(m|y_x)}{p(m)}. \label{eq:oed}
 \end{align}
 
 \cas{expressing oed as a probprog}
@@ -259,7 +264,7 @@ var OED = function(experimentPrior, modelPrior, responsePrior) {
       return response
     })
 
-    // $\sum_{y_x}{ \left[\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)\right] D_\text{KL}(p(m \mid y_x)\> ||\> p(m) )} }$
+    // $\sum_{y_x}{ \left[\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)\right] \dkl{p(m \mid y_x)}{ p(m) } ) $
     var KLDist = Infer(function() {
       var response = sample(responseDist)
       var modelPosterior = Infer(function() {
