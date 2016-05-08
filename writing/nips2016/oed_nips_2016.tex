@@ -237,6 +237,49 @@ x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \n
     &= \argmax_{x} \sum\limits_{y_x} \left[\sum\limits_{m'} p(y_x|m')p(m')\right] D_{\text{KL}}(p(m|y_x) || p(m)). \label{eq:oed}
 \end{align}
 
+\cas{expressing oed as a probprog}
+
+\begin{lstlisting}[mathescape=true]
+var OED = function(experimentPrior, modelPrior, responsePrior) {
+  Infer(function() {
+    var x = experimentPrior();
+
+    // $\mathbb{E}_{m \sim P(M)}[m(x)]$
+    // also handles case where models have parameters to learn
+    var modelPredictionDist = Infer(function() {
+      var m = sample(modelPrior); // TODO: check if this is correct
+      return {modelName: m.name, prediction: m(x)}
+    });
+
+    // $\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)}$
+    var responseDist = Infer(function() {
+      var t = sample(modelPredictionDist),
+          predictionDist = t.prediction,
+          response = sample(responsePrior);
+      factor(predictionDist.score(response));
+      return response;
+    });
+
+    // $\sum_{y_x}{ \left[\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)\right] D_\text{KL}(p(m \mid y_x)\> ||\> p(m) )} }$
+    var KLDist = Infer(function() {
+      var response = sample(responseDist);
+      var modelPosterior = Infer(function() {
+        var t = sample(modelPredictionDist),
+            predictionDist = t.prediction,
+            modelName = t.modelName;
+        factor(predictionDist.score(response));
+        return modelName;
+      })
+
+      return KL(modelPosterior, modelPrior);
+    });
+
+    return {experiment: x, expectedKL: expectation(KLDist)}
+  })
+}
+\end{lstlisting}
+
+
 Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
 % \footnote{It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
 % \begin{align}
