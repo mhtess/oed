@@ -242,37 +242,35 @@ x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) \n
 \begin{lstlisting}[mathescape=true]
 var OED = function(experimentPrior, modelPrior, responsePrior) {
   Infer(function() {
-    var x = experimentPrior();
+    var x = sample(experimentPrior)
 
     // $\mathbb{E}_{m \sim P(M)}[m(x)]$
     // also handles case where models have parameters to learn
     var modelPredictionDist = Infer(function() {
-      var m = sample(modelPrior); // TODO: check if this is correct
+      var m = sample(modelPrior) // TODO: check if this is correct
       return {modelName: m.name, prediction: m(x)}
-    });
+    })
 
     // $\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)}$
     var responseDist = Infer(function() {
-      var t = sample(modelPredictionDist),
-          predictionDist = t.prediction,
-          response = sample(responsePrior);
-      factor(predictionDist.score(response));
-      return response;
-    });
+      var response       = sample(responsePrior),
+          predictionDist = sample(modelPredictionDist).prediction
+      factor(predictionDist.score(response))
+      return response
+    })
 
     // $\sum_{y_x}{ \left[\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)\right] D_\text{KL}(p(m \mid y_x)\> ||\> p(m) )} }$
     var KLDist = Infer(function() {
-      var response = sample(responseDist);
+      var response = sample(responseDist)
       var modelPosterior = Infer(function() {
-        var t = sample(modelPredictionDist),
+        var t              = sample(modelPredictionDist),
             predictionDist = t.prediction,
-            modelName = t.modelName;
-        factor(predictionDist.score(response));
-        return modelName;
+            modelName      = t.modelName
+        factor(predictionDist.score(response))
+        return modelName
       })
-
-      return KL(modelPosterior, modelPrior);
-    });
+      return KL(modelPosterior, modelPrior)
+    })
 
     return {experiment: x, expectedKL: expectation(KLDist)}
   })
