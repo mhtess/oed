@@ -1,0 +1,58 @@
+
+.evidence{
+	font-family: "Palatino Linotype", "Book Antiqua", Palatino, serif;
+    font-size: 60px;
+}
+
+.instruct-text {
+    font-size: 18px;
+    margin-left: 100px;
+    margin-right: 100px;
+    text-align:justify;
+
+/*    width: 600px;
+    text-align: center;
+*/
+}
+
+#heads-key, #tails-key {
+  background-color: #e3e3e3;
+  padding: 2px;
+  border: 1px outset #cccccc;
+  font-family: Courier New;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+#Tkey-reminder, #Hkey-reminder{
+    margin-top:20px;
+}
+
+.reminder-key {
+  background-color: #e3e3e3;
+  padding: 2px;
+  border: 1px outset #cccccc;
+  font-family: Courier New;
+  font-weight: bold;
+  font-size: 25px;
+}
+
+#h-reminder {
+    position: absolute;
+    right: 0;
+    width: 100px;
+}
+
+#t-reminder {
+    position: absolute;
+    left: 0;
+    width: 100px;
+}
+
+#reminders {
+    position: relative;
+    margin: 0 auto;
+    margin-top:100px;
+    width: 500px;
+}
+
