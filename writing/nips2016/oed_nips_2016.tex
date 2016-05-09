@@ -237,39 +237,39 @@ Attacking this problem using probabilistic programming allows us to separate the
 In addition, framing OED this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., HMC for continuous experiment spaces).
 
 \begin{minipage}{\linewidth}
-\begin{lstlisting}[mathescape, label={code:oed-pp}, caption = OED implementation (TODO: note that this is a little bit idealized version of actual code)]
+\begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample, infer) {
-  var mPrior = infer.M1(function() { mSample() });
+  var mPrior = infer.M1(function() { mSample() })
 
   infer.X(function() {
-    // $p(x)$
-    var x = xSample();
+    // ${\color{purple} p(x)}$
+    var x = xSample()
 
-    // precompute $p(y) = \sum\limits_{m} p_m(y \mid x)p(m)$
-    var yLikelihood = infer.Y1(function() {
-      var y = ySample();
-      var m = sample(mPrior);
-      var mx = m(x);
-      factor(score(mx, y));
-      return y;
-    });
+    // precompute ${\color{purple} P(Y = y) = \sum\limits_{m} p_m(y \mid x)p(m) }$
+    var yPredictive = infer.Y1(function() {
+      var y = ySample()
+      var m = sample(mPrior)
+      var mx = m(x)
+      factor(score(mx, y))
+      return y
+    })
 
-    // $p(x) \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) }$
+    // ${\color{purple} \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } }$
     var KLDist = infer.Y2(function() {
-      var y = sample(yLikelihood);
+      var y = sample(yPredictive)
       var mPosterior = infer.M2(function() {
-        var m = sample(mPrior);
-        var mx = m(x);
+        var m = sample(mPrior)
+        var mx = m(x)
         factor(score(mx, y))
-        return m.name;
+        return m.name
       })
 
-      return KL(mPosterior, mPrior);
-    });
-    var eig = expectation(KLDist);
-    factor(eig); // convert eig to a probability?
-                 // e.g., prob of observing the posterior distribution given the prior?
-    return {x: x, EIG: eig}
+      return KL(mPosterior, mPrior)
+    })
+
+    var EIG = expectation(KLDist)
+    factor(EIG)
+    return {x: x, EIG: EIG}
   })
 }
 
