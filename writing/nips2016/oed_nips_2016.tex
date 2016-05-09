@@ -199,22 +199,15 @@ Our general system opens a number of rich areas for future development, which we
 \section{Bayesian model selection framework}
 \label{s:bayes}
 
-\ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
-\lou{i'm not sure how much the bayesian cognitive modeling stuff matters. we don't explore different linking functions and our medin+schaffer result on number of subjects is not so compelling (both MS and optimal experiment achieve maximal information gain at 40 subjects, so, rhetorically, it appears that we don't need OED) }
-\mht{we could bring it up in the discussion if we don't address it we our stuff.  the number of subjects analysis was (at least, best) shown to be useful with DJThorne's ``social learning'', where there were 3 models (because disambiguating 2 models is easy, but all 3 requires more subejcts and a different expt)}
+\cas{because probabilistic programming is so crucial to our work, we give an introduction to the language we use, webppl}
 
-\ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
+\cas{discuss biased coin}
 
-Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses in psychology experiment.
-The Bayesian cognitive modeling framework factors out the \emph{cognitive}, or belief-updating, component from the mapping from latent beliefs to observed responses (so-called \emph{linking function}).
-The cognitive model expresses the hypothesis, and the scientific community is often interested in which cognitive model (i.e. which hypothesis) best explains ``the data''.
-``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments.
-We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models.
-\mht{in agreement with lou, the ``factorization'' of belief-updating and linking function doesn't belong in this paragraph}
+\cas{discuss markov coin}
 
-Let $P(X)$ be a prior distribution on experiments\footnote{
-The most general notion of an ``experiment'' includes different design considerations such as the experimental prompt or item, the number of participants and the dependent measure of the task.  For the derivation, we consider all of these as part of the ``experiment''. \mht{<-- not sure this is right.}
-}, $P(Y)$ a prior on possible responses, and $P(M)$ a prior on models.
+\cas{discuss sample(), condition(), factor() (= likelihood weighting), score()}
+
+Let $P(X)$ be a prior distribution on experiments, $P(Y)$ a prior on possible responses, and $P(M)$ a prior on models.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predictions about response data $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 
 The goal of OED is to find the experiment $x^{*}$ that maximizes the expected information gain about the belief distribution on models $P(M \mid X = x^{*})$.
@@ -276,7 +269,6 @@ var OED = function(mSample, xSample, ySample, infer) {
 \end{minipage}
 
 Our OED code is available as a package for the probabilistic programming language WebPPL \cite{dippl} (see  \url{https://github.com/mhtess/webppl-oed})
-\lou{we should discuss PPLs in general and webppl in particular a little before we get into any oed details}
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
@@ -315,10 +307,7 @@ var weightedCoin = function(seq) {
 The model first samples a coin weight \lstinline{bias_p} from a discretized uniform distribution over coin weights, and
 then makes a helper function \lstinline{flip_weightedCoin} which will flip the weighted coin.
 The model then generates a sequence of coin flips of the length of the sequence observed \lstinline{repeat(seq.length, flip_weightedCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
-The built-in function \lstinline{condition} rejects executions of the program that fail to match the condition \lstinline{seq==generated_seq}.\footnote{
-Throughout the article, we will use the \lstinline{condition()} style of writing models. For performance, models can alternatively be written using \lstinline{factor(logLikelihood)}, where \lstinline{logLikelihood} is the log likelihood of the observed data under the model and its parameter values. In WebPPL, the log likelihood can be automatically retrieved using built-in distribution functions e.g. \lstinline{Bernoulli.score([p], true)} will return the log likelihood of a heads-outcome given a coin of probability \lstinline{p}.
-Thus, \lstinline{condition(x}) is the same as \lstinline{factor(x?0:-Infinity)} (if \lstinline{x} is true, adjust the log probability of the program execution by 0, otherwise, subtract \lstinline{Infinity} from the log probability of the program execution). \lou{let's add a real section on webppl and include this there}
-}
+The built-in function \lstinline{condition} rejects executions of the program that fail to match the condition \lstinline{seq==generated_seq}.
 The model returns the outcome of the next coin flip.
 The model specification is called with an inference algorithm (here, \lstinline{Enumerate} --- which fully enumerates the entire probability distribution), and returns the posterior distribution on the model's return value (here, the outcome of the next coin flip).
 %posterior predictive distribution over the next outcome \lstinline{flip(bias_p)}.
