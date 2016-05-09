@@ -397,13 +397,12 @@ The Markov model infers a low probability of transitioning from heads to tails, 
 \section{Case study 2: Category learning}
 
 \lou{rewrite this paragraph}
-We now consider a richer example in the domain of category learning.
-The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them.
-Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon.
-As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
+%We now consider a richer example in the domain of category learning.
 
-This case study builds on a classic paper by Medin and Schaffer~\cite{medin78:pr}, who considered two competing models of category learning -- the so-called \emph{exemplar model} and the \emph{prototype model} -- and sought to distinguish them by running a cleverly designed experiment.
-Medin and Schaffer found that the exemplar model better fit the results of this experiment, so they concluded that it was a better model of human category learning.
+The ability to form concepts and abstract rules establishes a foundation for naming objects and events and is an integral component to cognition.
+Classifying observations and experience into categories is a fundamental learning phenomenon, and models of classification learning have been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
+We analyze a classic paper in categorization by Medin and Schaffer~\cite{medin78:pr}, who sought to distinguish two competing models of category learning -- the so-called \emph{exemplar model} and the \emph{prototype model} -- by running a cleverly designed experiment.
+Medin and Schaffer found that the exemplar model better fit the results of this experiment, and determined it the better model of human category learning.
 
 Here, we ask: from an information-theoretic perspective, how good was the experiment that Medin and Schaffer designed?
 Using OED, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the exemplar and prototype models, as expressed in the Medin and Schaffer work, are not state of the art models. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear and tractable set of possible experiments.}
@@ -414,9 +413,12 @@ Using OED, we find that there are many superior experiments that Medin and Schaf
 
 \subsection{Models}
 
-\cas{both models are classifiers that take as input an object (a vector of boolean features) and return as output a probability distribution on a/b categorization}
+Both exemplar and prototypes models can be viewed as classifiers that map inputs (here, a vector of boolean features) to a probability distribution on the outputs (a category label: A or B).
+The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 
-\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
+%\cas{both models are classifiers that take as input an object (a vector of boolean features) and return as output a probability distribution on a/b categorization}
+
+%\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
 
 \begin{lstlisting}[caption=Exemplar model (TODO: clearer input/output types)]
 var exemplar = function(as, bs) {
@@ -436,7 +438,9 @@ var exemplar = function(as, bs) {
 }
 \end{lstlisting}
 
-\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
+The prototype modes assumes instead that people store, for each category, a prototype. Categorization of an object is thus a function of its similarity to the prototype of category A versus the prototype of category B.
+\cas{(this model produces rank orderings but we did a transform so that it gives numbers)}
+%\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
 
 \begin{lstlisting}[caption=Prototype model]
 var prototype = function(as, bs) {
