@@ -6,7 +6,7 @@
 %
 % to avoid loading the natbib package, add option nonatbib:
 \usepackage[nonatbib]{nips_2016}
-
+ 
 %\usepackage{nips_2016}
 
 % to compile a camera-ready version, add the [final] option, e.g.:
@@ -147,11 +147,11 @@ todo
 Designing scientific experiments is hard.
 Scientists must have hypotheses and reason over a potentially large space of possible experiments.
 Studying human behavior has additional complications.
-Human data is noisy and sensitive to dependent measure of the task.
+Human data is noisy and sensitive to the dependent measure of the task.
 Further, human data is expensive and one must balance expected statistical power with the constraints of a limited budget to decide on the number of participants to run.
 
 Formal models of psychological phenomena alleviate some of these issues.
-Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of ideas.
+Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
@@ -165,11 +165,11 @@ This is a crucial step in making a practical OED system: Once you're using a PPL
 %Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition).
 
 We are not the first to attempt to develop a framework for optimal experiments in psychology.
-Previous attempts \lou{citations?}, however, suffer from a number of pragmatic issues, including ad-hoc optimization criteria, lack of an established pipeline, and failure to accommodate common worries in psychology experiments (e.g., dealing with noisy responses, determining sample sizes, and selecting dependent measures or linking functions).
+Previous attempts (e.g. \cite{Myung2009}), however, suffer from a number of pragmatic issues, including ad-hoc optimization criteria, lack of an established pipeline, and failure to accommodate common worries in psychology experiments (e.g., dealing with noisy responses, determining sample sizes, and selecting dependent measures or linking functions).
 % Taken together, these issues put the burden on researchers to have sufficient expertise to adapt the OED system to their specific problem and require researchers to develop their own system for writing formal psychological models and the OED optimization engine.
 
 In this paper, we resolve these issues using a Bayesian model selection framework implemented in a practical modeling system.
-We apply this framework to two case studies: perceptions of subjective randomness and category learning.
+We apply this framework to two case studies from cognitive psychology: perceptions of subjective randomness and category learning.
 The first case study highlights the details of application for a simple space of experiments.
 The second study applies OED to a more realistic space of possible experiments and validates our theoretical analysis by running the optimal experiment.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
@@ -201,14 +201,16 @@ Our general system opens a number of rich areas for future development, which we
 
 \ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
 \lou{i'm not sure how much the bayesian cognitive modeling stuff matters. we don't explore different linking functions and our medin+schaffer result on number of subjects is not so compelling (both MS and optimal experiment achieve maximal information gain at 40 subjects, so, rhetorically, it appears that we don't need OED) }
+\mht{we could bring it up in the discussion if we don't address it we our stuff.  the number of subjects analysis was (at least, best) shown to be useful with DJThorne's ``social learning'', where there were 3 models (because disambiguating 2 models is easy, but all 3 requires more subejcts and a different expt)}
 
 \ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
 
-Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses.
+Psychological hypotheses can be expressed as computational models which make quantitative predictions about participants' responses in psychology experiment.
 The Bayesian cognitive modeling framework factors out the \emph{cognitive}, or belief-updating, component from the mapping from latent beliefs to observed responses (so-called \emph{linking function}).
 The cognitive model expresses the hypothesis, and the scientific community is often interested in which cognitive model (i.e. which hypothesis) best explains ``the data''.
 ``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments.
 We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models.
+\mht{in agreement with lou, the ``factorization'' of belief-updating and linking function doesn't belong in this paragraph}
 
 Let $P(X)$ be a prior distribution on experiments\footnote{
 The most general notion of an ``experiment'' includes different design considerations such as the experimental prompt or item, the number of participants and the dependent measure of the task.  For the derivation, we consider all of these as part of the ``experiment''. \mht{<-- not sure this is right.}
@@ -229,9 +231,9 @@ x^{*} &= \argmax_{x} p(x) \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } \
     &= \argmax_{x} p(x) \sum\limits_{y} \left[\sum\limits_{m} p_m(y \mid x)p(m)\right] \dkl{P(M \mid Y = y)}{P(M)}. \label{eq:oed}
 \end{align}
 
-Because we have expressed the space of models, experiments, and responses in the language of probability, it straightforward to express Equation (\ref{eq:oed}) as a probabilistic program (see Listing \ref{code:oed-pp}).
+Because we have expressed the space of models, experiments, and responses in the language of probability, it is straightforward to express Equation \ref{eq:oed} as a probabilistic program (see Listing \ref{code:oed-pp}).
 This makes it clear that OED is an inference problem.
-Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model) from the task of solving it (i.e., choosing/writing the inference algorithm).
+Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model of OED) from the task of solving it (i.e., choosing/writing the inference algorithm).
 In addition, framing OED this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., HMC for continuous experiment spaces).
 
 \begin{minipage}{\linewidth}
@@ -293,11 +295,10 @@ Formally, the set of models is $\{m_{\text{weighted}}, m_{\text{markov}}\}$, the
 \label{s:tutorial:sss:biased}
 
 The weighted coin model models a participant who assumes that coin that generated the observed sequence has some unknown bias and that each coin flip is independent.\footnote{This is a model of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}
-The coin weight is inferred from the experiment prompt sequence (on a trial-by-trial basis) by trying to generate the observed sequence, and conditioning on the generated sequence matching the observed sequence.
+In this model, the weight of the coin is inferred from the observed sequence of flips by trying to generate the observed sequence, and conditioning on the generated sequence matching the observed sequence.
 The inferred coin weight is subsequently used to predict the next coin flip. We show the model in Listing~\ref{lst:m_weighted}.
 
-\label{lst:m_weighted}
-\begin{lstlisting}[caption=Biased coin model]
+\begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}]
 var coin_weights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
 
 var weightedCoin = function(seq) {
@@ -310,6 +311,7 @@ var weightedCoin = function(seq) {
   })
 }
 \end{lstlisting}
+
 %
 The model first samples a coin weight \lstinline{bias_p} from a discretized uniform distribution over coin weights, and
 then makes a helper function \lstinline{flip_weightedCoin} which will flip the weighted coin.
@@ -324,19 +326,18 @@ The model specification is called with an inference algorithm (here, \lstinline{
 
 \subsection{Markov coin model}
 \label{s:tutorial:sss:markov}
-The Markov coin model assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip. The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence (again, on a trial-by-trial basis), and is subsequently used to predict the next coin flip.
+The Markov coin model assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip. The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence, and is subsequently used to predict the next coin flip.
 %
 
-   (define (transition prev) (flip (if isfair
-                                       0.5
-                                       (if prev 0.1 0.9))))
-
-   (define (markov prev n)
-     (if (= 0 n)
-         '()
-         (let ((next (transition prev)))
-           (pair next (markov next (- n 1))))))
-
+%   (define (transition prev) (flip (if isfair
+%                                       0.5
+%                                       (if prev 0.1 0.9))))
+%
+%   (define (markov prev n)
+%     (if (= 0 n)
+%         '()
+%         (let ((next (transition prev)))
+%           (pair next (markov next (- n 1))))))
 
 \begin{lstlisting}[caption=Markov coin model]
 var markovCoin = function(seq) {
@@ -396,13 +397,12 @@ The Markov model infers a low probability of transitioning from heads to tails, 
 \section{Case study 2: Category learning}
 
 \lou{rewrite this paragraph}
-We now consider a richer example in the domain of category learning.
-The ability to form concepts and abstract rules is an integral component of cognitive science as it establishes a foundation for naming objects and events, as well as discussing and interacting with them.
-Since few concepts are formally taught, the formation and progression of classifying observations and experience into categories must be a fundamental learning phenomenon.
-As such, models of classification learning has been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
+%We now consider a richer example in the domain of category learning.
 
-This case study builds on a classic paper by Medin and Schaffer~\cite{medin78:pr}, who considered two competing models of category learning -- the so-called \emph{exemplar model} and the \emph{prototype model} -- and sought to distinguish them by running a cleverly designed experiment.
-Medin and Schaffer found that the exemplar model better fit the results of this experiment, so they concluded that it was a better model of human category learning.
+The ability to form concepts and abstract rules establishes a foundation for naming objects and events and is an integral component to cognition.
+Classifying observations and experience into categories is a fundamental learning phenomenon, and models of classification learning have been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
+We analyze a classic paper in categorization by Medin and Schaffer~\cite{medin78:pr}, who sought to distinguish two competing models of category learning -- the so-called \emph{exemplar model} and the \emph{prototype model} -- by running a cleverly designed experiment.
+Medin and Schaffer found that the exemplar model better fit the results of this experiment, and determined it the better model of human category learning.
 
 Here, we ask: from an information-theoretic perspective, how good was the experiment that Medin and Schaffer designed?
 Using OED, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the exemplar and prototype models, as expressed in the Medin and Schaffer work, are not state of the art models. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear and tractable set of possible experiments.}
@@ -413,9 +413,12 @@ Using OED, we find that there are many superior experiments that Medin and Schaf
 
 \subsection{Models}
 
-\cas{both models are classifiers that take as input an object (a vector of boolean features) and return as output a probability distribution on a/b categorization}
+Both exemplar and prototypes models can be viewed as classifiers that map inputs (here, a vector of boolean features) to a probability distribution on the outputs (a category label: A or B).
+The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 
-\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
+%\cas{both models are classifiers that take as input an object (a vector of boolean features) and return as output a probability distribution on a/b categorization}
+
+%\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
 
 \begin{lstlisting}[caption=Exemplar model (TODO: clearer input/output types)]
 var exemplar = function(as, bs) {
@@ -435,7 +438,9 @@ var exemplar = function(as, bs) {
 }
 \end{lstlisting}
 
-\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
+The prototype modes assumes instead that people store, for each category, a prototype. Categorization of an object is thus a function of its similarity to the prototype of category A versus the prototype of category B.
+\cas{(this model produces rank orderings but we did a transform so that it gives numbers)}
+%\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
 
 \begin{lstlisting}[caption=Prototype model]
 var prototype = function(as, bs) {
