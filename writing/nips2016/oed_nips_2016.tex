@@ -25,6 +25,8 @@
 \usepackage{fancyvrb}
 \usepackage{multirow}
 \usepackage{color}
+
+
 % HT http://tex.stackexchange.com/a/151987/41154
 \DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
   #1\;\delimsize\|\;#2%
@@ -84,7 +86,7 @@
 \usepackage[ruled,vlined]{algorithm2e}
 
 \newcommand{\ud}{\,\mathrm{d}}
-\newcommand{\argmax}{\operatornamewithlimits{argmax}}
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 
 \title{Practical optimal experiment design for psychology}
@@ -198,6 +200,7 @@ Our general system opens a number of rich areas for future development, which we
 \label{s:bayes}
 
 \ndg{add a high-level overview of the setup first. describe the most general formulation (cognitive model of responses) and the more parsimonious bayesian modeling version where the response distribution is factored into belief-update cognitive models and a linking functions per DM that are shared across models.  point out some of the typical expt design knobs, such as number of Ss (relation to power analysis), dependent measures, etc. An overview schematic of the system could be useful?}
+\lou{i'm not sure how much the bayesian cognitive modeling stuff matters. we don't explore different linking functions and our medin+schaffer result on number of subjects is not so compelling (both MS and optimal experiment achieve maximal information gain at 40 subjects, so, rhetorically, it appears that we don't need OED) }
 
 \ndg{after this overview, the remainder of this section can be streamlined a lot for NIPS.}
 
@@ -207,44 +210,32 @@ The cognitive model expresses the hypothesis, and the scientific community is of
 ``The data'', however, is a function of what experiments you chose to run, and experiment design is the process of deciding upon a subset of experiments (and the associated details of experiments) from a space of possible experiments.
 We introduce a framework which maps experiments to their expected information gain, with the goal being to disambiguate alternative cognitive models.
 
-For a set of possible experiments, $\mathcal{X}$, let the choice of experiment be defined as $x \in \mathcal{X}$.\footnote{
+Let $P(X)$ be a prior distribution on experiments\footnote{
 The most general notion of an ``experiment'' includes different design considerations such as the experimental prompt or item, the number of participants and the dependent measure of the task.  For the derivation, we consider all of these as part of the ``experiment''. \mht{<-- not sure this is right.}
-}
-Similarly, for a set of possible responses, $\mathcal{Y}$, let $Y_x \in \mathcal{Y}$ be defined as a random variable that describes the distribution over the possible responses to the experiment $x$.
-Finally, for a set of candidate models, $\mathcal{M}$, let $M \in \mathcal{M}$ be a random variable that describes the uncertainty over which model best represents the underlying phenomenon of interest.
-\mht{ Is it confusing that  $\mathcal{M}$ is the set of candidate models, but $M \in \mathcal{M}$ is not a model?}
-A model $m$ defines a stochastic relationship between the experimental setup and responses.
-For a given model $m$, let the probability of observing a response $y$ given an experiment $x$ be defined as $x \rightarrow Y_{x,m}: P(Y_{x,m} = y_{x,m} | M = m)$.\footnote{
-We use upper case symbols to represent random variables and lower case symbols to represent their corresponding realizations. For brevity, the probability of observing a particular realization will often be written without the random variable and using only the lower case symbol -- $p(y_{x,m} |m)$ represents $P(Y_{x,m} = y_{x,m} | M = m)$.
-}
-\ndg{should we have model explicit in this notation: $Y_{x,m}$?} \mht{I think so. Does the little $y$ take the subscript too?}
+}, $P(Y)$ a prior on possible responses, and $P(M)$ a prior on models.
+A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predictions about response data $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 
-The goal of OED is to reason over the uncertainty $M$ of which model $m$ best represents the underlying phenomenon of interest. We quantify this uncertainty as a \emph{prior model belief distribution}, $p(m)$: It expresses the uncertainty before any experimental data is observed.
-%The choice of this distribution is a design decision by the experimenter. Often, uninformative priors, such as assuming that all candidate models are equally plausible, are good starting points. However, informative priors, which favor a particular subset of models \emph{a priori}, can be used when prior knowledge about the domain, such as previously collected data or established literature, is available.
-The model belief distribution updates to a \emph{posterior model belief distribution} by observing a response. Using Bayes' theorem, the uncertainty of the model $m$ after observing the response $y_x$ is:
+The goal of OED is to find the experiment $x^{*}$ that maximizes the expected information gain about the belief distribution on models $P(M \mid X = x^{*})$.
+We use KL divergence as our measure of information gain:
 \begin{align}
-p(m|y_x) = \frac{p(y_x|m)p(m)}{\sum\limits_{m'} p(y_x|m')p(m')}. \label{eq:bayes}
+  \dkl{ p(m \mid x) }{ p(m) }  = \sum\limits_m p(m \mid x) \ln \left( \frac{p(m \mid x)}{p(m)}\right). \label{eq:kl}
 \end{align}
-The posterior, $p(m|y_x)$, is solely a function of the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
+\lou{does it matter if we write it the other way, dkl(prior, posterior)? }
 
-The \emph{efficacy} of an experiment is defined by its ability to differentiate between the candidate models, or equivalently, induce a change in our belief in the model. We quantify this change using the Kullback-Liebler divergence (KL divergence), a non-symmetric relative measure between two probability distributions, to compute the information gain between the posterior and prior distributions for a given experimental:
-\begin{align}
-\dkl{ p(m|y_x) }{ p(m) }  = \sum\limits_m p(m|y_x) \ln \left( \frac{p(m|y_x)}{p(m)}\right). \label{eq:kl}
-\end{align}
-This measure computes the amount of extra information required to encode the posterior distribution using the prior distribution. If the prior and posterior distributions of model beliefs are identical, then no additional information is required for the encoding and the information gain is zero, consistent with the intuition that an experiment that did not change our belief in the model was useless. As the posterior and prior diverge, then information gain increases and the associated experiment is better at differentiating between the candidate models.
-
-So far, we've examined the information gain for a specific response, $y_x$.
-Of course, human data is not deterministic; so, we must consider the whole data set.
 The optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
 
 \begin{align}
-x^{*} &= \argmax_{x} \sum\limits_{y_x} p(y_x) \dkl{ p(m|y_x) }{ p(m) } \notag \\
-    &= \argmax_{x} \sum\limits_{y_x} \left[\sum\limits_{m'} p(y_x|m')p(m')\right] \dkl{p(m|y_x)}{p(m)}. \label{eq:oed}
+x^{*} &= \argmax_{x} p(x) \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } \notag \\
+    &= \argmax_{x} p(x) \sum\limits_{y} \left[\sum\limits_{m} p_m(y \mid x)p(m)\right] \dkl{P(M \mid Y = y)}{P(M)}. \label{eq:oed}
 \end{align}
 
-\cas{expressing oed as a probprog}
+Because we have expressed the space of models, experiments, and responses in the language of probability, it straightforward to express Equation (\ref{eq:oed}) as a probabilistic program (see Listing \ref{code:oed-pp}).
+This makes it clear that OED is an inference problem.
+Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model) from the task of solving it (i.e., choosing/writing the inference algorithm).
+In addition, framing OED this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., HMC for continuous experiment spaces).
 
-\begin{lstlisting}[mathescape=true]
+\begin{minipage}{\linewidth}
+\begin{lstlisting}[mathescape, label={code:oed-pp}, caption = OED as a probabilistic program]
 var OED = function(experimentPrior, modelPrior, responsePrior) {
   Infer(function() {
     var x = sample(experimentPrior)
@@ -281,19 +272,10 @@ var OED = function(experimentPrior, modelPrior, responsePrior) {
   })
 }
 \end{lstlisting}
+\end{minipage}
 
-
-Since Eq.~\ref{eq:kl} measures the information gain for a single response, taking the expected value of the KL divergence obtains the average information gain weighted by the probability of observing a response. This measure, Eq.~\ref{eq:oed}, defines the OED criteria as a function of only the experimental condition. The probability of observing a result, $p(y_x)$, is computed by using its conditional probability, which leverages the model predictions, $p(y_x|m)$, and the prior, $p(m)$.
-% \footnote{It is worth noting that the expected KL divergence OED criteria, Eq.~\ref{eq:oed}, can be reformulated as the mutual information between the random variables for model belief, $M$, and response distribution, $Y_x$:
-% \begin{align}
-% x^* = \argmax_{x} \sum\limits_{y_x} p(y_x) D_{\text{KL}}(p(m|y_x) || p(m)) &= \argmax_{x} I(M, Y_x) \notag \\
-%     &= \argmax_{x} \sum\limits_{y_x} \sum\limits_{m} p(m, y_x) \ln \left( \frac{p(m, y_x)}{p(m)p(y_x)}\right). \label{eq:mi}
-% \end{align}
-% This reformulation uses a well-known identity between mutual information and the expected KL divergence~\cite{cover91:eit}. Mutual information is a measure of the amount of information one random variable contains about another, which provides an alternative perspective about the relationship between model belief and responses.
-% %This relationship, along with similar identities, will be useful for proving intrinsic properties about OED in Section~\ref{s:npart:ss:math}.
-% \ndg{if this doesn't get used in this version of the paper, then move to footnote?}
-% }
-This OED framework is available as a package for the probabilisitic programming language WebPPL \cite{dippl}, and can be found at \url{https://github.com/mhtess/webppl-oed}
+Our OED code is available as a package for the probabilistic programming language WebPPL \cite{dippl} (see  \url{https://github.com/mhtess/webppl-oed})
+\lou{we should discuss PPLs in general and webppl in particular a little before we get into any oed details}
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
