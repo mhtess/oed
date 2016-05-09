@@ -255,7 +255,7 @@ var OED = function(experimentPrior, modelPrior, responsePrior) {
       return response
     })
 
-    // $\sum_{y_x}{ \left[\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)\right] \dkl{p(m \mid y_x)}{ p(m) } ) $
+    // $\sum_{y_x}{ \left[\sum_{m^\prime}{p(y_x \mid m^\prime) p(m^\prime)}\right] \dkl{p(m \mid y_x)}{ p(m) }}$
     var KLDist = Infer(function() {
       var response = sample(responseDist)
       var modelPosterior = Infer(function() {
