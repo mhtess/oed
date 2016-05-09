@@ -372,8 +372,9 @@ We run OED by calling the \lstinline{OED} function on a distribution of models a
 \begin{figure}[h!]
 \underline{\textsf{Input:}}
 \begin{lstlisting}
-OED({models: Enumerate(function() { uniformDraw([weight, markov]) }),
-     experiments: Enumerate(function() { repeat(4, flip) })})
+OED({mSample: function() { uniformDraw([weight, markov]) }),
+     xSample: function() { repeat(4, flip) },
+     ySample: function() { flip() })
 \end{lstlisting}
 
 \underline{\textsf{Output:}}\\
