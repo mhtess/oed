@@ -142,8 +142,7 @@ todo
 \end{abstract}
 
 \section{Introduction}
-\ndg{Doing the standard, active learning thing with probabilistic programs. }
-
+\lou{start off more generally, don't specialize too much for psychology.}
 Designing scientific experiments is hard.
 Scientists must have hypotheses and reason over a potentially large space of possible experiments.
 Studying human behavior has additional complications.
@@ -201,9 +200,9 @@ Our general system opens a number of rich areas for future development, which we
 
 \cas{because probabilistic programming is so crucial to our work, we give an introduction to the language we use, webppl}
 
-\cas{discuss biased coin}
+\cas{walk through biased coin, markov coin models}
 
-\cas{discuss markov coin}
+\cas{re-emphasize 2 benefits of ppls: clear hypotheses, plug and play inference}
 
 \cas{discuss sample(), condition(), factor() (= likelihood weighting), score()}
 
@@ -227,6 +226,7 @@ Because we have expressed the space of models, experiments, and responses in the
 This makes it clear that OED is an inference problem.
 Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model of OED) from the task of solving it (i.e., choosing/writing the inference algorithm).
 In addition, framing OED this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., HMC for continuous experiment spaces).
+\lou{note that outermost Infer() could also be a Search()}
 
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
@@ -255,8 +255,7 @@ var OED = function(mSample, xSample, ySample, infer) {
 }
 \end{lstlisting}
 %\end{minipage}
-
-Our OED code is available as a package for the probabilistic programming language WebPPL \cite{dippl} (see  \url{https://github.com/mhtess/webppl-oed})
+Our OED code is available as a WebPPL---see \url{https://github.com/mhtess/webppl-oed}.
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
@@ -269,6 +268,8 @@ Here, we consider two simple hypotheses: (a) \emph{Weighted coin}: Participants 
 We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
 Formally, the set of models is $\{m_{\text{weighted}}, m_{\text{markov}}\}$, the set of experimental designs $\mathcal{X}$ is the set of all possible sequences of four coin flips, and the set of responses $\mathcal{Y}$ is a choice between heads or tails for the fifth flip.
+
+\lou{add fair coin + 3-model power analysis?}
 
 \subsection{Weighted coin model}
 \label{s:tutorial:sss:biased}
@@ -397,56 +398,56 @@ The exemplar model assumes people store information about every instance of the 
 
 %\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
 
-\begin{lstlisting}[caption=Exemplar model (TODO: clearer input/output types)]
-var exemplar = function(as, bs) {
-  var weights = repeat(4, function() { uniform(0,5) })
-  Enumerate(function() {
-    var object = repeat(4, function() { flip() ? 1 : 0});
-    var sim = function(x,y) {
-      product(map3(
-         function(xi,yi, wi) { (xi == yi) ? 1 : wi },
-         x, y, weights))
-    };
-    var aSims = sum(map(function(a) { return sim(object, a) }, as));
-    var bSims = sum(map(function(b) { return sim(object, b) }, bs));
-    condition(flip(ssa / (ssa + ssb)));
-    return {object: object, prob: prob}
-  })
-}
-\end{lstlisting}
+% \begin{lstlisting}[caption=Exemplar model (TODO: clearer input/output types)]
+% var exemplar = function(as, bs) {
+%   var weights = repeat(4, function() { uniform(0,5) })
+%   Enumerate(function() {
+%     var object = repeat(4, function() { flip() ? 1 : 0});
+%     var sim = function(x,y) {
+%       product(map3(
+%          function(xi,yi, wi) { (xi == yi) ? 1 : wi },
+%          x, y, weights))
+%     };
+%     var aSims = sum(map(function(a) { return sim(object, a) }, as));
+%     var bSims = sum(map(function(b) { return sim(object, b) }, bs));
+%     condition(flip(ssa / (ssa + ssb)));
+%     return {object: object, prob: prob}
+%   })
+% }
+% \end{lstlisting}
 
 The prototype modes assumes instead that people store, for each category, a prototype. Categorization of an object is thus a function of its similarity to the prototype of category A versus the prototype of category B.
 \cas{(this model produces rank orderings but we did a transform so that it gives numbers)}
 %\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
 
-\begin{lstlisting}[caption=Prototype model]
-var prototype = function(as, bs) {
-  var alpha = TODO();
-  var bias = TODO();
-  var weights = TODO();
-  var recall = append(as,bs);
-  Enumerate(function() {
-    var object = repeat(4, function() { flip() ? 1 : 0});
+% \begin{lstlisting}[caption=Prototype model]
+% var prototype = function(as, bs) {
+%   var alpha = TODO();
+%   var bias = TODO();
+%   var weights = TODO();
+%   var recall = append(as,bs);
+%   Enumerate(function() {
+%     var object = repeat(4, function() { flip() ? 1 : 0});
 
-    var dimEvidenceForA = function(i) {
-      var matchingObjects = filter(function(x) { x[i] == object[i] }, recall);
-      var n = matchingObjects.length;
-      var matchingAs = filter(function(x) { contains(as, x) }, matchingObjects);
-      var nA = matchingAs.length;
-      var nB = n - nA;
-      return weights[i] * (nA - nB)/n;
-    }
+%     var dimEvidenceForA = function(i) {
+%       var matchingObjects = filter(function(x) { x[i] == object[i] }, recall);
+%       var n = matchingObjects.length;
+%       var matchingAs = filter(function(x) { contains(as, x) }, matchingObjects);
+%       var nA = matchingAs.length;
+%       var nB = n - nA;
+%       return weights[i] * (nA - nB)/n;
+%     }
 
-    var totalEvidence = sum(map(dimEvidenceForA,[0,1,2,3])) + (contains(recall, object) ? bias : 0);
+%     var totalEvidence = sum(map(dimEvidenceForA,[0,1,2,3])) + (contains(recall, object) ? bias : 0);
 
-    // TODO: use bias argument
-    var prob = 1 / (1 + exp(-alpha * totalEvidence));
-    condition(flip(prob));
+%     // TODO: use bias argument
+%     var prob = 1 / (1 + exp(-alpha * totalEvidence));
+%     condition(flip(prob));
 
-    return {object: object, prob: prob};
-  })
-}
-\end{lstlisting}
+%     return {object: object, prob: prob};
+%   })
+% }
+% \end{lstlisting}
 
 \subsection{Experiments}
 
@@ -476,23 +477,35 @@ However, this prediction has a relatively small magnitude and comes at the expen
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously
 \lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
 
+\cas{we did a power analysis to determine the number of subjects we'd need.}
+
 \cas{we conducted the actual experiments. empirical information gain from MS was TODO, empirical information gain from opt was TODO.}
 
 \cas{explain different scales for theoretical versus empirical information gain}
 
 \section{Relationship to previous work}
-\lou{emma pierson's work on value of information, active learning, myung \& pitt, wikipedia article on bayesian experimental design}
+
+\lou{myung \& pitt -- good but requires manually deriving equations for every new experiment design setup}
+
+\lou{related work on value of information? (e.g., emma pierson's cogsci paper)}
+
+\lou{find related active learning stuff}
+
+\lou{look into wikipedia article on bayesian experimental design}
 
 \section{Discussion}
 
-The purpose of \red{our(?)} OED approach is to quantify the ability of an experiment to differentiate competing computational models. Our approach leverages Bayesian inference to reason about which model best describes a given phenomenon. By using the models' predictions to compute the likelihood of observing a particular response to an experiment, this approach provides a rational method for updating the change in belief about model uncertainty when such responses are observed. This change in belief is then quantified using information theoretic measures, and by maximizing these measures, OED allows one to find experiments that should maximally change the uncertainty of the beliefs in our models.
+Scientists aim to design experiments that maximize the informativeness of the results.
+Our approach partially automates this process, using probabilistic programming in the service of a kind of active Bayesian model comparison.
+\cas{our work does not replace scientists -- it still requires human intelligence to make models, design an experiment space, and set up measures. instead, it frees them to work on more interesting stuff}
 
+\lou{could easily use something other than KL, e.g, TV distance}
 
-In this paper, we focus our analysis on the OED criteria of expected KL divergence and its properties, as opposed to the argument of the maximum component of the expression. \ndg{?} The reason is that Eq.~\ref{eq:oed} can rarely be solved analytically and solving it numerically is often a daunting task. To illustrate the advantages of our OED approach, we will be exhaustively evaluating the expected KL divergence for the entire  space of experimental prompts. This allows us to obtain a comprehensive analysis of the entire design space, and the challenge of selecting the optimal experiment is reduced to a simple sorting task. For large design spaces where exhaustive search is intractable, numerical optimization approaches, such as Sequential Monte Carlo searches (REF) or Bayesian optimization (REF), are viable options.  \ndg{move this to dicussion?}
+\lou{future research: inference techniques specialized for this domain (e.g., you don't need to estimate $m_1(x)$ and $m_2(x)$ perfectly if you have evidence that $m_1(x) \approx m_2(x)$)}
 
+\lou{make connections to AB/multivariate testing}
 
-
-\lou{say some stuff about OED for non-psych experiments}
+\lou{say some stuff about OED for non-psych experiments (e.g., physics)}
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
