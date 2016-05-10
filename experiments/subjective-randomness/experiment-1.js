@@ -168,8 +168,16 @@ function make_slides(f) {
 
 /// init ///
 function init() {
-  var prev_levels = ["10","10","30","30","50","50","70","70","90","90"];
-  var contexts = ["bare","danger","distinct"];
+
+  repeatWorker = false;
+  (function(){
+      var ut_id = "mht-subjrand-20160510";
+      if (UTWorkerLimitReached(ut_id)) {
+        $('.slide').empty();
+        repeatWorker = true;
+        alert("You have already completed the maximum number of HITs allowed by this requester. Please click 'Return HIT' to avoid any impact on your approval rating.");
+      }
+  })();
 
   var coin = ["H ","T "]
   var coin = [1,0]
