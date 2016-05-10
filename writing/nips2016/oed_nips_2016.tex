@@ -228,22 +228,22 @@ This makes it clear that OED is an inference problem.
 Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model of OED) from the task of solving it (i.e., choosing/writing the inference algorithm).
 In addition, framing OED this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., HMC for continuous experiment spaces).
 
-\begin{minipage}{\linewidth}
+%\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample, infer) {
   var mPrior = infer.M1(function() { mSample() })
   infer.X(function() {
     var x = xSample()                       // ${\color{purple} p(x)}$
     var yPredictive = infer.Y1(function() { // ${\color{purple} P(Y = y) = \sum_{m} p_m(y \mid x)p(m) }$
-      var y = ySample(), m = sample(mPrior), mx = m(x)
-      factor(score(mx, y))
+      var y = ySample(), m = sample(mPrior)
+      factor(score(m(x), y))
       return y
     })
     var KLDist = infer.Y2(function() {  // ${\color{purple} \sum_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } }$
       var y = sample(yPredictive)
       var mPosterior = infer.M2(function() {
-        var m = sample(mPrior), mx = m(x)
-        factor(score(mx, y))
+        var m = sample(mPrior)
+        factor(score(m(x), y))
         return m.name
       })
       return KL(mPosterior, mPrior)
@@ -254,7 +254,7 @@ var OED = function(mSample, xSample, ySample, infer) {
   })
 }
 \end{lstlisting}
-\end{minipage}
+%\end{minipage}
 
 Our OED code is available as a package for the probabilistic programming language WebPPL \cite{dippl} (see  \url{https://github.com/mhtess/webppl-oed})
 
