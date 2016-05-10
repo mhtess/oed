@@ -63,7 +63,8 @@ function make_slides(f) {
     name: "coins",
     present : exp.stims,
     //this gets run only at the beginning of the block
-    present_handle : function(stim) {
+    present_handle : function(stimKey) {
+      stim = exp.sequenceObject[stimKey]
 
       this.displaySequence = []
       this.sequence = stim.split(' ').slice(0,4)
@@ -72,9 +73,12 @@ function make_slides(f) {
       $(".prompt").html("Press the space bar to flip the coin.")
       this.startTime = Date.now();
       this.stim = stim 
+      this.key = stimKey
+
       // $(".evidence").html(this.stim);
 
       $("#reminders").hide()
+      // $(".wait").hide()
 
       $(document).one("keydown", _s.keyPressHandler);
     },
@@ -87,7 +91,6 @@ function make_slides(f) {
         $(document).one("keydown", _s.keyPressHandler);
 
       } else if (keyCode == 32 && _s.sequence.length!=0) {
-
         _s.displaySequence.push(_s.sequence.pop())
         $(".evidence").html(_s.displaySequence);
         $(document).one("keydown", _s.keyPressHandler);
@@ -100,13 +103,15 @@ function make_slides(f) {
           $(".prompt").html("Predict the next outcome.")
         }
 
+      } else if (keyCode != 84 && keyCode != 72 && _s.sequence.length==0) {
+        $(document).one("keydown", _s.keyPressHandler);
       } else {
         // If a valid key is pressed (code 80 is p, 81 is q),
           _s.rt = Date.now() - _s.startTime;
           _s.log_responses(keyCode);
           /* use _stream.apply(this); if and only if there is
           "present" data. (and only *after* responses are logged) */
-         setTimeout(function(){_stream.apply(_s)}, 500);
+         setTimeout(function(){_stream.apply(_s)}, 100);
       }
 
     },
@@ -116,7 +121,9 @@ function make_slides(f) {
       exp.data_trials.push({
         "trial_type" : "coins",
         "sequence":_s.stim,
+        "seq_binary":_s.key,
         "response" : exp.coinButtons[response],
+        "response_binary" : exp.coinDictionary[exp.coinButtons[response]],
         "rt":_s.rt,
       });
     }
@@ -165,7 +172,22 @@ function init() {
   var contexts = ["bare","danger","distinct"];
 
   var coin = ["H ","T "]
-  exp.condition = '4_coins';
+  var coin = [1,0]
+
+  exp.coinDictionary = {
+    H:1,
+    T:0
+  };
+
+  var allSequences = ["H H H H ", "H H H T ", "H H T H ", "H H T T ", 
+                      "H T H H ", "H T H T ", "H T T H ", "H T T T ", 
+                      "T H H H ", "T H H T ", "T H T H ", "T H T T ", 
+                      "T T H H ", "T T H T ", "T T T H ", "T T T T "];
+
+  var numericSeq = allSequences.map(function(s){return s.split(' ' ).slice(0,4).map(function(i){return exp.coinDictionary[i]}).join('')});
+
+  exp.sequenceObject = _.object(_.zip(numericSeq, allSequences))
+
   exp.buttonCodes = {84:"T", 72:"H"};
   exp.coinButtons = {
     "heads-key": "H",
@@ -183,13 +205,9 @@ function init() {
   exp.trials = [];
   exp.catch_trials = [];
   exp.condition = "predictive";
-  exp.determiner = ["generic","generic","generic"];
-  exp.instructions = "elaborate_instructions";
 
-
-  exp.stims = _.shuffle(makeCoinSeq(coin,3)).slice(0,1);
-
-  exp.prevalence_levels = [_.shuffle(prev_levels),_.shuffle(prev_levels),_.shuffle(prev_levels)];
+  exp.stims = [_.sample(_.keys(exp.sequenceObject))];
+  //_.shuffle(makeCoinSeq(coin,3)).slice(0,1);
 
   exp.system = {
       Browser : BrowserDetect.browser,
