@@ -206,6 +206,8 @@ Our general system opens a number of rich areas for future development, which we
 
 \cas{discuss sample(), condition(), factor() (= likelihood weighting), score()}
 
+\lou{we assume that subjects are iid and that each subject's response is conditionally iid given their latent values.. discussion: relax these assumptions, connect with mixed models (maybe having linking functions gives us this?)}
+
 Let $P(X)$ be a prior distribution on experiments, $P(Y)$ a prior on possible responses, and $P(M)$ a prior on models.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predictions about response data $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 
@@ -506,6 +508,8 @@ Our approach partially automates this process, using probabilistic programming i
 \lou{make connections to AB/multivariate testing}
 
 \lou{say some stuff about OED for non-psych experiments (e.g., physics)}
+
+\lou{extending to parameter-free predictions?}
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
