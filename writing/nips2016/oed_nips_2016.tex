@@ -8,7 +8,7 @@
 \usepackage[nonatbib]{nips_2016}
 
 %\usepackage{nips_2016}
-
+ 
 % to compile a camera-ready version, add the [final] option, e.g.:
 % \usepackage[final]{nips_2016}
 
@@ -155,8 +155,9 @@ However, exploring models can be time-consuming and searching through a large sp
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
 We present a general, principled, and turnkey approach to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
-The framework is implemented in a \emph{probabilistic programming language} (PPL).
-PPLs are a convenient way to represent explicit hypotheses about the data.
+The approach is similar in spirit to other Bayesian approaches to experiment design going back to Lindley \cite{Lindley1956} (for a review, see \cite{Chaloner1995}). 
+We go beyond simple probability models, however, and implement the framework  in a \emph{probabilistic programming language} (PPL), providing new generality to the approach.
+PPLs are a convenient and compositional way to represent explicit hypotheses about the data.
 We show how optimal experiment design (OED) can be streamlined into a scientist's workflow by instantiating it in a user-friendly PPL in which formal hypotheses can already be expressed.
 This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
 %\lou{as explained, this doesn't seem so crucial to me.}
@@ -166,7 +167,6 @@ This is a crucial step in making a practical OED system: Once you're using a PPL
 We are not the first to attempt to develop a framework for optimal experiments in psychology.
 Previous attempts (e.g. \cite{Myung2009}), however, suffer from a number of pragmatic issues, including ad-hoc optimization criteria, lack of an established pipeline, and failure to accommodate common worries in psychology experiments (e.g., dealing with noisy responses, determining sample sizes, and selecting dependent measures or linking functions).
 % Taken together, these issues put the burden on researchers to have sufficient expertise to adapt the OED system to their specific problem and require researchers to develop their own system for writing formal psychological models and the OED optimization engine.
-
 In this paper, we resolve these issues using a Bayesian model selection framework implemented in a practical modeling system.
 We apply this framework to two case studies from cognitive psychology: perceptions of subjective randomness and category learning.
 The first case study highlights the details of application for a simple space of experiments.
@@ -198,6 +198,8 @@ Our general system opens a number of rich areas for future development, which we
 \section{Bayesian model selection framework}
 \label{s:bayes}
 
+
+
 \cas{because probabilistic programming is so crucial to our work, we give an introduction to the language we use, webppl}
 
 \cas{walk through biased coin, markov coin models}
@@ -223,6 +225,32 @@ The optimal experiment $x^*$ maximizes the expected KL divergence over the space
 x^{*} &= \argmax_{x} p(x) \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } \notag \\
     &= \argmax_{x} p(x) \sum\limits_{y} \left[\sum\limits_{m} p_m(y \mid x)p(m)\right] \dkl{P(M \mid Y = y)}{P(M)}. \label{eq:oed}
 \end{align}
+
+\subsection{Probabilistic programs}
+
+Complex probabilisitic models require new representations to support their specification. Probabilistic programs are such a representation, extending probabilistic graphical models with insights from programming language research.
+PPLs provide compositionality and abstraction, which are incredibly useful for articulating clear formal hypotheses. In addition, PPLs separate model description from implementation, and generic tools for calculating efficient probabilistic inference can be swapped in on a need-to-use basis, depending on the type of model described.
+We implement our OED system as a probabilistic program, allowing us to harness these two benefits. 
+
+We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}. 
+WebPPL uses primitive Distribution objects (e.g. \lstinline{Binomial}), which can be accessed with a number of different methods: \lstinline{sample}, \lstinline{score}, \lstinline{support}.
+\mht{trouble with the curly braces in lstinline}
+For instance, \lstinline{sample(Binomial(n: 4, p: 0.5))} returns a sample from the Binomial distribution with parameters $n=4, p = 0.5$. \lstinline{score(Binomial(n: 4, p: 0.5), 2)} will return the log-probability of the value 2 under the Binomial distribution. 
+Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditioned on at least 2 positive outcomes. In WebPPL, we would write that as 
+%
+\begin{lstlisting}[mathescape, label={code:webppl}, caption = {Posterior inference in WebPPL.}]
+var myBinomialModel = function(){
+	var x = sample(Binomial({n: 4, p: 0.5}))
+	condition(x >= 2)
+	return x
+}
+\end{lstlisting}
+%
+In Listing \ref{code:webppl}, we've constructed a function with no arguments (i.e., a thunk: \lstinline{myBinomialModel}), which samples from a Binomial distribution, uses the WebPPL primitive \lstinline{condition} to specify how we want to update our distribution, and returns the resulting sampled value \lstinline{x}.
+\lstinline{condition} looks to see if the condition is satsfied (if $x\geq2$); if it is not, it re-weights the likelihood of that \emph{program execution} (composed of all of the random choices made before the condition statement) to 0. 
+\lstinline{condition} is a special case of \lstinline{factor}, which adjusts the (log) likelihood of the program execution by some value (most often, the log probability of the data under that program execution). 
+
+Notice how this model has not specified \emph{how} we are to construct a posterior distribution. For that, we would call this function with a generic inference routine \lstinline{Infer(myBinomialModel, options)}. In \lstinline{options}, we would specify what inference algorithm we want to use. WebPPL currently has several inference algorithms to choose from: MCMC, full Enumeration, HMC, Sequential Monte Carlo, and Variational Inference.
 
 Because we have expressed the space of models, experiments, and responses in the language of probability, it is straightforward to express Equation \ref{eq:oed} as a probabilistic program (see Listing \ref{code:oed-pp}).
 This makes it clear that OED is an inference problem.
