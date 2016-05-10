@@ -8,7 +8,7 @@
 \usepackage[nonatbib]{nips_2016}
 
 %\usepackage{nips_2016}
- 
+
 % to compile a camera-ready version, add the [final] option, e.g.:
 % \usepackage[final]{nips_2016}
 
@@ -155,7 +155,7 @@ However, exploring models can be time-consuming and searching through a large sp
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
 We present a general, principled, and turnkey approach to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
-The approach is similar in spirit to other Bayesian approaches to experiment design going back to Lindley \cite{Lindley1956} (for a review, see \cite{Chaloner1995}). 
+The approach is similar in spirit to other Bayesian approaches to experiment design going back to Lindley \cite{Lindley1956} (for a review, see \cite{Chaloner1995}).
 We go beyond simple probability models, however, and implement the framework  in a \emph{probabilistic programming language} (PPL), providing new generality to the approach.
 PPLs are a convenient and compositional way to represent explicit hypotheses about the data.
 We show how optimal experiment design (OED) can be streamlined into a scientist's workflow by instantiating it in a user-friendly PPL in which formal hypotheses can already be expressed.
@@ -230,13 +230,12 @@ x^{*} &= \argmax_{x} p(x) \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } \
 
 Complex probabilisitic models require new representations to support their specification. Probabilistic programs are such a representation, extending probabilistic graphical models with insights from programming language research.
 PPLs provide compositionality and abstraction, which are incredibly useful for articulating clear formal hypotheses. In addition, PPLs separate model description from implementation, and generic tools for calculating efficient probabilistic inference can be swapped in on a need-to-use basis, depending on the type of model described.
-We implement our OED system as a probabilistic program, allowing us to harness these two benefits. 
+We implement our OED system as a probabilistic program, allowing us to harness these two benefits.
 
-We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}. 
+We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
 WebPPL uses primitive Distribution objects (e.g. \lstinline{Binomial}), which can be accessed with a number of different methods: \lstinline{sample}, \lstinline{score}, \lstinline{support}.
-\mht{trouble with the curly braces in lstinline}
-For instance, \lstinline{sample(Binomial(n: 4, p: 0.5))} returns a sample from the Binomial distribution with parameters $n=4, p = 0.5$. \lstinline{score(Binomial(n: 4, p: 0.5), 2)} will return the log-probability of the value 2 under the Binomial distribution. 
-Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditioned on at least 2 positive outcomes. In WebPPL, we would write that as 
+For instance, \lstinline|sample(Binomial({n: 4, p: 0.5}))| returns a sample from the Binomial distribution with parameters $n=4, p = 0.5$. \lstinline|score(Binomial({n: 4, p: 0.5}), 2)| will return the log-probability of the value 2 under the Binomial distribution.
+Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditioned on at least 2 positive outcomes. In WebPPL, we would write that as
 %
 \begin{lstlisting}[mathescape, label={code:webppl}, caption = {Posterior inference in WebPPL.}]
 var myBinomialModel = function(){
@@ -247,8 +246,8 @@ var myBinomialModel = function(){
 \end{lstlisting}
 %
 In Listing \ref{code:webppl}, we've constructed a function with no arguments (i.e., a thunk: \lstinline{myBinomialModel}), which samples from a Binomial distribution, uses the WebPPL primitive \lstinline{condition} to specify how we want to update our distribution, and returns the resulting sampled value \lstinline{x}.
-\lstinline{condition} looks to see if the condition is satsfied (if $x\geq2$); if it is not, it re-weights the likelihood of that \emph{program execution} (composed of all of the random choices made before the condition statement) to 0. 
-\lstinline{condition} is a special case of \lstinline{factor}, which adjusts the (log) likelihood of the program execution by some value (most often, the log probability of the data under that program execution). 
+\lstinline{condition} looks to see if the condition is satsfied (if $x\geq2$); if it is not, it re-weights the likelihood of that \emph{program execution} (composed of all of the random choices made before the condition statement) to 0.
+\lstinline{condition} is a special case of \lstinline{factor}, which adjusts the (log) likelihood of the program execution by some value (most often, the log probability of the data under that program execution).
 
 Notice how this model has not specified \emph{how} we are to construct a posterior distribution. For that, we would call this function with a generic inference routine \lstinline{Infer(myBinomialModel, options)}. In \lstinline{options}, we would specify what inference algorithm we want to use. WebPPL currently has several inference algorithms to choose from: MCMC, full Enumeration, HMC, Sequential Monte Carlo, and Variational Inference.
 
