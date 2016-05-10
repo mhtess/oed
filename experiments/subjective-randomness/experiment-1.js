@@ -134,14 +134,7 @@ function make_slides(f) {
     submit : function(e){
       //if (e.preventDefault) e.preventDefault(); // I don't know what this means.
       exp.subj_data = {
-        language : $("#language").val(),
-        enjoyment : $("#enjoyment").val(),
-        asses : $('input[name="assess"]:checked').val(),
-        age : $("#age").val(),
-        gender : $("#gender").val(),
-        education : $("#education").val(),
         problems: $("#problems").val(),
-        fairprice: $("#fairprice").val(),
         comments : $("#comments").val()
       };
       exp.go(); //use exp.go() if and only if there is no "present" data.
@@ -226,7 +219,7 @@ function init() {
       screenUW: exp.width
     };
   //blocks of the experiment:
-   exp.structure=['i0','coins', 'thanks']//,"i0", "coins","check",'subj_info', 'thanks'];
+   exp.structure=['i0','coins', 'subj_info','thanks']//,"i0", "coins","check",'subj_info', 'thanks'];
 
   exp.data_trials = [];
   //make corresponding slides:
