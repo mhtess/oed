@@ -215,6 +215,7 @@ A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predic
 
 The goal of OED is to find the experiment $x^{*}$ that maximizes the expected information gain about the belief distribution on models $P(M \mid X = x^{*})$.
 We use KL divergence as our measure of information gain:
+\lou{it's not immediately clear what $p(m \mid x)$ means, so cut this, probably}
 \begin{align}
   \dkl{ p(m \mid x) }{ p(m) }  = \sum\limits_m p(m \mid x) \ln \left( \frac{p(m \mid x)}{p(m)}\right). \label{eq:kl}
 \end{align}
@@ -284,7 +285,7 @@ var OED = function(mSample, xSample, ySample, infer) {
 }
 \end{lstlisting}
 %\end{minipage}
-Our OED code is available as a WebPPL---see \url{https://github.com/mhtess/webppl-oed}.
+Our OED code is available as a WebPPL package---see \url{https://github.com/mhtess/webppl-oed}.
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
