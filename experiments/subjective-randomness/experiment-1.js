@@ -180,10 +180,24 @@ function init() {
     T:0
   };
 
-  var allSequences = ["H H H H ", "H H H T ", "H H T H ", "H H T T ", 
-                      "H T H H ", "H T H T ", "H T T H ", "H T T T ", 
-                      "T H H H ", "T H H T ", "T H T H ", "T H T T ", 
-                      "T T H H ", "T T H T ", "T T T H ", "T T T T "];
+  var allSequences = [
+  "H H H H ", 
+  "H H H T ", 
+  "H H T H ", 
+  "H H T T ", 
+  "H T H H ", 
+  "H T H T ", 
+  "H T T H ", 
+  "H T T T ", 
+  "T H H H ", 
+  "T H H T ", 
+  "T H T H ", 
+  "T H T T ", 
+  "T T H H ", 
+  "T T H T ", 
+  "T T T H ", 
+  "T T T T "
+  ];
 
   var numericSeq = allSequences.map(function(s){return s.split(' ' ).slice(0,4).map(function(i){return exp.coinDictionary[i]}).join('')});
 
