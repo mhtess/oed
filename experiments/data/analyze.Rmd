@@ -1,0 +1,21 @@
+```{r}
+library(dplyr)
+library(ggplot2)
+```
+
+```{r}
+d = read.csv("subjrand-1-trials.csv", stringsAsFactors = FALSE)
+```
+
+
+how many subjects get alloted to each cell?
+
+```{r}
+d %>% group_by(sequence) %>% summarise(n=n())
+```
+
+for each sequence, how many subjects say heads versus tails?
+```{r}
+d %>% group_by(sequence) %>% summarise(n.heads = sum(response == "H"), n.tails = sum(response == "T"))
+```
+
