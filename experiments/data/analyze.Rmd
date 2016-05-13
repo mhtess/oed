@@ -8,7 +8,8 @@ theme_set(theme_classic(24))
 # summarizing data so we can get AIG with webppl-oed
 
 ```{r}
-d = read.csv("subjrand-1-trials.csv", stringsAsFactors = FALSE)
+d = read.csv("subjrand-1-trials.csv", stringsAsFactors = FALSE) %>%
+  transform(sequence = gsub(" ", "", sequence))
 ```
 
 
@@ -20,7 +21,8 @@ d %>% group_by(sequence) %>% summarise(n=n())
 
 for each sequence, how many subjects say heads versus tails?
 ```{r}
-d %>% group_by(sequence) %>% summarise(n.heads = sum(response == "H"), n.tails = sum(response == "T"))
+d.agg = d %>% group_by(sequence) %>% summarise(n.heads = sum(response == "H"), n.tails = sum(response == "T"))
+d.agg
 ```
 
 # comparing expected and actual igs
@@ -48,6 +50,17 @@ summary(lm(data = di, formula = ig ~ eig))
 ```
 
 (r^2 = 0.7)
+
+## does fit improve if we collapse across equivalence classes predicted by eig?
+
+```{r}
+d.agg2 = merge(d.agg, di[,c('experiment','eig')] %>% rename(sequence = experiment)) %>%
+  group_by(eig)
+```
+
+the naive way to collapse is to take the mean ig within each equivalence class but i think this isn't quite right -- you want to combine response sets and then compute IG there.
+but combining responses has a little wrinkle e.g., HHHH and TTTT have the same eig but you need to convert to a common currency (gave the likelier response [e.g., H for HHHH, T for TTTT] versus not [T for HHHH, H for TTTT]).
+even the fancier binning has subtle issues, though -- we are increasing the total N and these are technically different stimuli.
 
 # ig ~ eig.ignorance
 
