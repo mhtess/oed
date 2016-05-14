@@ -36,13 +36,15 @@ di = read.csv('information-gains.csv')
 
 plot ig versus eig:
 ```{r}
-qplot(data = di, x = eig, y = ig)
+p1 = qplot(data = di, x = eig, y = ig, size = I(3), alpha = I(0.5)) + xlim(0,0.7) + ylim(0,0.7) + geom_abline()
 ```
 
 direct labeled version:
 ```{r}
-direct.label(qplot(data = di, x = eig, y = ig, color = experiment))
+direct.label(qplot(data = di, x = eig, y = ig, size = I(3), color = experiment) + xlim(0,0.7) + ylim(0,0.7) + geom_abline())
 ```
+
+(note that direct label jitters)
 
 how well does eig model ig?
 ```{r}
@@ -66,12 +68,12 @@ even the fancier binning has subtle issues, though -- we are increasing the tota
 
 plot ig versus eig.ignorance:
 ```{r}
-qplot(data = di, x = eig.ignorance, y = ig)
+qplot(data = di, x = eig.ignorance, y = ig, size = I(3), alpha = I(0.5)) + xlim(0,0.7) + ylim(0,0.7) + geom_abline()
 ```
 
 direct labeled version:
 ```{r}
-direct.label(qplot(data = di, x = eig.ignorance, y = ig, color = experiment))
+direct.label(qplot(data = di, x = eig.ignorance, y = ig, size = I(3), color = experiment) + xlim(0,0.7) + ylim(0,0.7) + geom_abline())
 ```
 
 ```{r}
