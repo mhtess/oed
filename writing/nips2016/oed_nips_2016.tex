@@ -523,13 +523,10 @@ This is approximately two orders of magnitude larger than the space of subjectiv
 
 \subsection{Results of optimal experimental design}
 
-Though the space is considerably larger, thus hindering sequential exploration of each experiment by the scientist, it is still sufficiently small to be fully enumerated automatically in a reasonable amount of time. 
-Our OED analysis revealed that the MS experiment was in the top \red{n\%} experiments in terms of their expected information gain. 
+The space of experiments in this case study is considerably larger than before, and thus it would be even more costly for the scientist to explore each experiment by hand. However, the space is still sufficiently small to be fully enumerated automatically in a reasonable amount of time. 
+Our fully-enumerated OED analysis revealed that the MS experiment was in the top \red{n\%} experiments in terms of their expected information gain. 
 By contrast, the optimal experiment carried \red{n times} more information than the MS experiment.
 
-To gain more intuition into the economic gain of employing the optimal experiment, we conducted an analysis varying the number of subjects in the experiment. Because each subject's responses is a stochastic of the experiment, more subjects provide more information to disambiguate the competing hypotheses. We find that the optimal experiment reaches maximum expected information gain in with \red{X participants} worth of data. By contrast, the MS experiment requires \red{Y participants} to achieve maximum expected information gain.
-
-%\cas{we enumerated the 933 valid and unique (up to permuting the dimensions) experiments in terms of expected information gain.}
 
 \cas{we found that the MS experiment was not the best. TODO: reproduce daniel's results (Fig.~\ref{fig:dist})}
 
@@ -542,14 +539,25 @@ To gain more intuition into the economic gain of employing the optimal experimen
 \label{fig:dist}
 \end{figure}
 
+
+%\cas{we enumerated the 933 valid and unique (up to permuting the dimensions) experiments in terms of expected information gain.}
+
+We conducted the optimal experiment as well as the original MS experiment in order to measure the empirical information gain.
+
+\cas{we did a power analysis to determine the number of subjects we'd need.}
+
+To gain more intuition into the economic gain of employing the optimal experiment, we conducted an analysis varying the number of subjects in the experiment. Because each subject's responses is a stochastic of the experiment, more subjects provide more information to disambiguate the competing hypotheses. We find that the optimal experiment reaches maximum expected information gain in with \red{X participants} worth of data. By contrast, the MS experiment requires \red{Y participants} to achieve maximum expected information gain.
+
+
+\cas{we conducted the actual experiments. empirical information gain from MS was TODO, empirical information gain from opt was TODO.}
+
+\subsection{Discussion}
+
 The MS uses a qualitative swap in ranking for two stimuli to disambiguate the models.
 However, this prediction has a relatively small magnitude and comes at the expense of little information gain from the remaining stimuli.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously
 \lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
 
-\cas{we did a power analysis to determine the number of subjects we'd need.}
-
-\cas{we conducted the actual experiments. empirical information gain from MS was TODO, empirical information gain from opt was TODO.}
 
 \cas{explain different scales for theoretical versus empirical information gain}
 
