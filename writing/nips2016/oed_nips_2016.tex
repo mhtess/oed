@@ -447,62 +447,19 @@ Further, the experimental space is substantially larger than the subjective rand
 Both exemplar and prototypes models can be viewed as classifiers that map inputs (here, a vector of boolean features) to a probability distribution on the outputs (a category label: A or B).
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 
-%\cas{both models are classifiers that take as input an object (a vector of boolean features) and return as output a probability distribution on a/b categorization}
-
-%\cas{exemplar model assumes that people store information about every exemplar they've seen and that categorization of an object is a function of similarity to all A exemplars versus B exemplars}
-
-% \begin{lstlisting}[caption=Exemplar model (TODO: clearer input/output types)]
-% var exemplar = function(as, bs) {
-%   var weights = repeat(4, function() { uniform(0,5) })
-%   Enumerate(function() {
-%     var object = repeat(4, function() { flip() ? 1 : 0});
-%     var sim = function(x,y) {
-%       product(map3(
-%          function(xi,yi, wi) { (xi == yi) ? 1 : wi },
-%          x, y, weights))
-%     };
-%     var aSims = sum(map(function(a) { return sim(object, a) }, as));
-%     var bSims = sum(map(function(b) { return sim(object, b) }, bs));
-%     condition(flip(ssa / (ssa + ssb)));
-%     return {object: object, prob: prob}
-%   })
-% }
-% \end{lstlisting}
-
 The prototype modes assumes instead that people store, for each category, a prototype. Categorization of an object is thus a function of its similarity to the prototype of category A versus the prototype of category B.
 This model produces ordinal predictions, and we transform these to numerical predictions \red{using a transformation}.
-%\cas{(this model produces rank orderings but we did a transform so that it gives numbers)}
 
-%\cas{prototype model assumes roughly that people do not store every exemplar but instead store something like a prototype for each category and that categorization of an object is a function of its similarity the prototypes (this model produces rank orderings but we did a transform so that it gives numbers)}
+exemplar model:
 
-% \begin{lstlisting}[caption=Prototype model]
-% var prototype = function(as, bs) {
-%   var alpha = TODO();
-%   var bias = TODO();
-%   var weights = TODO();
-%   var recall = append(as,bs);
-%   Enumerate(function() {
-%     var object = repeat(4, function() { flip() ? 1 : 0});
+$$ f_e(s) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
+  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}
+} $$
 
-%     var dimEvidenceForA = function(i) {
-%       var matchingObjects = filter(function(x) { x[i] == object[i] }, recall);
-%       var n = matchingObjects.length;
-%       var matchingAs = filter(function(x) { contains(as, x) }, matchingObjects);
-%       var nA = matchingAs.length;
-%       var nB = n - nA;
-%       return weights[i] * (nA - nB)/n;
-%     }
+prototype model:
 
-%     var totalEvidence = sum(map(dimEvidenceForA,[0,1,2,3])) + (contains(recall, object) ? bias : 0);
+$$ f_p(s) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ b|R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\} $$
 
-%     // TODO: use bias argument
-%     var prob = 1 / (1 + exp(-alpha * totalEvidence));
-%     condition(flip(prob));
-
-%     return {object: object, prob: prob};
-%   })
-% }
-% \end{lstlisting}
 
 \subsection{Experiments}
 
