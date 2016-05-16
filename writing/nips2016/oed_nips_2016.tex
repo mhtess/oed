@@ -89,7 +89,7 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 
-\title{Practical optimal experiment design for psychology}
+\title{Practical optimal experiment design with probabilistic programs}
 
 % The \author macro works with any number of authors. There are two
 % commands used to separate the names and addresses of multiple
@@ -142,10 +142,11 @@
 Designing good scientific experiments requires ingenuity, rigor, and patience to consider a large space of possible experiments.
 With the growing popularity of formal models, part of this time-consuming process can be automated.
 Here, we present a general, principled, and turnkey approach to experiment design.
-We introduce this framework with the goal to differentiate competing models of psychological phenomena, but the framework is general to any domain where probabilistic models are used.
-We implement our system in a user-friendly probabilistic programming language (PPL), allowing for plug-and-play use by the scientist uses PPLs to formalize her hypotheses.
-We consider a number of problems specific to psychological phenomena: dealing with noisy responses and deciding on the number of subjects.
-We validate our framework using two case studies in the psychology of randomness and categorization.
+Our system is based on a user-friendly probabilistic programming language (PPL). 
+Using such a high-level and universal modeling language means details of experiment selection calculation can be hidden from the scientist, without loss of generality; she needs only represent her hypothesis and space of potential experiments.
+We apply this system to differentiating competing models of psychological phenomena, but the framework is general to any domain where probabilistic models are used to represent theories.
+%We consider a number of problems specific to psychological phenomena: dealing with noisy responses and deciding on the number of subjects.
+We validate our framework using case studies in the psychology of randomness and categorization.
 We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
 Our framework opens up a number of interesting questions, which we explore briefly in the discussion.
 
@@ -156,6 +157,7 @@ Our framework opens up a number of interesting questions, which we explore brief
 
 \section{Introduction}
 \lou{start off more generally, don't specialize too much for psychology.}
+\ndg{agree: first talk about OED in general, and why we should do OED within a PPL setup, then talk about psych as a target domain.}
 Designing scientific experiments is hard.
 Scientists must have hypotheses and reason over a potentially large space of possible experiments.
 Studying human behavior has additional complications.
@@ -165,6 +167,7 @@ Further, human data is expensive and one must balance expected statistical power
 Formal models of psychological phenomena alleviate some of these issues.
 Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
+\ndg{point out that this intuition can be wrong -- foreshadow MD result...}
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
 We present a general, principled, and turnkey approach to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
@@ -174,6 +177,7 @@ PPLs are a convenient and compositional way to represent explicit hypotheses abo
 We show how optimal experiment design (OED) can be streamlined into a scientist's workflow by instantiating it in a user-friendly PPL in which formal hypotheses can already be expressed.
 This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
 %\lou{as explained, this doesn't seem so crucial to me.}
+\ndg{make this stronger and clearer: if the goal is automated expt design that is general, not one-off, then the math for experiment selection has to be automatic. this can only happen if there is a langauge for specifying the hypotheses and experiments. PPLs serve this role well, because they are high-level and universal.}
 
 %Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition).
 
@@ -210,7 +214,7 @@ Our general system opens a number of rich areas for future development, which we
 
 \section{Bayesian model selection framework}
 \label{s:bayes}
-
+\ndg{why is this section titled model selection, not experiment selection/design?}
 
 
 \cas{because probabilistic programming is so crucial to our work, we give an introduction to the language we use, webppl}
@@ -222,6 +226,8 @@ Our general system opens a number of rich areas for future development, which we
 \cas{discuss sample(), condition(), factor() (= likelihood weighting), score()}
 
 \lou{we assume that subjects are iid and that each subject's response is conditionally iid given their latent values.. discussion: relax these assumptions, connect with mixed models (maybe having linking functions gives us this?)}
+
+\ndg{this section needs to be smoothed out. (should still be short...) first talk about models (M), experiments (X), and results (Y). Then talk about posterior on models and information gain. Then talk about expected results (first assuming models are true, then relaxing to uninformative). Finally the argmax objective.}
 
 Let $P(X)$ be a prior distribution on experiments, $P(Y)$ a prior on possible responses, and $P(M)$ a prior on models.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predictions about response data $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
@@ -239,6 +245,7 @@ We discuss the decision criteria for these different response distributions thro
 
 \subsection{Probabilistic programs}
 
+\ndg{cut this paragraph, or move to intro.}
 Complex probabilistic models require new representations to support their specification. Probabilistic programs are such a representation, extending probabilistic graphical models with insights from programming language research.
 PPLs provide compositionality and abstraction, which are incredibly useful for articulating clear, formal hypotheses. In addition, PPLs separate model description from implementation, and generic tools for calculating efficient probabilistic inference can be swapped in on a need-to-use basis, depending on the details of the probabilistic model.
 We implement our OED system as a probabilistic program, allowing us to harness these features.
@@ -262,6 +269,8 @@ In Listing \ref{code:webppl}, we've constructed a function with no arguments (i.
 
 Notice how this model has not specified \emph{how} we are to construct a posterior distribution. For that, we would call this function with a generic inference routine \lstinline{Infer(myBinomialModel, options)}. In \lstinline{options}, we would specify what inference algorithm we want to use. WebPPL currently has several inference algorithms to choose from: MCMC, full Enumeration, Hamiltonian Monte Carlo, Sequential Monte Carlo, and Variational Inference.
 
+\ndg{make clear the two different uses of webppl here: to represent the scientific hypotheses (user-facing), and to implement the OED calculations (developer-facing). maybe separate subsection for the latter?}
+
 Because we have expressed the space of models, experiments, and responses in the language of probability, it is straightforward to express Equation \ref{eq:oed} as a probabilistic program (see Listing \ref{code:oed-pp}).
 This makes it clear that OED is an inference problem.
 Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model of OED) from the task of solving it (i.e., choosing/writing the inference algorithm).
@@ -270,6 +279,7 @@ If we are not interested in the full distribution of information gain, we could 
 %\lou{note that outermost Infer() could also be a Search()}
 
 \mht{the \lstinline{infer} used in the code is a little cryptic and doesn't seem to match the way I'm describing \lstinline{Infer()} above}
+\ndg{yeah, what's up with infer.Foo? also note that in dev options is now before thunk in Infer(opt, thunk). helps with readability...}
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample, infer) {
