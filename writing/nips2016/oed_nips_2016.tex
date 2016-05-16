@@ -463,30 +463,29 @@ Further, the experimental space is substantially larger than the subjective rand
 Both exemplar and prototypes models can be viewed as classifiers that map inputs (here, a vector of boolean features) to a probability distribution on the outputs (a category label: A or B).
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 
-The prototype modes assumes instead that people store, for each category, a prototype. Categorization of an object is thus a function of its similarity to the prototype of category A versus the prototype of category B.
-This model produces ordinal predictions, and we transform these to numerical predictions \red{using a transformation}.
+By contrast, the prototype model assumes assumes that people store a measure of central tendency for each category---a prototype.
+Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.\footnote{The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.}
 
-exemplar model:
+Formally, the exemplar model classifies an object $s$ as an A with probability:
+$$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
+  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}} $$
+where $w$ is a free parameter of dimensional weights.
 
-$$ f_e(s) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
-  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}
-} $$
-
-prototype model:
-
-$$ f_p(s) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ b|R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\} $$
-
+The prototype model classifies an object $s$ as an A with probability:
+$$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\}$$
+where $w$ is a vector of weights, $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before.
+For details, see the supplementary materials.
 
 \subsection{Experiments}
 
-In the classic category learning paradigm, participants train on examples (objects) of each of two categories and are later asked to recall the category label of the trained examples as well as predict the category label of a novel example.
-In the space of experiments considered by Medin and Scheffar (henceforth, MS), each example or object consisted of binary features along 4 dimensions (e.g. color: \emph{red} vs. \emph{blue}, shape: \emph{square} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, texture: \emph{striped} vs. \emph{filled}).
-Thus, there are 16 unique combinations of properties (unique objects) in this setup.
+In the experiments, human participants learn about the category structures in an initial training phase, performing supervised learning of a subset of the objects, and then are tested on this learning in a test phase.
+In the training phase, participants see a subset of the objects presented one at a time and must label each object.
+Initially, participants can only guess at the labels but they receive feedback so that they can eventually learn the category assignments.
+After reaching a learning criterion, they complete the test phase, where they label all the objects (training set and the held out test set) without feedback.
 
-A second constraint imposed on the space of experiment is the number of training stimuli. MS considered 9 training stimuli (5 of one category, 4 of the other).
-There are 933 valid and unique experiments (up to a permutation of the dimensions).
-\mht{What does valid here mean?}
-This is approximately two orders of magnitude larger than the space of subjective randomness experiments considered before.
+Medin and Schaffer (MS) used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
+For technical reasons, they considered only experiments (1) having linearly separable decision boundaries and (2) containing 5 A's and 4 B's in the training set.
+There are, up to permutation, 933 experiments that satisfy these constraints, which is approximately two orders of magnitude larger than the space of subjective randomness experiments considered before.
 
 %\cas{4 binary dimensions - 16 objects total}
 
