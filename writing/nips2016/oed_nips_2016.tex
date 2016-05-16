@@ -308,16 +308,18 @@ var OED = function(mSample, xSample, ySample, infer) {
 \end{lstlisting}
 %\end{minipage}
 Our OED code is available as a WebPPL package---see \url{https://github.com/mhtess/webppl-oed}.
+We next illustrate our system by applying it to distinguish psychological theories of randomness perception.
 
 \section{Case study 1: Subjective randomness}
 \label{s:tutorial}
 
-We demonstrate our OED system in an intuitive and restricted domain: subjective randomness.
+\ndg{possibly we should cast this section as theories of sequence prediction, and connect to randomness perception as part of broader context?}
+
 Human judgments about randomness are surprisingly systematic and nonuniform across equally likely outcomes -- for example, a sequence of outcomes of coin flips \lstinline{HTHTTTHH} is considered to be more random than the sequence \lstinline{HHHHHHHH} ~\cite{goodfellow38:jep, griffiths01:cogsci}.
 %This discrepancy between human intuitions and statistical fact about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature.
-
-There are many hypotheses one might have about what underlies human intuitions about randomness.
-Here, we consider three simple hypotheses in the domain of coin flipping: (a) \emph{Weighted coin}: participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), (b) \emph{Markov coin}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes, and (c) \emph{Fair coin}: participants assume coins flipped are fair coins.
+\ndg{need to say that theories of randomness are formulated as posterior sleection, and we look at the simpler component theory of sequence prediction??}
+There are many hypotheses one might have about what underlies human intuitions about randomness and prediction of the next observation in a sequence.
+Here, we consider three simple hypotheses about the alternatives participants consider when reasoning about sequences of coin flips: (a) \emph{Weighted coin}: participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), (b) \emph{Markov coin}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes, and (c) \emph{Fair coin}: participants assume coins flipped are fair coins.
 We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
 
@@ -332,10 +334,11 @@ Formally, the set of models is $\{m_{\text{weighted}}, m_{\text{markov}}, m_{\te
 \subsubsection{Weighted coin model}
 \label{s:tutorial:sss:biased}
 
-The weighted coin model models a participant who assumes that coin that generated the observed sequence has some unknown bias and that each coin flip is independent.\footnote{This is a model of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}
+The weighted coin model models a participant who assumes that coin that generated the observed sequence has some unknown bias and that each coin flip is independent.\footnote{This is a computational-level model of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}
 In this model, the weight of the coin is inferred from the observed sequence of flips by trying to generate the observed sequence, and conditioning on the generated sequence matching the observed sequence.
 The inferred coin weight is subsequently used to predict the next coin flip. We show the model in Listing~\ref{lst:m_weighted}.
 
+\ndg{update to use Infer. maybe elide the discrete set of coin weights?}
 \begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}]
 var coinWeights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
 
@@ -386,6 +389,9 @@ We then generated a sequence of flips according this transition probability begi
 
 \subsubsection{Fair coin model}
 \label{s:tutorial:sss:fair}
+
+\ndg{maybe put fair coin first? don't need separate subsections for these three models...}
+
 
 Our final model assumes participants judgments of randomness are verdical according to flipping a fair coin. In WebPPL, the model looks like:
 
@@ -457,6 +463,7 @@ Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable p
 Optimal experiment design has the possibility of addressing experiment and model spaces of arbitrary complexity. Our second case study explores how OED addresses a more realistic space of models and experiments.
 
 We analyze a classic paper in the psychology of categorization aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model} \cite{medin78:pr}. What is particularly interesting about this example is that Medin and Schaffer, the original authors, cleverly designed their experiment with the goal of disambiguating formal models.
+\ndg{many other authors have followed their lead by replicating and using the 5-4 expt to test models.}
 From an information-theoretic perspective, how good was the experiment that Medin and Schaffer designed?
 Using OED, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the exemplar and prototype models, as expressed in the Medin and Schaffer work, are not state of the art models. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear and tractable set of possible experiments.}
 
@@ -487,6 +494,7 @@ The exemplar model assumes people store information about every instance of the 
 By contrast, the prototype model assumes assumes that people store a measure of central tendency for each category---a prototype.
 Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.\footnote{The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.}
 
+\ndg{can probably eave out the eqs, and instead just say that math and webppl representations of these models are in supplement.}
 Formally, the exemplar model classifies an object $s$ as an A with probability:
 $$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
   \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}} $$
