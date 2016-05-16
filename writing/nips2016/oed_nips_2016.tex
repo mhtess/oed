@@ -544,9 +544,19 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 
 \cas{explain different scales for theoretical versus empirical information gain}
 
-%\section{Relationship to previous work}
+\section{Related work}
 
 %\lou{myung \& pitt -- good but requires manually deriving equations for every new experiment design setup}
+
+
+We are not the first to attempt optimal experiment design for psychology.
+Most recently, Myung \& Pitt have introduced a Design Optimization procedure for disambiguating models \cite{Myung2009}.
+While a good first step, their procedure unfortunately requires the scientist to specify the optimization criterion for each unique case. For instance, they use the Fisher Information Approximation for disambiguating retention models because these models have similar numbers of parameters but take different functional forms. Other optimization criteria might be appropriate if the models were different. They admit ``the specific choice among such measures would be dependent upon the goals and preference of the experimenter, its computational feasibility, and interpretability considerations.''
+We see the need to specify the optimization criteria separately for each case study as a prohibitive burden for the scientist and a roadblock towards widespread adoption.
+
+The problem we address is similar in spirit to problems in active learning.
+\lou{Near-Optimal Bayesian Active Learning with Noisy Observations + whocites}
+\lou{find related active learning stuff}
 
 
 \section{General discussion}
@@ -563,20 +573,12 @@ With our framework, the scientist need only articulate her hypotheses in probabi
 Empirical paradigms are no strangers to the scientific method and are arguably where the genius of experimental work is to be found.
 Formal hypotheses have been steadily gaining popularity, and the inclusion of an automated method for experiment design will only accelerate this adoption.
 
-We are not the first to attempt optimal experiment design for psychology.
-Most recently, Myung \& Pitt have introduced a Design Optimization procedure for disambiguating models \cite{Myung2009}.
-While a good first step, their procedure unfortunately requires the scientist to specify the optimization criterion for each unique case. For instance, they use the Fisher Information Approximation for disambiguating retention models because these models have similar numbers of parameters but take different functional forms. Other optimization criteria might be appropriate if the models were different. They admit ``the specific choice among such measures would be dependent upon the goals and preference of the experimenter, its computational feasibility, and interpretability considerations.''
-We see the need to specify the optimization criteria separately for each case study as a prohibitive burden for the scientist and a roadblock towards widespread adoption.
-
 Another roadblock overcome with our framework is the usability of the system.
 We implement our approach is a user-friendly probabilisitic programming language which also has the expressive capacity to instantiate modern probabilisitic models.
 This means that a framework for probabilisitic modeling can automatically take advantage of optimal experiment design, with no further development needed on behalf of the scientist.
 In addition to usability, the fact that our OED is posed as an inference problem in a probabilistic program enables the adoption of new inference strategies as they become available.
 For example, if the experimental paradigm describes a continuous space of possible experiments (e.g. if stimuli vary along a continuous dimension like color), inference strategies like Hamiltonian Monte Carlo or Variational Inference, both of which are currently available in WebPPL, might prove useful.
 
-The problem we address is similar in spirit to problems in active learning.
-\lou{Near-Optimal Bayesian Active Learning with Noisy Observations + whocites}
-\lou{find related active learning stuff}
 
 Automatic experiment design
 \cas{our work does not replace scientists -- it still requires human intelligence to make models, design an experiment space, and set up measures. instead, it frees them to work on more interesting stuff}
