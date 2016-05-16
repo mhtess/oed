@@ -478,7 +478,8 @@ After reaching a learning criterion, they complete the test phase, where they la
 
 Medin and Schaffer (MS) used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
 For technical reasons, they considered only experiments (1) having linearly separable decision boundaries and (2) containing 5 A's and 4 B's in the training set.
-There are, up to permutation, 933 experiments that satisfy these constraints, which is approximately two orders of magnitude larger than the space of subjective randomness experiments considered before.
+There are, up to permutation, 933 experiments that satisfy these constraints.
+This space is roughly two orders of magnitude larger than the space of subjective randomness experiments we considered before, although it is small enough to fully enumerate in a reasonable amount of time.
 
 %\cas{4 binary dimensions - 16 objects total}
 
@@ -488,33 +489,18 @@ There are, up to permutation, 933 experiments that satisfy these constraints, wh
 
 \subsection{Results of optimal experimental design}
 
-The space of experiments in this case study is considerably larger than before, and thus it would be even more costly for the scientist to explore each experiment by hand. However, the space is still sufficiently small to be fully enumerated automatically in a reasonable amount of time.
-Our fully-enumerated OED analysis revealed that the MS experiment was in the top \red{n\%} experiments in terms of their expected information gain.
-By contrast, the optimal experiment carried \red{n times} more information than the MS experiment.
-
-
-\cas{we found that the MS experiment was not the best. TODO: reproduce daniel's results (Fig.~\ref{fig:dist})}
-
-\cas{the optimal experiment that we found was TODO}
+We found that the best experiment had an expected information gain of 0.08 nats (for one participant), whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
+Indeed, the MS experiment only the \red{N}th best experiment (Figure~\ref{fig:dist})
 
 \begin{figure}[h!]
 \centering
-\includegraphics[width=3.2in]{img/dist.eps}
-\caption{The distribution of optimal experiments with the MS bin highlighted in red. TODO: add predictions of MS and opt experiment}
+\includegraphics[width=2.5in]{img/dist.eps} \includegraphics[width=2.5in]{img/empirical.eps}
+\caption{Comparing MS experiment with optimal experiment. MS experiment has lower expected information gain and requires twice as many participants to achieve maximum actual information gain.}
 \label{fig:dist}
 \end{figure}
 
-
-%\cas{we enumerated the 933 valid and unique (up to permuting the dimensions) experiments in terms of expected information gain.}
-
-We conducted the optimal experiment as well as the original MS experiment in order to measure the empirical information gain.
-
-\cas{we did a power analysis to determine the number of subjects we'd need.}
-
-To gain more intuition into the economic gain of employing the optimal experiment, we conducted an analysis varying the number of subjects in the experiment. Because each subject's responses is a stochastic of the experiment, more subjects provide more information to disambiguate the competing hypotheses. We find that the optimal experiment reaches maximum expected information gain in with \red{X participants} worth of data. By contrast, the MS experiment requires \red{Y participants} to achieve maximum expected information gain.
-
-
-\cas{we conducted the actual experiments. empirical information gain from MS was TODO, empirical information gain from opt was TODO.}
+To validate this finding, we ran both experiments with 40 participants.
+Figure~\ref{fig:dist} shows that, while both experiments give maximal actual information gain with 40 participants, the optimal experiment reaches this maximum with only 8 participants, whereas the MS experiment requires 20.
 
 \subsection{Discussion}
 
