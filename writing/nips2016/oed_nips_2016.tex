@@ -407,10 +407,11 @@ We recruited 320 participants from Amazon's Mechanical Turk. The procedure consi
 
 \subsubsection{Results}
 
-For each experiment $x_i$ and result $y_i$, we calculate the actual information gain,
+For each experiment $x_i$ and result $y_i$, we compute the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compare this to the actual information gain,
 $$\mathrm{AIG} = \dkl{P(M \mid Y = y_i, X = x_i)}{P(M)}.$$
 Figure TODO shows the expected information gain versus actual information gain for each pairwise model comparison and the full three-way comparison.
 We observe respectable correlations between expected and actual information gain for all comparisons (the smallest $r$ = 0.857).
+This reveals that expected information gain is a reliable predictor of to the empirical value of an experiment.
 
 \section{Case study 2: Category learning}
 
