@@ -389,15 +389,15 @@ OED({mSample: function() { uniformDraw([fairCoin, weightedCoin]) }),
 \end{lstlisting}
 
 \underline{\textsf{Output:}}\\
-\includegraphics[width=3in]{img/coin.eps}
+\includegraphics[width=\columnwidth]{img/coin_eig.pdf}
 \caption{Running OED in the subjective randomness domain}
-\lou{make this figure in ggplot, clean it up}
+%\lou{make this figure in ggplot, clean it up}
 \label{fig:run-coin}
 \end{figure}
 %
 We first explore the expected information gain of experiments designed to disambiguate the fair coin model from the weighted coin model.
 We see that \lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
-Inuitively, this is sensible -- the weighted model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov infers that the probability of transitioning from one outcome to the other is quite high and assigns high probability to the opposite of the last observed value (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
+Intuitively, this is sensible -- the weighted model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov infers that the probability of transitioning from one outcome to the other is quite high and assigns high probability to the opposite of the last observed value (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
 We also see that \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments.
 Informally, this is because the models make the same predictions for these experiments.
