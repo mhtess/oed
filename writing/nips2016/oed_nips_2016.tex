@@ -285,7 +285,7 @@ var OED = function(mSample, xSample, ySample, infer) {
   var mPrior = Infer(function() { mSample() })
   Infer(function() {
     var x = xSample()                    // ${\color{purple} p(x)}$
-    var yPredictive = Infer(function() { // ${\color{purple} P(Y = y ; x) $ (predictive)
+    var yPredictive = Infer(function() { // ${\color{purple} P(Y = y ; x)}$ (predictive)
       var y = ySample(), m = sample(mPrior)
       factor(score(m(x), y))
       return y
