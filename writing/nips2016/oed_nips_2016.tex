@@ -450,19 +450,18 @@ Further, the experimental space is substantially larger than the subjective rand
 Both exemplar and prototypes models can be viewed as classifiers that map inputs (here, a vector of boolean features) to a probability distribution on the outputs (a category label: A or B).
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 
-The prototype modes assumes instead that people store, for each category, a prototype. Categorization of an object is thus a function of its similarity to the prototype of category A versus the prototype of category B.
-This model produces ordinal predictions, and we transform these to numerical predictions \red{using a transformation}.
+By contrast, the prototype model assumes assumes that people store a measure of central tendency for each category---a prototype.
+Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.\footnote{The prototype model Medin and Schaffer considered produced oridinal predictions; we consider a transformation of this model that produces continuous predictions.}
 
-exemplar model:
+Formally, the exemplar model classifies an object $s$ as an A with probability:
+$$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
+  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}} $$
+where $w$ is a free parameter of dimensional weights.
 
-$$ f_e(s) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
-  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}
-} $$
-
-prototype model:
-
-$$ f_p(s) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ b|R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\} $$
-
+The prototype model classifies an object $s$ as an A with probability:
+$$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\}$$
+where $w$ is a vector of weights, $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before.
+For details, see the supplementary materials.
 
 \subsection{Experiments}
 
