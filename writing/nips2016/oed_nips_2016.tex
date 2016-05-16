@@ -457,7 +457,7 @@ Both exemplar and prototypes models can be viewed as classifiers that map inputs
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 
 By contrast, the prototype model assumes assumes that people store a measure of central tendency for each category---a prototype.
-Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.\footnote{The prototype model Medin and Schaffer considered produced oridinal predictions; we consider a transformation of this model that produces continuous predictions.}
+Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.\footnote{The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.}
 
 Formally, the exemplar model classifies an object $s$ as an A with probability:
 $$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
@@ -472,7 +472,7 @@ For details, see the supplementary materials.
 \subsection{Experiments}
 
 In the experiments, human participants learn about the category structures in an initial training phase, performing supervised learning of a subset of the objects, and then are tested on this learning in a test phase.
-.In the training phase, participants see a subset of the objects presented one at a time and must label each object.
+In the training phase, participants see a subset of the objects presented one at a time and must label each object.
 Initially, participants can only guess at the labels but they receive feedback so that they can eventually learn the category assignments.
 After reaching a learning criterion, they complete the test phase, where they label all the objects (training set and the held out test set) without feedback.
 
