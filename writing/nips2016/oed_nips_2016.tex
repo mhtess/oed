@@ -393,7 +393,7 @@ OED({mSample: function() { uniformDraw([fairCoin, weightedCoin]) }),
 
 \underline{\textsf{Output:}}\\
 \includegraphics[width=\columnwidth]{img/coin_eig.pdf}
-\caption{Running OED in the subjective randomness domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}}
+\caption{Running OED in the subjective randomness domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}} \mht{Note this is also with the ignorance prior}
 %\lou{make this figure in ggplot, clean it up}
 \label{fig:run-coin}
 \end{figure}
@@ -422,7 +422,14 @@ We recruited 320 participants from Amazon's Mechanical Turk. The procedure consi
 For each experiment $x_i$ and result $y_i$, we compute the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compare this to the actual information gain,
 $$\mathrm{AIG} = \dkl{P(M \mid Y = y_i, X = x_i)}{P(M)}$$
 for different model comparison scenarios.
-Figure TODO shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
+Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
+\caption{Actual information gain vs. Expected information gain for three model comparison setups.}
+\label{fig:aig_vs_eig}
+\end{figure}
 
 \section{Case study 2: Category learning}
 
