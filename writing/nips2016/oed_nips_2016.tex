@@ -469,18 +469,21 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 
 \subsection{Predictions of optimal experimental design}
 
-We computed the expected information gain for all 933 experiments and found that the best experiment had an expected information gain of 0.08 nats (for one participant), whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
+We computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
 Indeed, the MS experiment only the \red{N}th best experiment (Figure~\ref{fig:dist}a)
 
 Why is the MS experiment ineffcient?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative swap in ranking for two stimuli. \lou{expound here}
 The experiment they designed indeed predicts a swap, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
-The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously
+The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
 % \lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
 
 \begin{figure}[t]
 \centering
-(a) \includegraphics[width=2.5in]{img/dist.eps} (b) \includegraphics[width=2.5in]{img/empirical.eps}
+\begin{tabular}{l l}
+(a) & (b)\\
+\includegraphics[width=2.5in]{img/dist.eps} & \includegraphics[width=2.5in]{img/category-ns.pdf}\\
+\end{tabular}
 \caption{Comparing MS experiment with optimal experiment. MS experiment has lower expected information gain and requires twice as many participants to achieve maximum actual information gain.}
 \label{fig:dist}
 \end{figure}
@@ -488,7 +491,7 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 \subsection{Empirical validation}
 
 To validate our expected information gain calculations, we ran both the MS and optimal experiments with 40 participants.
-Figure~\ref{fig:dist}b shows that, while both experiments achieve maximal actual information gain with 40 participants, the optimal experiment reaches this maximum with only 8 participants, whereas the MS experiment requires 20.
+Figure~\ref{fig:dist}b shows that, while both experiments achieve maximal actual information gain with 60 participants, the optimal experiment reaches this maximum with only 10 participants, whereas the MS experiment requires 30.
 
 % and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
