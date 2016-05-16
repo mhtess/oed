@@ -216,23 +216,15 @@ Let $P(X)$ be a prior distribution on experiments, $P(Y)$ a prior on possible re
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predictions about response data $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 
 The goal of OED is to find the experiment $x^{*}$ that maximizes the expected information gain about the belief distribution on models $P(M \mid X = x^{*})$.
-We use KL divergence as our measure of information gain:
-\lou{it's not immediately clear what $p(m \mid x)$ means, so cut this, probably}
+We use KL divergence as our measure of information gain; the optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
 \begin{align}
-  \dkl{ p(m \mid x) }{ p(m) }  = \sum\limits_m p(m \mid x) \ln \left( \frac{p(m \mid x)}{p(m)}\right). \label{eq:kl}
+x^{*} &= \argmax_{x} \sum\limits_{y} p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) } \label{eq:oed}
 \end{align}
-
-The optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
-
-\begin{align}
-x^{*} &= \argmax_{x} p(x) \sum\limits_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } \notag \\
-    &= \argmax_{x} p(x) \sum\limits_{y} \left[\sum\limits_{m} p_m(y \mid x)p(m)\right] \dkl{P(M \mid Y = y)}{P(M)}. \label{eq:oed}
-\end{align}
-
-$p_m(y \mid x)$ is the distribution on responses $y$ given experiment $x$ predicted by model $m$. Thus, this formulation of the optimal experiment is with respect to the assumption that one of models is the true model.
-If we do not have this belief, we can substitute an ignorance prior distribution over responses $p_{ign}(y \mid x)$, which will assume a uniform distribution over all possible responses $y$.
-We discuss the decision criteria for these different response distribution throughout our two case studies.
-
+One natural choice for $p(y ; x)$ is simply an uninformative distribution---this is appropriate if the practitioner does not a priori believe that any models are the true model.
+Alternatively, if we do believe that $M$ contains the true model, we could use the predictive distribution implied by the models:
+$$ p(y ; x) = \sum\limits_{m}p_m(y \mid x)p(m) $$
+where $p_m(y \mid x)$ is the distribution on responses $y$ for experiment $x$ predicted by model $m$.
+We discuss the decision criteria for these different response distributions throughout our two case studies.
 
 \subsection{Probabilistic programs}
 
@@ -415,8 +407,10 @@ We recruited 320 participants from Amazon's Mechanical Turk. The procedure consi
 
 \subsubsection{Results}
 
-\red{For each experiment, we calculate the empirical information gain by ...}
-
+For each experiment $x_i$ and result $y_i$, we calculate the actual information gain,
+$$\mathrm{AIG} = \dkl{P(M \mid Y = y_i, X = x_i)}{P(M)}.$$
+Figure TODO shows the expected information gain versus actual information gain for each pairwise model comparison and the full three-way comparison.
+We observe respectable correlations between expected and actual information gain for all comparisons (the smallest $r$ = 0.857).
 
 \section{Case study 2: Category learning}
 
