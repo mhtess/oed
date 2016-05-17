@@ -152,14 +152,14 @@
 
 Designing good scientific experiments requires ingenuity, rigor, and patience to consider a large space of possible experiments.
 With the growing popularity of formal models, part of this time-consuming process can be automated.
-Here, we present a general, principled, and turnkey approach to experiment design.
-Our system is based on a user-friendly probabilistic programming language (PPL). 
+Here, we present a general and principled approach to experiment design.
+Our system is based on a user-friendly probabilistic programming language (PPL).
 Using such a high-level and universal modeling language means details of experiment selection calculation can be hidden from the scientist, without loss of generality; she needs only represent her hypothesis and space of potential experiments.
 We apply this system to differentiating competing models of psychological phenomena, but the framework is general to any domain where probabilistic models are used to represent theories.
 %We consider a number of problems specific to psychological phenomena: dealing with noisy responses and deciding on the number of subjects.
 We validate our framework using case studies in the psychology of randomness and categorization.
 We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
-Our framework opens up a number of interesting questions, which we explore briefly in the discussion.
+Our framework opens up a number of interesting questions, which we explore in the discussion.
 
 
 \end{abstract}
@@ -178,10 +178,10 @@ Further, human data is expensive and one must balance expected statistical power
 Formal models of psychological phenomena alleviate some of these issues.
 Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
-\ndg{point out that this intuition can be wrong -- foreshadow MD result...}
+\ndg{point out that this intuition can be wrong -- foreshadow MS result...}
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
-We present a general, principled, and turnkey approach to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
+We present a general and principled approach to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
 The approach is similar in spirit to other Bayesian approaches to experiment design going back to Lindley \cite{Lindley1956} (for a review, see \cite{Chaloner1995}).
 We go beyond simple probability models, however, and implement the framework  in a \emph{probabilistic programming language} (PPL), providing new generality to the approach.
 PPLs are a convenient and compositional way to represent explicit hypotheses about the data.
@@ -223,18 +223,8 @@ Our general system opens a number of rich areas for future development, which we
 %    \end{itemize}
 
 
-\section{Bayesian model selection framework}
+\section{Experiment design framework}
 \label{s:bayes}
-\ndg{why is this section titled model selection, not experiment selection/design?}
-
-
-\cas{because probabilistic programming is so crucial to our work, we give an introduction to the language we use, webppl}
-
-\cas{walk through biased coin, markov coin models}
-
-\cas{re-emphasize 2 benefits of ppls: clear hypotheses, plug and play inference}
-
-\cas{discuss sample(), condition(), factor() (= likelihood weighting), score()}
 
 \lou{we assume that subjects are iid and that each subject's response is conditionally iid given their latent values.. discussion: relax these assumptions, connect with mixed models (maybe having linking functions gives us this?)}
 
@@ -289,20 +279,18 @@ In addition, framing OED this way gives us access to algorithms that are more so
 If we are not interested in the full distribution of information gain, we could substitute in an optimization operator \lstinline{Search()} rather than the posterior inference operator \lstinline{Infer()}.
 %\lou{note that outermost Infer() could also be a Search()}
 
-\mht{the \lstinline{infer} used in the code is a little cryptic and doesn't seem to match the way I'm describing \lstinline{Infer()} above}
-\ndg{yeah, what's up with infer.Foo? also note that in dev options is now before thunk in Infer(opt, thunk). helps with readability...}
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample, infer) {
-  var mPrior = infer.M1(function() { mSample() })
-  infer.X(function() {
-    var x = xSample()                       // ${\color{purple} p(x)}$
-    var yPredictive = infer.Y1(function() { // ${\color{purple} P(Y = y) = \sum_{m} p_m(y \mid x)p(m) }$
+  var mPrior = Infer(function() { mSample() })
+  Infer(function() {
+    var x = xSample()                    // ${\color{purple} p(x)}$
+    var yPredictive = Infer(function() { // ${\color{purple} P(Y = y ; x)}$ (predictive)
       var y = ySample(), m = sample(mPrior)
       factor(score(m(x), y))
       return y
     })
-    var KLDist = infer.Y2(function() {  // ${\color{purple} \sum_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } }$
+    var KLDist = Infer(function() {  // ${\color{purple} \sum_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } }$
       var y = sample(yPredictive)
       var mPosterior = infer.M2(function() {
         var m = sample(mPrior)
@@ -330,56 +318,53 @@ Human judgments about randomness are surprisingly systematic and nonuniform acro
 %This discrepancy between human intuitions and statistical fact about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature.
 \ndg{need to say that theories of randomness are formulated as posterior sleection, and we look at the simpler component theory of sequence prediction??}
 There are many hypotheses one might have about what underlies human intuitions about randomness and prediction of the next observation in a sequence.
-Here, we consider three simple hypotheses about the alternatives participants consider when reasoning about sequences of coin flips: (a) \emph{Weighted coin}: participants reason about the weight of the coin (i.e., the probability of a \lstinline{H} outcome), (b) \emph{Markov coin}: participants reason about the transition probabilities between \lstinline{H} and \lstinline{T} outcomes, and (c) \emph{Fair coin}: participants assume coins flipped are fair coins.
+Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Weighted coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome), (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes.
 We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
 
 \subsection{Model space}
 
+Formally, the set of models is $\{m_{\text{fair}}, m_{\text{weighted}}, m_{\text{markov}}\}$, the set of experimental designs $\mathcal{X}$ is the set of all possible sequences of four coin flips, and the set of responses $\mathcal{Y}$ is a choice between heads or tails for the fifth flip.
 
-Formally, the set of models is $\{m_{\text{weighted}}, m_{\text{markov}}, m_{\text{fair}}\}$, the set of experimental designs $\mathcal{X}$ is the set of all possible sequences of four coin flips, and the set of responses $\mathcal{Y}$ is a choice between heads or tails for the fifth flip.
+In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
 
-\lou{add fair coin + 3-model power analysis?}\\
-\mht{add number of subjects analysis?}
+\begin{lstlisting}[caption=Fair coin model,  label={lst:m_fair}]
+  var fairCoin = function(sequence) {
+    Infer(function(){
+      return flip(0.5)
+    }, {method: 'Enumerate'})
+  }
+\end{lstlisting}
 
-\subsubsection{Weighted coin model}
-\label{s:tutorial:sss:biased}
+Note the type signature of this model -- it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment (here, judgments about the next coin flip).
+This distribution is computed using a particular inference strategy, here, an exhaustive \lstinline{Enumerate} algorithm.
+$m_{\text{bias}}$ generalizes this fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip:
 
-The weighted coin model models a participant who assumes that coin that generated the observed sequence has some unknown bias and that each coin flip is independent.\footnote{This is a computational-level model of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}
-In this model, the weight of the coin is inferred from the observed sequence of flips by trying to generate the observed sequence, and conditioning on the generated sequence matching the observed sequence.
-The inferred coin weight is subsequently used to predict the next coin flip. We show the model in Listing~\ref{lst:m_weighted}.
-
-\ndg{update to use Infer. maybe elide the discrete set of coin weights?}
 \begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}]
 var coinWeights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
-
 var weightedCoin = function(seq) {
-  Enumerate(function(){
-    var biasProb= uniformDraw(coinWeights);
-    var flipWeightedCoin = function(){return flip(biasProb)};
-    var sampledSequence = repeat(seq.length, flipWeightedCoin);
+  Infer(function(){
+    var bias = uniformDraw(coinWeights);
+    var flipCoin = function(){ return flip(bias) };
+    var sampledSequence = repeat(seq.length, flipCoin);
     condition(arrayEquals(seq,sampledSequence));
-    return flipWeightedCoin()
-  })
+    return flipCoin()
+  }, {method: 'Enumerate'})
 }
 \end{lstlisting}
 
-%
-The model first samples a coin weight \lstinline{biasProb} from a discretized uniform distribution over coin weights, and
-then makes a helper function \lstinline{flipWeightedCoin} which will flip the weighted coin.
-The model then generates a sequence of coin flips of the length of the sequence observed \lstinline{repeat(seq.length, flipWeightedCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
+$m_{\text{bias}}$ first samples a coin weight \lstinline{bias} from a discretized uniform distribution, and
+then creates a helper function \lstinline{flipCoin} which samples observation from the weighted coin.
+The model then generates a sequence of coin flips of the length of the sequence observed \lstinline{repeat(seq.length, flipCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
 The built-in function \lstinline{condition} rejects executions of the program that fail to match the condition \lstinline{arrayEquals(seq,sampledSequence)}.
 The model returns the outcome of the next coin flip.
-The model specification is called with an inference algorithm (here, \lstinline{Enumerate} --- which fully enumerates the entire probability distribution), and returns the posterior distribution on the model's return value (here, the outcome of the next coin flip).
-%posterior predictive distribution over the next outcome \lstinline{flip(bias_p)}.
 
-\subsubsection{Markov coin model}
-\label{s:tutorial:sss:markov}
-The Markov coin model assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip. The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence, and is subsequently used to predict the next coin flip.
+Finally, $m_{\text{markov}}$ assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip.
+The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence, and is  then used to predict the next flip:
 
 \begin{lstlisting}[caption=Markov coin model]
 var markovCoin = function(seq) {
-  Enumerate(function(){
+  Infer(function(){
     var switchProb =  uniformDraw(coin_weights);
     var sampleOne = function(lastFlip) { flip(switchProb) ? !lastFlip : lastFlip }
  	  var sampleSequence = function(flipsSoFar, n) {
@@ -390,27 +375,7 @@ var markovCoin = function(seq) {
 	  var sampledSequence = sampleSequence([flip(0.5)], seq.length - 1)
     condition(arrayEquals(seq, sampledSequence));
     return sampleOne(last(sampledSequence))
-  })
-}
-\end{lstlisting}
-
-This model samples a transition probability \lstinline{switchProb} from a discretized uniform distribution over probabilities.
-We create a helper function \lstinline{sampleOne}, which returns the opposite of the last outcome with probability \lstinline{switchProb}.
-We then generated a sequence of flips according this transition probability beginning with a randomly initialized sequence, using the recursive function \lstinline{sampledSequence}.
-
-\subsubsection{Fair coin model}
-\label{s:tutorial:sss:fair}
-
-\ndg{maybe put fair coin first? don't need separate subsections for these three models...}
-
-
-Our final model assumes participants judgments of randomness are verdical according to flipping a fair coin. In WebPPL, the model looks like:
-
-\begin{lstlisting}[caption=Fair coin model,  label={lst:m_fair}]
-var fairCoin = function() {
-  Enumerate(function(){
-    return flip(0.5)
-  })
+  }, {method: 'Enumerate'})
 }
 \end{lstlisting}
 
@@ -420,6 +385,7 @@ We run OED by calling the \lstinline{OED} function on a distribution of models a
 We first explore the expected information gain of experiments designed to disambiguate the fair coin model from the weighted coin model (Figure \ref{fig:run-coin}, left).
 We see that the most informative experimenters here are \lstinline{HHHH} and \lstinline{TTTT}.
 This makes intuitive sense --- the weighted model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
+\lou{note cases of 0 eig}
 
 \begin{figure}[h]
 \underline{\textsf{Input:}}
@@ -448,16 +414,15 @@ The Markov model infers a low probability of transitioning from heads to tails, 
 %The information gain now depends on how well the experiments disambiguate all three models. Here, we see that for
 
 
-\subsection{Empirical validation of optimal experiment design}
-We validated our OED system by running all of the experiments in the experimental space and comparing the expected information gain with the empirically measured information gain.
+\subsection{Empirical validation}
+We validated our OED system by running all of 16 experiments and comparing expected information gain with the empirically measured information gain.
+We recruited 320 participants from Amazon's Mechanical Turk.
+We randomly assigned each participant to a single experiment (i.e., all of the 16 possible experiments were completed by $>=$20 unique participants).
+Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
+The experiment took about 30 seconds and participants were compensated \$0.10 for their involvement.
+%The experiment in full can be viewed at \url{http://stanford.edu/~mtessler/oed/oed/experiments/subjective-randomness/experiment.html}
 
-\subsubsection{Experimental procedure}
-
-We recruited 320 participants from Amazon's Mechanical Turk. The procedure consisted of a single experiment from the experimental space (i.e. a sequence of 4 coin flips). Participants were randomly assigned to an experiment and generated each coin flip by pressing a button, until all outcomes were shown. Participants then made a prediction about the outcome of the next coin flip (either heads or tails). All of the 16 possible experiments were completed by 20 unique participants. The experiment took about 30 seconds and participants were compensated \$0.10 for their involvement. The experiment in full can be viewed at \url{http://stanford.edu/~mtessler/oed/oed/experiments/subjective-randomness/experiment.html}
-
-\subsubsection{Results}
-
-For each experiment $x_i$ and result $y_i$, we compute the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compare this to the actual information gain,
+For each experiment $x_i$ and result $y_i$, we computed the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compared this to the actual information gain,
 $$\mathrm{AIG} = \dkl{P(M \mid Y = y_i, X = x_i)}{P(M)}$$
 for different model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
@@ -465,150 +430,94 @@ Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable p
 \begin{figure}[h!]
 \centering
 \includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
-\caption{Actual information gain vs. Expected information gain for three model comparison setups.}
+\caption{Actual information gain vs. Expected information gain for three model comparison setups. \lou{add trendlines, R values}}
 \label{fig:aig_vs_eig}
 \end{figure}
 
 \section{Case study 2: Category learning}
 
-Optimal experiment design has the possibility of addressing experiment and model spaces of arbitrary complexity. Our second case study explores how OED addresses a more realistic space of models and experiments.
+Here, we explore a more complex and realistic space of models and experiments.
+In particular, we analyze a classic paper in the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
+Using intuition, Medin and Schaffer (MS) designed an experiment where the models made diverging predictions and found that the empirical data from this experiment supported the exemplar model.
+Subsequently, many other authors followed their lead, replicating and using this experiment to test competing models.
 
-We analyze a classic paper in the psychology of categorization aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model} \cite{medin78:pr}. What is particularly interesting about this example is that Medin and Schaffer, the original authors, cleverly designed their experiment with the goal of disambiguating formal models.
-\ndg{many other authors have followed their lead by replicating and using the 5-4 expt to test models.}
-From an information-theoretic perspective, how good was the experiment that Medin and Schaffer designed?
-Using OED, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the exemplar and prototype models, as expressed in the Medin and Schaffer work, are not state of the art models. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear and tractable set of possible experiments.}
-
-In this case study, the models are more complex than the subjective randomness models, which make it difficult to think through the predictions of each.
-Further, the experimental space is substantially larger than the subjective randomness experiment space. In the subjective randomness experiment, there were 16 unique experiments. Here, we consider a space of 933 unique experiments.
-
-
-%
-%Medin and Schaffer found that the exemplar model better fit the results of this experiment, and determined it the better model of human category learning.
-%
-%\lou{rewrite this paragraph}
-%%We now consider a richer example in the domain of category learning.
-%
-%The ability to form concepts and abstract rules establishes a foundation for naming objects and events and is an integral component to cognition.
-%Classifying observations and experience into categories is a fundamental learning phenomenon, and models of classification learning have been an active area of research in cognitive science for decades~\cite{machery10:bbs}.
-%
+Here, we ask: how good was the MS experiment?
+Could they have run an experiment that was more information-theoretically efficient?
+Using our OED framework, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the Medin and Schaffer models are not state of the art. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear set of possible experiments.}
 
 
-%\lou{worth noting that having oed allows us to determine information-theoretic value of the MS experiment.}
-
-% and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \subsection{Models}
 
-Both exemplar and prototypes models can be viewed as classifiers that map inputs (here, a vector of boolean features) to a probability distribution on the outputs (a category label: A or B).
+Both the exemplar and prototypes model are classifiers that map inputs (objects represented as a vector of Boolean features) to a probability distribution on the categorization response (a label: A or B).
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
-
 By contrast, the prototype model assumes assumes that people store a measure of central tendency for each category---a prototype.
-Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.\footnote{The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.}
-
-\ndg{can probably eave out the eqs, and instead just say that math and webppl representations of these models are in supplement.}
-Formally, the exemplar model classifies an object $s$ as an A with probability:
-$$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
-  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}} $$
-where $w$ is a free parameter of dimensional weights.
-
-The prototype model classifies an object $s$ as an A with probability:
-$$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\}$$
-where $w$ is a vector of weights, $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before.
-For details, see the supplementary materials.
+Categorization of an object is thus a function of its similarity to A prototype  A versus its similarity to the B prototype.
+For details, see the supplement.
 
 \subsection{Experiments}
 
-In the experiments, human participants learn about the category structures in an initial training phase, performing supervised learning of a subset of the objects, and then are tested on this learning in a test phase.
-In the training phase, participants see a subset of the objects presented one at a time and must label each object.
-Initially, participants can only guess at the labels but they receive feedback so that they can eventually learn the category assignments.
+Participants first learn about the category structures in a training phase where they perform supervised learning of a subset of the objects and are then tested on this learning in a test phase.
+During training, participants see a subset of the objects presented one at a time and must label each object.
+Initially, they can only guess at the labels, but they receive feedback so that they can eventually learn the category assignments.
 After reaching a learning criterion, they complete the test phase, where they label all the objects (training set and the held out test set) without feedback.
 
 Medin and Schaffer (MS) used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
 For technical reasons, they considered only experiments (1) having linearly separable decision boundaries and (2) containing 5 A's and 4 B's in the training set.
 There are, up to permutation, 933 experiments that satisfy these constraints.
-This space is roughly two orders of magnitude larger than the space of subjective randomness experiments we considered before, although it is small enough to fully enumerate in a reasonable amount of time.
+%This space is roughly two orders of magnitude larger than the space of subjective randomness experiments we considered before, although it is small enough to fully enumerate in a reasonable amount of time.
 
-%\cas{4 binary dimensions - 16 objects total}
+\subsection{Predictions of optimal experimental design}
 
-%\cas{constraints: 9 training stimuli (5 A's and 4 B's)}
+We computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
+Indeed, the MS experiment ranks 665th out of 993 experiments total (Figure~\ref{fig:dist}a) \lou{rerun this with unconditioned prior}.
 
-%\cas{measure: recall and transfer}
+Why is the MS experiment ineffcient?
+One reason is that Medin and Schaffer prioritized experiments that predict a qualitative swap in ranking for two stimuli. \lou{expound here}
+The experiment they designed indeed predicts a swap, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
+The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
+% \lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
 
-\subsection{Results of optimal experimental design}
-
-We found that the best experiment had an expected information gain of 0.08 nats (for one participant), whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
-Indeed, the MS experiment only the \red{N}th best experiment (Figure~\ref{fig:dist}a)
-
-\begin{figure}[h!]
+\begin{figure}[t]
 \centering
-\includegraphics[width=2.5in]{img/dist.eps} \includegraphics[width=2.5in]{img/empirical.eps}
+\begin{tabular}{l l}
+(a) & (b)\\
+\includegraphics[width=2.5in]{img/dist.eps} & \includegraphics[width=2.5in]{img/category-ns.pdf}\\
+\end{tabular}
 \caption{Comparing MS experiment with optimal experiment. MS experiment has lower expected information gain and requires twice as many participants to achieve maximum actual information gain.}
 \label{fig:dist}
 \end{figure}
 
-To validate this finding, we ran both experiments with 40 participants.
-Figure~\ref{fig:dist}b shows that, while both experiments give maximal actual information gain with 40 participants, the optimal experiment reaches this maximum with only 8 participants, whereas the MS experiment requires 20.
+\subsection{Empirical validation}
 
-\subsection{Discussion}
+To validate our expected information gain calculations, we ran the MS and optimal experiments with 60 participants each.
+Figure~\ref{fig:dist}b shows that both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum, whereas the MS experiment takes around 30.
+Thus, the optimal experiment provides the same amount of information for 1/3 the experimental cost.
 
-The MS uses a qualitative swap in ranking for two stimuli to disambiguate the models.
-However, this prediction has a relatively small magnitude and comes at the expense of little information gain from the remaining stimuli.
-The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously
-\lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
-
-
-\cas{explain different scales for theoretical versus empirical information gain}
+% and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \section{Related work}
 
-%\lou{myung \& pitt -- good but requires manually deriving equations for every new experiment design setup}
+In our reading of the literature, we found that the basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10).
 
+These papers, however, often implement OED in a one-off fashion, specializing for  particular models (e.g., in biology: parameter estimation for ODEs with Gaussian noise) and commiting to a single inference technique (e.g., Metropolis-Hastings).
+By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
+Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
 
-We are not the first to attempt optimal experiment design for psychology.
-Most recently, Myung \& Pitt have introduced a Design Optimization procedure for disambiguating models \cite{Myung2009}.
-While a good first step, their procedure unfortunately requires the scientist to specify the optimization criterion for each unique case. For instance, they use the Fisher Information Approximation for disambiguating retention models because these models have similar numbers of parameters but take different functional forms. Other optimization criteria might be appropriate if the models were different. They admit ``the specific choice among such measures would be dependent upon the goals and preference of the experimenter, its computational feasibility, and interpretability considerations.''
-We see the need to specify the optimization criteria separately for each case study as a prohibitive burden for the scientist and a roadblock towards widespread adoption.
+\section{Conclusion}
 
-The problem we address is similar in spirit to problems in active learning.
-\lou{Near-Optimal Bayesian Active Learning with Noisy Observations + whocites}
-\lou{find related active learning stuff}
+Practitioners aim to design experiments that yield informative results.
+Our approach partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
+With our approach, the scientist writes her hypotheses as probabilistic programs, sketches a space of possible experiments, and turns the crank of Bayesian inference.
+We stress that our work \emph{complements} practitioners; it does not replace them.
+Our tool eliminates the need to manually comb large spaces in search of good experiments; we hope that this will free scientists and engineers to work on the more interesting problems---devising empirical paradigms and building models.
 
-
-\section{General discussion}
-
-%\lou{related work on value of information? (e.g., emma pierson's cogsci paper)}
-%
-%\lou{look into wikipedia article on bayesian experimental design}
-
-
-
-Scientists aim to design experiments that maximize the informativeness of the results.
-Our approach partially automates this process, using probabilistic programming in the service of a kind of active Bayesian model comparison.
-With our framework, the scientist need only articulate her hypotheses in probabilisitic programs, a convenient and compositional formal framework, and have an idea of the space of possible experiments within an empirical paradigm.
-Empirical paradigms are no strangers to the scientific method and are arguably where the genius of experimental work is to be found.
-Formal hypotheses have been steadily gaining popularity, and the inclusion of an automated method for experiment design will only accelerate this adoption.
-
-Another roadblock overcome with our framework is the usability of the system.
-We implement our approach is a user-friendly probabilisitic programming language which also has the expressive capacity to instantiate modern probabilisitic models.
-This means that a framework for probabilisitic modeling can automatically take advantage of optimal experiment design, with no further development needed on behalf of the scientist.
-In addition to usability, the fact that our OED is posed as an inference problem in a probabilistic program enables the adoption of new inference strategies as they become available.
-For example, if the experimental paradigm describes a continuous space of possible experiments (e.g. if stimuli vary along a continuous dimension like color), inference strategies like Hamiltonian Monte Carlo or Variational Inference, both of which are currently available in WebPPL, might prove useful.
-
-
-Automatic experiment design
-\cas{our work does not replace scientists -- it still requires human intelligence to make models, design an experiment space, and set up measures. instead, it frees them to work on more interesting stuff}
-
-\lou{could easily use something other than KL, e.g, TV distance}
-
-\lou{future research: inference techniques specialized for this domain (e.g., you don't need to estimate $m_1(x)$ and $m_2(x)$ perfectly if you have evidence that $m_1(x) \approx m_2(x)$)}
-
-\lou{make connections to AB/multivariate testing}
-
-\lou{say some stuff about OED for non-psych experiments (e.g., physics)}
-
-\lou{extending to parameter-free predictions?}
-
-\lou{could prove particularly useful in studies of patient populations (difficult/impossible to get high N, so you really wanna make sure the experiment counts)}
+We close by outlining some interesting directions for future work.
+First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
+Second, there might exist inference techniques that take advantage of the particular structure of the OED problem (e.g., if $p(y)$ is negligible, it may be acceptable to have a less precise estimate of information gain).
+Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive staircases in psychophysics experiments).
+Finally, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
+Our informativeness approach could be usefully integrated with multi-objective optimization methods for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
