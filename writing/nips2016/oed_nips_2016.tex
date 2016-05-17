@@ -214,8 +214,6 @@ Our general system opens a number of rich areas for future development, which we
 \section{Experiment design framework}
 \label{s:bayes}
 
-\lou{we assume that subjects are iid and that each subject's response is conditionally iid given their latent values.. discussion: relax these assumptions, connect with mixed models (maybe having linking functions gives us this?)}
-
 \ndg{this section needs to be smoothed out. (should still be short...) first talk about models (M), experiments (X), and results (Y). Then talk about posterior on models and information gain. Then talk about expected results (first assuming models are true, then relaxing to uninformative). Finally the argmax objective.}
 
 Let $P(M)$ be a prior distribution on models or hypotheses, $P(X)$ a prior on experiments, and $P(Y)$ a prior on possible responses.
@@ -234,6 +232,10 @@ The optimal experiment $x^*$ maximizes the expected KL divergence over the space
 \begin{align}
 x^{*} &= \argmax_{x} \sum\limits_{y} p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) } \label{eq:oed}
 \end{align}
+
+\lou{discuss linking functions.. in coins example we assume that subjects are iid and that each subject's response is conditionally iid given their latent values but we could relax these assumptions}
+
+\lou{give example}
 
 \subsection{Probabilistic program hypothesis specification}
 
@@ -514,8 +516,9 @@ We close by outlining some interesting directions for future work.
 First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
 Second, there might exist inference techniques that take advantage of the particular structure of the OED problem (e.g., if $p(y)$ is negligible, it may be acceptable to have a less precise estimate of information gain).
 Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive staircases in psychophysics experiments).
-Finally, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
+Fourth, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
 Our informativeness approach could be usefully integrated with multi-objective optimization methods for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
+\lou{Finally, we did our case studies in cognitive psychology; we believe it's broadly useful, but people should test this.}
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
