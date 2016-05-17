@@ -470,7 +470,7 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 \subsection{Predictions of optimal experimental design}
 
 We computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
-Indeed, the MS experiment only the \red{N}th best experiment (Figure~\ref{fig:dist}a)
+Indeed, the MS experiment ranks 665th out of 993 experiments total (Figure~\ref{fig:dist}a) \lou{rerun this with unconditioned prior}.
 
 Why is the MS experiment ineffcient?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative swap in ranking for two stimuli. \lou{expound here}
@@ -490,27 +490,21 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 
 \subsection{Empirical validation}
 
-To validate our expected information gain calculations, we ran both the MS and optimal experiments with 40 participants.
-Figure~\ref{fig:dist}b shows that, while both experiments achieve maximal actual information gain with 60 participants, the optimal experiment reaches this maximum with only 10 participants, whereas the MS experiment requires 30.
+To validate our expected information gain calculations, we ran the MS and optimal experiments with 60 participants each.
+Figure~\ref{fig:dist}b shows that both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum, whereas the MS experiment takes around 30.
+Thus, the optimal experiment provides the same amount of information for 1/3 the experimental cost.
 
 % and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \section{Related work}
 
-%\lou{myung \& pitt -- good but requires manually deriving equations for every new experiment design setup}
+In our reading of the literature, we found that the basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10).
 
+These papers, however, often implement OED in a one-off fashion, specializing for  particular models (e.g., in biology: parameter estimation for ODEs with Gaussian noise) and commiting to a single inference technique (e.g., Metropolis-Hastings).
+By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
+Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
 
-We are not the first to attempt optimal experiment design for psychology.
-Most recently, Myung \& Pitt have introduced a Design Optimization procedure for disambiguating models \cite{Myung2009}.
-While a good first step, their procedure unfortunately requires the scientist to specify the optimization criterion for each unique case. For instance, they use the Fisher Information Approximation for disambiguating retention models because these models have similar numbers of parameters but take different functional forms. Other optimization criteria might be appropriate if the models were different. They admit ``the specific choice among such measures would be dependent upon the goals and preference of the experimenter, its computational feasibility, and interpretability considerations.''
-We see the need to specify the optimization criteria separately for each case study as a prohibitive burden for the scientist and a roadblock towards widespread adoption.
-
-The problem we address is similar in spirit to problems in active learning.
-\lou{Near-Optimal Bayesian Active Learning with Noisy Observations + whocites}
-\lou{find related active learning stuff}
-
-
-\section{General discussion}
+\section{Conclusion}
 
 %\lou{related work on value of information? (e.g., emma pierson's cogsci paper)}
 %
@@ -533,6 +527,8 @@ For example, if the experimental paradigm describes a continuous space of possib
 
 Automatic experiment design
 \cas{our work does not replace scientists -- it still requires human intelligence to make models, design an experiment space, and set up measures. instead, it frees them to work on more interesting stuff}
+
+\lou{could extend to the parameter estimation case}
 
 \lou{could easily use something other than KL, e.g, TV distance}
 
