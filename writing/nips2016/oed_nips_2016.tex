@@ -185,7 +185,7 @@ This is a crucial step in making a practical OED system: Once you're using a PPL
 
 We first describe our framework in general terms and then apply it in two case studies from cognitive psychology, a field where experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to sample size, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
 In the first case study, we consider the problem of disambiguating three toy models of perceptions of subjective randomness.
-In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
+In the second case study, we go beyond toy models and analyze a classic paper on human category learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
@@ -229,8 +229,8 @@ If, however, we do not believe that $M$ contains the true model, then an uninfor
 Consider a concrete example.
 Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has an unknown bias (a uniform prior on the unit interval) that can be learned from data.
 We have a uniform prior on the models but we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
-So there are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
-Each model is thus a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
+There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
+Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
 For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are IID.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
 
 How informative would running the experiment, say, \lstinline{HHTT} be?
@@ -247,7 +247,7 @@ In what follows, we show how to automate this sort of reasoning.
 A key requirement for automating experiment design is to write models of the data as programs---in our case, probabilistic programs.
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
 WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which  support generating samples and calculating the density of values.
-For instance, we can sample from $\text{Binomial}(4, \frac{1}{2}$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
+For instance, we can sample from $\text{Binomial}(4, \frac{1}{2})$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
 
 Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditional on at least 2 successes. We write this as:
 %
