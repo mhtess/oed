@@ -242,79 +242,68 @@ If the participant predicted heads, this would favor $m_{\text{bias}}$ and if sh
 Thus, \lstinline{HHHH} would be a good experiment to run.
 In what follows, we show how to automate this sort of reasoning.
 
-\subsection{Probabilistic program hypothesis specification}
+\subsection{Writing models as probabilistic programs}
 
-\lou{segue better. say that models are probabilistic---express them using probabilistic programming language}
+A key requirement for automating experiment design is to write models of the data as programs---in our case, probabilistic programs.
+We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
+WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which  support generating samples and calculating the density of values.
+For instance, we can sample from $\text{Binomial}(4, \frac{1}{2}$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
 
-We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript, to implement OED \cite{dippl}.
-WebPPL uses primitive Distribution objects (e.g. \lstinline{Binomial}), which can be accessed with a number of different methods: \lstinline{sample}, \lstinline{score}, \lstinline{support}.
-For instance, \lstinline|sample(Binomial({n: 4, p: 0.5}))| returns a sample from the Binomial distribution with parameters $n=4, p = 0.5$. \lstinline|score(Binomial({n: 4, p: 0.5}), 2)| will return the log-probability of the value 2 under this Binomial distribution.
-Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditional on at least 2 positive outcomes. In WebPPL, we would write this as:
+Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditional on at least 2 successes. We write this as:
 %
 \begin{lstlisting}[mathescape, label={code:webppl}, caption = {Posterior inference in WebPPL.}]
-var myBinomialModel = function(){
+var conditionalBinomial = function(){
 	var x = sample(Binomial({n: 4, p: 0.5}))
 	condition(x >= 2)
 	return x
 }
 \end{lstlisting}
-%
-In Listing \ref{code:webppl}, we've constructed a function with no arguments (i.e., a thunk: \lstinline{myBinomialModel}), which samples from a Binomial distribution, uses the WebPPL primitive \lstinline{condition} to specify how we want to update our distribution, and returns the resulting sampled value \lstinline{x}.
-\lstinline{condition} looks to see if the condition is satsfied (if $x\geq2$); if it is not, it re-weights the likelihood of that \emph{program execution} (composed of all of the random choices made before the condition statement) to 0.
-\lstinline{condition} is a special case of \lstinline{factor}, which adjusts the (log) likelihood of the program execution by some value (most often, the log probability of the data under that program execution).
 
-Notice how this model has not specified \emph{how} we are to construct a posterior distribution.
-This is a convenient separation for the scientist interested in specifying formal hypotheses.
-To do posterior inference, we would call this function with a generic inference routine \lstinline{Infer(myBinomialModel, method)}.
-In \lstinline{method}, we would specify what inference algorithm we want to use.
-WebPPL currently has several inference algorithms to choose from: MCMC, full Enumeration, Hamiltonian Monte Carlo, Sequential Monte Carlo, and Variational Inference.
+In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} is used for soft constraints), and return \lstinline{x}.
+\lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
+To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
+This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
+WebPPL currently provides several inference algorithms to choose from: MCMC (MH, HMC), full Enumeration for discrete models, Sequential Monte Carlo, and Variational Inference.
 
-%\ndg{make clear the two different uses of webppl here: to represent the scientific hypotheses (user-facing), and to implement the OED calculations (developer-facing). maybe separate subsection for the latter?}
+\subsection{Writing OED as a probabilistic program}
 
-\subsection{Probabilistic program OED implementation}
+Surprisingly, because we have expressed the space of models, experiments, and responses in the language of probability, it is also straightforward to express OED as a probabilistic program (see Listing \ref{code:oed-pp}).
+Equation~\ref{eq:oed} translates to around 20 lines of WebPPL code that makes it clear that OED is an inference problem.
+Expressing OED in this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., mixtures of Enumeration and HMC for  experiment spaces that have continuous and discrete subspaces).
 
-In addition to being used by the scientist to specify hypotheses, WebPPL can be used by developers to implement useful calculations.
-Because we have expressed the space of models, experiments, and responses in the language of probability, it is straightforward to express Equation \ref{eq:oed} as a probabilistic program (see Listing \ref{code:oed-pp}).
-This makes it clear that OED is an inference problem.
-Attacking this problem using probabilistic programming allows us to separate the task of describing the problem (i.e., writing the generative model of OED) from the task of solving it (i.e., choosing/writing the inference algorithm).
-In addition, framing OED this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., HMC for continuous experiment spaces).
-If we are not interested in the full distribution of information gain, we could substitute in an optimization operator \lstinline{Search()} rather than the posterior inference operator \lstinline{Infer()}.
-%\lou{note that outermost Infer() could also be a Search()}
+Note that we implement search for the optimal experiment using inference.
+This is not essential---we could also replace the outermost \lstinline|Infer()| call with an optimization procedure (e.g., \lstinline|Search()|).
 
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample) {
   var mPrior = Infer(function() { mSample() })
   Infer(function() {
-    var x = xSample()               // ${\color{purple} p(x)}$
-    var y = ySample()               // ${\color{purple} p(y ; x)}$
-    var KLDist = Infer(function() { // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
-      var y = sample(yPredictive)
-      var mPosterior = Infer(function() {
+    var x = xSample();
+    var KLDist = Infer(function() {
+      var y = ySample()                   // ${\color{purple} p(y ; x)}$
+      var mPosterior = Infer(function() { // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
         var m = sample(mPrior)
         factor(score(m(x), y))
         return m.name
       })
       return KL(mPosterior, mPrior)
     })
-    var EIG = expectation(KLDist)  // ${\color{purple} \sum_{y} p(y) \dkl{ P(M \mid Y = y) }{ P(M) } }$
-    factor(EIG)
+    var EIG = expectation(KLDist)  // ${\color{purple} \sum_{y} p(y ; x) \dkl{ P(M \mid Y = y) }{ P(M) } }$
+    factor(Math.log(EIG / maxEIG)) // optional (inference as search)
     return {x: x, EIG: EIG}
   })
 }
 \end{lstlisting}
 %\end{minipage}
 Our OED code is available as a WebPPL package---see \url{https://github.com/mhtess/webppl-oed}.
-We next illustrate our system by applying it to distinguish psychological theories of randomness perception.
+We next illustrate our system by applying it to distinguish psychological theories of sequence prediction.
 
-\section{Case study 1: Subjective randomness}
+\section{Case study 1: Sequence prediction}
 \label{s:tutorial}
 
-\ndg{possibly we should cast this section as theories of sequence prediction, and connect to randomness perception as part of broader context?}
-
-Human judgments about randomness are surprisingly systematic and nonuniform across equally likely outcomes -- for example, a sequence of outcomes of coin flips \lstinline{HTHTTTHH} is considered to be more random than the sequence \lstinline{HHHHHHHH} ~\cite{goodfellow38:jep, griffiths01:cogsci}.
-%This discrepancy between human intuitions and statistical fact about randomness has garnered significant attention from both the mathematical~\cite{chaitin01:er, kac83:as, li97:kca} and psychological~\cite{falk81:pme, lopes82:jep, griffiths01:cogsci} literature.
-There are many hypotheses one might have about what underlies human intuitions about randomness and prediction of the next observation in a sequence.
+Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
+There are many hypotheses one might have about what underlies human intuitions such sequences.
 Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Weighted coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome), (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes.
 We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
@@ -425,7 +414,7 @@ Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable p
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
-\caption{Actual information gain vs. Expected information gain for three model comparison setups. \lou{add trendlines, R values}}
+\caption{Actual vs. expected information gain for three model comparison setups.}
 \label{fig:aig_vs_eig}
 \end{figure}
 
