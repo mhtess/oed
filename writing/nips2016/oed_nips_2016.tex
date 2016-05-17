@@ -506,41 +506,18 @@ Additionally, our work is the first to (1) demonstrate that expected information
 
 \section{Conclusion}
 
-%\lou{related work on value of information? (e.g., emma pierson's cogsci paper)}
-%
-%\lou{look into wikipedia article on bayesian experimental design}
+Practitioners aim to design experiments that yield informative results.
+Our approach partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
+With our approach, the scientist writes her hypotheses as probabilistic programs, sketches a space of possible experiments, and turns the crank of Bayesian inference.
+We stress that our work \emph{complements} practitioners; it does not replace them.
+Our tool eliminates the need to manually comb large spaces in search of good experiments; we hope that this will free scientists and engineers to work on the more interesting problems---devising empirical paradigms and building models.
 
-
-
-Scientists aim to design experiments that maximize the informativeness of the results.
-Our approach partially automates this process, using probabilistic programming in the service of a kind of active Bayesian model comparison.
-With our framework, the scientist need only articulate her hypotheses in probabilisitic programs, a convenient and compositional formal framework, and have an idea of the space of possible experiments within an empirical paradigm.
-Empirical paradigms are no strangers to the scientific method and are arguably where the genius of experimental work is to be found.
-Formal hypotheses have been steadily gaining popularity, and the inclusion of an automated method for experiment design will only accelerate this adoption.
-
-Another roadblock overcome with our framework is the usability of the system.
-We implement our approach is a user-friendly probabilisitic programming language which also has the expressive capacity to instantiate modern probabilisitic models.
-This means that a framework for probabilisitic modeling can automatically take advantage of optimal experiment design, with no further development needed on behalf of the scientist.
-In addition to usability, the fact that our OED is posed as an inference problem in a probabilistic program enables the adoption of new inference strategies as they become available.
-For example, if the experimental paradigm describes a continuous space of possible experiments (e.g. if stimuli vary along a continuous dimension like color), inference strategies like Hamiltonian Monte Carlo or Variational Inference, both of which are currently available in WebPPL, might prove useful.
-
-
-Automatic experiment design
-\cas{our work does not replace scientists -- it still requires human intelligence to make models, design an experiment space, and set up measures. instead, it frees them to work on more interesting stuff}
-
-\lou{could extend to the parameter estimation case}
-
-\lou{could easily use something other than KL, e.g, TV distance}
-
-\lou{future research: inference techniques specialized for this domain (e.g., you don't need to estimate $m_1(x)$ and $m_2(x)$ perfectly if you have evidence that $m_1(x) \approx m_2(x)$)}
-
-\lou{make connections to AB/multivariate testing}
-
-\lou{say some stuff about OED for non-psych experiments (e.g., physics)}
-
-\lou{extending to parameter-free predictions?}
-
-\lou{could prove particularly useful in studies of patient populations (difficult/impossible to get high N, so you really wanna make sure the experiment counts)}
+We close by outlining some interesting directions for future work.
+First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
+Second, there might exist inference techniques that take advantage of the particular structure of the OED problem (e.g., if $p(y)$ is negligible, it may be acceptable to have a less precise estimate of information gain).
+Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive staircases in psychophysics experiments).
+Finally, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
+Our informativeness approach could be usefully integrated with multi-objective optimization methods for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
