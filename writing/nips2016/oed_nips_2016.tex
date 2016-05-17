@@ -239,19 +239,22 @@ Our general system opens a number of rich areas for future development, which we
 
 \ndg{this section needs to be smoothed out. (should still be short...) first talk about models (M), experiments (X), and results (Y). Then talk about posterior on models and information gain. Then talk about expected results (first assuming models are true, then relaxing to uninformative). Finally the argmax objective.}
 
-Let $P(X)$ be a prior distribution on experiments, $P(Y)$ a prior on possible responses, and $P(M)$ a prior on models.
-A model $m$ is a conditional distribution $P_m(Y \mid X)$ that represents predictions about response data $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
+Let $P(M)$ be a prior distribution on models or hypotheses, $P(X)$ a prior on experiments, and $P(Y)$ a prior on possible responses.
+A model $m$ is a conditional distribution $P_m(Y \mid X)$ that expresses predictions about responses $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
+Thus, experiments and responses can update the distribution on models into a posterior distribution on models.
+The amount of information gain can be given by the KL divergence between this distribution and the prior $ \dkl{ P(M \mid X = x, Y = y) }{ P(M) } $.
+
+To compute the expected information gain, we must express our beliefs about the expected results $p(y ; x)$.
+If we believe $M$ contains the true model, the predictive distribution of responses implied by the models is appropriate:
+$$ p(y ; x) = \sum\limits_{m}p_m(y \mid x)p(m) $$
+where $p_m(y \mid x)$ is the distribution on responses $y$ for experiment $x$ predicted by model $m$.
+In other cases, we would not suppose the true model is contained in $M$; here, a maximum entropy or uninformative distribution is a natural choice for $p(y ; x)$.
 
 The goal of OED is to find the experiment $x^{*}$ that maximizes the expected information gain about the belief distribution on models $P(M \mid X = x^{*})$.
-We use KL divergence as our measure of information gain; the optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
+The optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
 \begin{align}
 x^{*} &= \argmax_{x} \sum\limits_{y} p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) } \label{eq:oed}
 \end{align}
-One natural choice for $p(y ; x)$ is simply an uninformative distribution---this is appropriate if the practitioner does not a priori believe that any models are the true model.
-Alternatively, if we do believe that $M$ contains the true model, we could use the predictive distribution implied by the models:
-$$ p(y ; x) = \sum\limits_{m}p_m(y \mid x)p(m) $$
-where $p_m(y \mid x)$ is the distribution on responses $y$ for experiment $x$ predicted by model $m$.
-We discuss the decision criteria for these different response distributions throughout our two case studies.
 
 \subsection{Probabilistic programs}
 
