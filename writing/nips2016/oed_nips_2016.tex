@@ -36,6 +36,7 @@
 \usepackage{fancyvrb}
 \usepackage{multirow}
 \usepackage{color}
+\usepackage{textcomp}
 
 
 % HT http://tex.stackexchange.com/a/151987/41154
@@ -156,7 +157,7 @@ Here, we present a general and principled approach to experiment design.
 Our system is based on a user-friendly probabilistic programming language (PPL).
 Using such a high-level and universal modeling language means details of experiment selection calculation can be hidden from the scientist, without loss of generality; she needs only represent her hypothesis and space of potential experiments.
 We apply this system to differentiating competing models of psychological phenomena, but the framework is general to any domain where probabilistic models are used to represent theories.
-We validate our framework using case studies in the psychology of randomness and categorization.
+We validate our framework using case studies in the psychology of sequence prediction and categorization.
 We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
 Our framework opens up a number of interesting questions, which we explore in the discussion.
 
@@ -184,8 +185,8 @@ This is only possible with a common formalism for specifying hypotheses and expe
 This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
 
 We first describe our framework in general terms and then apply it in two case studies from cognitive psychology, a field where experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to sample size, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
-In the first case study, we consider the problem of disambiguating three toy models of perceptions of subjective randomness.
-In the second case study, we go beyond toy models and analyze a classic paper on human category learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
+In the first case study, we consider the problem of disambiguating three toy models of human sequence prediction.
+In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
@@ -263,7 +264,7 @@ In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampl
 \lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
 To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
-WebPPL currently provides several inference algorithms to choose from: MCMC (MH, HMC), full Enumeration for discrete models, Sequential Monte Carlo, and Variational Inference.
+WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamilton Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
 
 \subsection{Writing OED as a probabilistic program}
 
@@ -304,36 +305,36 @@ We next illustrate our system by applying it to distinguish psychological theori
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
 There are many hypotheses one might have about what underlies human intuitions such sequences.
-Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Weighted coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome), (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes.
+Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes.
 We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
 
-\subsection{Model space}
+\subsection{Formalization}
 
-Formally, the model space $M$ is $\{m_{\text{fair}}, m_{\text{weighted}}, m_{\text{markov}}\}$, the experiment space $X$ is the set of all possible sequences of four coin flips, and the set of responses $Y$ is a choice between heads or tails for the fifth flip.
+Formally, the model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$, the experiment space $X$ is the set of all possible sequences of four coin flips, and the set of responses $Y$ is a choice between heads or tails for the fifth flip.
 
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
 
-\begin{lstlisting}[caption=Fair coin model,  label={lst:m_fair}]
-  var fairCoin = function(sequence) {
+\begin{lstlisting}[caption=Fair coin model,  label={lst:m_fair},upquote=true]
+  var fairCoin = function(seq) {
     Infer(function(){
       return flip(0.5)
     }, {method: 'Enumerate'})
   }
 \end{lstlisting}
 
-Note the type signature of this model -- it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment (here, judgments about the next coin flip).
+Note the type signature of this model -- it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
 This distribution is computed using a particular inference strategy, here, an exhaustive \lstinline{Enumerate} algorithm.
 $m_{\text{bias}}$ generalizes this fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip:
 
-\begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}]
+\begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}, upquote=true]
 var coinWeights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
-var weightedCoin = function(seq) {
+var biasCoin = function(seq) {
   Infer(function(){
-    var bias = uniformDraw(coinWeights);
-    var flipCoin = function(){ return flip(bias) };
-    var sampledSequence = repeat(seq.length, flipCoin);
-    condition(arrayEquals(seq,sampledSequence));
+    var bias = uniformDraw(coinWeights)
+    var flipCoin = function(){ return flip(bias) }
+    var sampledSeq = repeat(seq.length, flipCoin)
+    condition(arrayEquals(seq,sampledSeq))
     return flipCoin()
   }, {method: 'Enumerate'})
 }
@@ -341,26 +342,31 @@ var weightedCoin = function(seq) {
 
 $m_{\text{bias}}$ first samples a coin weight \lstinline{bias} from a discretized uniform distribution, and
 then creates a helper function \lstinline{flipCoin} which samples observation from the weighted coin.
-The model then generates a sequence of coin flips of the length of the sequence observed \lstinline{repeat(seq.length, flipCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
-The built-in function \lstinline{condition} rejects executions of the program that fail to match the condition \lstinline{arrayEquals(seq,sampledSequence)}.
-The model returns the outcome of the next coin flip.
+The model then generates a sequence of coin flips the same length as the observed sequence \lstinline{repeat(seq.length, flipCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
+The model then returns the outcome of the next coin flip.
 
-Finally, $m_{\text{markov}}$ assumes that the coin is generated by a Markov process where each coin flip depends on the previous coin flip.
-The probability of transitioning from the current coin flip is inferred from the experiment prompt sequence, and is  then used to predict the next flip:
+Finally, $m_{\text{markov}}$ assumes that the coin is generated by a Markov process where the first coin flip is uniform and subsequent flips have some probability of transitioning away from the previous value.
+The probability of transitioning from the current coin flip is inferred from the data, and is then used to predict the next flip:
 
-\begin{lstlisting}[caption=Markov coin model]
+\begin{lstlisting}[caption=Markov coin model, upquote=true]
 var markovCoin = function(seq) {
   Infer(function(){
-    var switchProb =  uniformDraw(coin_weights);
-    var sampleOne = function(lastFlip) { flip(switchProb) ? !lastFlip : lastFlip }
- 	  var sampleSequence = function(flipsSoFar, n) {
-      var nextFlip = sampleOne(last(flipsSoFar))
-      return (n == 0) ? flipsSoFar
-                      : sampleSequence(append(flipsSoFar, nextFlip),
-                      		n - 1) };
-	  var sampledSequence = sampleSequence([flip(0.5)], seq.length - 1)
-    condition(arrayEquals(seq, sampledSequence));
-    return sampleOne(last(sampledSequence))
+    var transProb = uniformDraw(coinWeights)
+    var sampleOne = function(lastFlip) {
+        return flip(transProb) ? !lastFlip : lastFlip
+    }
+ 	  var sampleSeq = function(flipsSoFar, n) {
+      if (n == 0) {
+        return flipsSoFar
+      } else {
+        var nextFlip = sampleOne(last(flipsSoFar))
+        return sampleSequence(append(flipsSoFar, nextFlip),
+                              n - 1)
+      }
+    }
+	  var sampledSeq = sampleSeq([flip(0.5)], seq.length - 1)
+    condition(arrayEquals(seq, sampledSeq));
+    return sampleOne(last(sampledSeq))
   }, {method: 'Enumerate'})
 }
 \end{lstlisting}
@@ -370,16 +376,16 @@ var markovCoin = function(seq) {
 Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov (Fig.~\ref{fig:run-coin}).
 
 \begin{figure}[h]
-\underline{\textsf{Input:}}
+\underline{\textsf{(Example) Input:}}
 \begin{lstlisting}
-OED({mSample: function() { uniformDraw([fairCoin, weightedCoin]) }),
+OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
      xSample: function() { repeat(4, flip) }, // experiment space
-     ySample: function() { flip() }) // response space
+     ySample: function() { flip() })          // response space
 \end{lstlisting}
 
 \underline{\textsf{Output:}}\\
 \includegraphics[width=\columnwidth]{img/coin_eig.pdf}
-\caption{Running OED in the subjective randomness domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}} \mht{Note this is also with the ignorance prior}
+\caption{Running OED in the sequence prediction domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}} \mht{Note this is also with the ignorance prior}
 %\lou{make this figure in ggplot, clean it up}
 \label{fig:run-coin}
 \end{figure}
@@ -449,7 +455,6 @@ After reaching a learning criterion, they complete the test phase, where they la
 Medin and Schaffer used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
 For technical reasons, they considered only experiments (1) having linearly separable decision boundaries and (2) containing 5 A's and 4 B's in the training set.
 There are, up to permutation, 933 experiments that satisfy these constraints.
-%This space is roughly two orders of magnitude larger than the space of subjective randomness experiments we considered before, although it is small enough to fully enumerate in a reasonable amount of time.
 
 \subsection{Predictions of optimal experimental design}
 
@@ -483,7 +488,7 @@ Thus, the optimal experiment provides the same amount of information for 1/3 the
 
 In our reading of the literature, we found that the basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10).
 
-These papers, however, often implement OED in a one-off fashion, specializing for  particular models (e.g., in biology: parameter estimation for ODEs with Gaussian noise) and commiting to a single inference technique (e.g., Metropolis-Hastings).
+These papers, however, often implement OED in a one-off fashion, specializing for  particular models (e.g., in biology: parameter estimation for ordinary differential equations with Gaussian noise) and commiting to a single inference technique (e.g., Metropolis-Hastings).
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
 
