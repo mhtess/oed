@@ -157,7 +157,7 @@ Here, we present a general and principled approach to experiment design.
 Our system is based on a user-friendly probabilistic programming language (PPL).
 Using such a high-level and universal modeling language means details of experiment selection calculation can be hidden from the scientist, without loss of generality; she needs only represent her hypothesis and space of potential experiments.
 We apply this system to differentiating competing models of psychological phenomena, but the framework is general to any domain where probabilistic models are used to represent theories.
-We validate our framework using case studies in the psychology of randomness and categorization.
+We validate our framework using case studies in the psychology of sequence prediction and categorization.
 We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
 Our framework opens up a number of interesting questions, which we explore in the discussion.
 
@@ -185,7 +185,7 @@ This is only possible with a common formalism for specifying hypotheses and expe
 This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
 
 We first describe our framework in general terms and then apply it in two case studies from cognitive psychology, a field where experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to sample size, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
-In the first case study, we consider the problem of disambiguating three toy models of perceptions of subjective randomness.
+In the first case study, we consider the problem of disambiguating three toy models of human sequence prediction.
 In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
@@ -385,7 +385,7 @@ OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
 
 \underline{\textsf{Output:}}\\
 \includegraphics[width=\columnwidth]{img/coin_eig.pdf}
-\caption{Running OED in the subjective randomness domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}} \mht{Note this is also with the ignorance prior}
+\caption{Running OED in the sequence prediction domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}} \mht{Note this is also with the ignorance prior}
 %\lou{make this figure in ggplot, clean it up}
 \label{fig:run-coin}
 \end{figure}
@@ -455,7 +455,6 @@ After reaching a learning criterion, they complete the test phase, where they la
 Medin and Schaffer used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
 For technical reasons, they considered only experiments (1) having linearly separable decision boundaries and (2) containing 5 A's and 4 B's in the training set.
 There are, up to permutation, 933 experiments that satisfy these constraints.
-%This space is roughly two orders of magnitude larger than the space of subjective randomness experiments we considered before, although it is small enough to fully enumerate in a reasonable amount of time.
 
 \subsection{Predictions of optimal experimental design}
 
