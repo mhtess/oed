@@ -218,11 +218,10 @@ Let us put on our scientist hats---we wish to compare a set of models $M$ in ter
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y_i$ for different possible experiments $x_i$ (we also write $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x \in X$ that maximally updates this distribution.
 Formally, we wish to find
-$$x^{*} &= \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
+$$x^{*} = \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
 \emph{A priori}, we do not know what the results of this experiment will be, so we must integrate over the possible results $y \in Y$ of running experiment $x$:
 \begin{align}
-  x^{*} &= \argmax_{x} \sum\limits_{y}p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) }
-  \label{eq:oed}
+  x^{*} &= \argmax_{x} \sum\limits_{y}p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) }  \label{eq:oed}
 \end{align}
 where $p(y ; x)$ is the probability of observing result $y$ for experiment $x$.
 If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models:
