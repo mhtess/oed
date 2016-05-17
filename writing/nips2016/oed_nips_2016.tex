@@ -274,7 +274,7 @@ var OED = function(mSample, xSample, ySample) {
   var mPrior = Infer(function() { mSample() })
   Infer(function() {
     var x = xSample()               // ${\color{purple} p(x)}$
-    var y = ySample()               // ${\color{purple} p(y ; x)}$ (uninformative)
+    var y = ySample()               // ${\color{purple} p(y ; x)}$
     var KLDist = Infer(function() { // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
       var y = sample(yPredictive)
       var mPosterior = Infer(function() {
@@ -406,12 +406,10 @@ We validated our OED system by running all of 16 experiments and comparing expec
 We recruited 330 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
 
-For each experiment $x$ and result $y$, we computed the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compared this to the actual information gain,
-$$\mathrm{AIG} = \dkl{P(M \mid Y = y_i, X = x_i)}{P(M)}$$
-for the three model comparison scenarios.
+For each experiment $x$ and result $y$, we computed the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
 
-\begin{figure}[h!]
+\begin{figure}[t]
 \centering
 \includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
 \caption{Actual information gain vs. Expected information gain for three model comparison setups. \lou{add trendlines, R values}}
@@ -446,7 +444,7 @@ During training, participants see a subset of the objects presented one at a tim
 Initially, they can only guess at the labels, but they receive feedback so that they can eventually learn the category assignments.
 After reaching a learning criterion, they complete the test phase, where they label all the objects (training set and the held out test set) without feedback.
 
-Medin and Schaffer (MS) used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
+Medin and Schaffer used visual stimuli that varied on 4 binary dimensions (color: \emph{red} vs. \emph{green}, shape: \emph{triangle} vs. \emph{circle}, size: \emph{small} vs. \emph{large}, and count: \emph{1} vs. \emph{2}).
 For technical reasons, they considered only experiments (1) having linearly separable decision boundaries and (2) containing 5 A's and 4 B's in the training set.
 There are, up to permutation, 933 experiments that satisfy these constraints.
 %This space is roughly two orders of magnitude larger than the space of subjective randomness experiments we considered before, although it is small enough to fully enumerate in a reasonable amount of time.
@@ -457,10 +455,9 @@ We computed the expected information gain for all 933 experiments and found that
 Indeed, the MS experiment ranks 665th out of 993 experiments total (Figure~\ref{fig:dist}a) \lou{rerun this with unconditioned prior}.
 
 Why is the MS experiment ineffcient?
-One reason is that Medin and Schaffer prioritized experiments that predict a qualitative swap in ranking for two stimuli. \lou{expound here}
-The experiment they designed indeed predicts a swap, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
+One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., if an object is predicted to be an A by one model but a B by the other).
+The experiment they designed indeed predicts a qualitative difference, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
-% \lou{note that the OED framework is quite flexible. in our model space, we can also encode hard constraints like ``the models must predict different rank orderings''}
 
 \begin{figure}[t]
 \centering
@@ -468,7 +465,7 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 (a) & (b)\\
 \includegraphics[width=2.5in]{img/dist.eps} & \includegraphics[width=2.5in]{img/category-ns.pdf}\\
 \end{tabular}
-\caption{Comparing MS experiment with optimal experiment. MS experiment has lower expected information gain and requires twice as many participants to achieve maximum actual information gain.}
+\caption{Comparing MS and optimal experiments. MS experiment has lower expected information gain and requires three times as many participants to achieve maximum actual information gain.}
 \label{fig:dist}
 \end{figure}
 
@@ -498,11 +495,11 @@ Our tool eliminates the need to manually comb large spaces in search of good exp
 
 We close by outlining some interesting directions for future work.
 First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
-Second, there might exist inference techniques that take advantage of the particular structure of the OED problem (e.g., if $p(y)$ is negligible, it may be acceptable to have a less precise estimate of information gain).
-Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive staircases in psychophysics experiments).
+Second, there might exist inference techniques that take advantage of the particular structure of the OED problem (e.g., it may be acceptable to have a less precise estimate of information gain when $p(y)$ is negligible).
+Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive tests).
 Fourth, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
 Our informativeness approach could be usefully integrated with multi-objective optimization methods for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
-\lou{Finally, we did our case studies in cognitive psychology; we believe it's broadly useful, but people should test this.}
+Finally, we showed case studies of our method in in cognitive psychology but we believe that it is broadly useful, so we invite practitioners to test our method.
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
