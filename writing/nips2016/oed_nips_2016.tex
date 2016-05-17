@@ -178,36 +178,15 @@ This intuition may be biased towards experiments that show qualitative differenc
 %\ndg{point out that this intuition can be wrong -- foreshadow MS result...}
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
-We present a general and principled framework to designing experiments that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
-For a system to be domain-general, the computation for experiment selection must be automatic.
+We present a general and principled framework for experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
+For such a framework to be domain-general, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
-\emph{Probabilisitic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing  probabilisitic models.
+\emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
 This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
 
-
-%The approach is similar in spirit to other Bayesian approaches to experiment design going back to Lindley \cite{Lindley1956} (for a review, see \cite{Chaloner1995}).
-%We go beyond simple probability models, however, and implement the framework in a \emph{probabilistic programming language} (PPL), providing new generality to the approach.
-%%PPLs are a convenient and compositional way to represent explicit hypotheses about the data.
-%We show how optimal experiment design (OED) can be streamlined into a scientist's workflow by instantiating it in a user-friendly PPL in which formal hypotheses can already be expressed.
-%This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
-%%\lou{as explained, this doesn't seem so crucial to me.}
-%\ndg{make this stronger and clearer: if the goal is automated expt design that is general, not one-off, then the math for experiment selection has to be automatic. this can only happen if there is a langauge for specifying the hypotheses and experiments. PPLs serve this role well, because they are high-level and universal.}
-
-We apply our framework to the domain of psychology, which is increasingly interested in experiment design and analysis. \red{(cite some replication thing?})
-Studying human behavior introduces additional complications into experiment design.
-Human data is noisy and sensitive to the dependent measure of the task.
-Further, human data is expensive: The scientist must balance expected statistical power with the constraints of a limited budget to decide on the number of participants to run.
-
-%Though the framework is Bayesian, it is not directly related to Bayesian models of cognition; rather, it can be applied to any instance in which the scientist has a formal model of the data generating process (including, Bayesian models of cognition).
-
-%We are not the first to attempt to develop a framework for optimal experiments in psychology.
-%Previous attempts (e.g. \cite{Myung2009}), however, suffer from a number of pragmatic issues, including ad-hoc optimization criteria, lack of an established pipeline, and failure to accommodate common worries in psychology experiments (e.g., dealing with noisy responses, determining sample sizes, and selecting dependent measures or linking functions).
-% Taken together, these issues put the burden on researchers to have sufficient expertise to adapt the OED system to their specific problem and require researchers to develop their own system for writing formal psychological models and the OED optimization engine.
-In this paper, we introduce a general framework for optimal experiment design that is able to deal with specific issues from psychology: noisy responses, determination of sample size, and in principle, selection among dependent measures or linking functions for the task at hand.
-We construct a Bayesian model selection framework implemented in a practical modeling system.
-We apply this framework to two case studies from cognitive psychology: perceptions of subjective randomness and category learning.
-The first case study highlights the details of application for a simple space of experiments.
-The second study applies OED to a more realistic space of possible experiments and validates our theoretical analysis by running the optimal experiment.
+We first describe our framework in general terms and then apply it in two case studies from cognitive psychology, a field of where experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to sample size, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
+In the first case study, we consider the problem of disambiguating three toy models of perceptions of subjective randomness.
+In the second case study, we go beyond toy models and consider a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
