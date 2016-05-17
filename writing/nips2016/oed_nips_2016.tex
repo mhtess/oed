@@ -214,28 +214,22 @@ Our general system opens a number of rich areas for future development, which we
 \section{Experiment design framework}
 \label{s:bayes}
 
-\ndg{this section needs to be smoothed out. (should still be short...) first talk about models (M), experiments (X), and results (Y). Then talk about posterior on models and information gain. Then talk about expected results (first assuming models are true, then relaxing to uninformative). Finally the argmax objective.}
-
-Let $P(M)$ be a prior distribution on models or hypotheses, $P(X)$ a prior on experiments, and $P(Y)$ a prior on possible responses.
-A model $m$ is a conditional distribution $P_m(Y \mid X)$ that expresses predictions about responses $y_i$ for different possible experiments $x_i$ (we will use the notation $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
-Thus, experiments and responses can update the distribution on models into a posterior distribution on models.
-The amount of information gain can be given by the KL divergence between this distribution and the prior $ \dkl{ P(M \mid X = x, Y = y) }{ P(M) } $.
-
-To compute the expected information gain, we must express our beliefs about the expected results $p(y ; x)$.
-If we believe $M$ contains the true model, the predictive distribution of responses implied by the models is appropriate:
-$$ p(y ; x) = \sum\limits_{m}p_m(y \mid x)p(m) $$
-where $p_m(y \mid x)$ is the distribution on responses $y$ for experiment $x$ predicted by model $m$.
-In other cases, we would not suppose the true model is contained in $M$; here, a maximum entropy or uninformative distribution is a natural choice for $p(y ; x)$.
-
-The goal of OED is to find the experiment $x^{*}$ that maximizes the expected information gain about the belief distribution on models $P(M \mid X = x^{*})$.
-The optimal experiment $x^*$ maximizes the expected KL divergence over the space of responses:
+Let us put on our scientist hats---we wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
+A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y_i$ for different possible experiments $x_i$ (we also write $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
+We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x \in X$ that maximally updates this distribution.
+Formally, we wish to find
+$$x^{*} &= \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
+\emph{A priori}, we do not know what the results of this experiment will be, so we must integrate over the possible results $y \in Y$ of running experiment $x$:
 \begin{align}
-x^{*} &= \argmax_{x} \sum\limits_{y} p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) } \label{eq:oed}
+  x^{*} &= \argmax_{x} \sum\limits_{y}p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) }
+  \label{eq:oed}
 \end{align}
+where $p(y ; x)$ is the probability of observing result $y$ for experiment $x$.
+If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models:
+$$ p(y ; x) = \sum\limits_{m}p_m(y \mid x)p(m) $$
+If, however, we do not believe that $M$ contains the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
 
-\lou{discuss linking functions.. in coins example we assume that subjects are iid and that each subject's response is conditionally iid given their latent values but we could relax these assumptions}
-
-\lou{give example}
+\lou{walk through a simple concrete example. make sure i discuss linking functions.. in coins example we assume that subjects are iid and that each subject's response is conditionally iid given their latent values but we could relax these assumptions}
 
 \subsection{Probabilistic program hypothesis specification}
 
