@@ -4,3 +4,4 @@
 *.synctex*
 *.pdf
 *.blg
+.Rproj.user
