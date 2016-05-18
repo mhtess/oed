@@ -262,8 +262,7 @@ var conditionalBinomial = function(){
 	return x
 }
 \end{lstlisting}
-
-In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
+Here, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
 \lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
 To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
