@@ -1,0 +1,195 @@
+---
+title: "subjective-randomness"
+author: "mht"
+date: "May 11, 2016"
+output: html_document
+---
+
+```{r}
+d0<-read.csv("~/Documents/research/oed/oed/experiments/data/subjrand-1-trials.csv")
+```
+
+```{r}
+d<-read.csv("~/Documents/research/oed/oed/experiments/oed/subjectiveRandomness_eig_aig_ignorancePrior.csv")
+```
+
+```{r}
+d %>% 
+  filter(models != "fairVmarkov") %>%
+  mutate(models = factor(models, 
+                  levels = c("fairVbias", "biasVmarkov",
+                                     "fairVbiasVmarkov"),
+                  labels = c(
+                    "fair vs. bias",
+                    "bias vs. markov",
+                    "fair vs. bias vs. markov"
+                  ))) %>%
+  rowwise() %>%
+  mutate(eig = ifelse(eig == 0, 0.005, eig)) %>%
+  ggplot(., aes(x = experiment, y = eig))+
+    geom_bar(stat='identity', position=position_dodge())+
+    coord_flip()+
+    facet_wrap(~models)+
+    ylab("Expected Information Gain")+
+    xlab("Experiment")+
+    guides(fill=F)
+  
+#ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig.pdf", height = 4, width = 9)
+```
+
+```{r}
+corr_eqn <- function(x,y, digits = 2) {
+  corr_coef <- round(cor(x, y)^2, digits = digits)
+  paste("italic(r^2) == ", corr_coef)
+}
+
+
+d.tidy <- d %>% 
+  filter(models != "fairVmarkov") %>%
+  mutate(models = factor(models, 
+                  levels = c("fairVbias", "biasVmarkov",
+                                     "fairVbiasVmarkov"),
+                  labels = c(
+                    "fair vs. bias",
+                    "bias vs. markov",
+                    "fair vs. bias vs. markov")))
+  
+
+
+labels = data.frame(x = c(0.1, 0.5, 0.4), 
+                    y = c(0.6, 0.1, 0.8),
+                    m = c("fair vs. bias",
+                    "bias vs. markov",
+                    "fair vs. bias vs. markov")) %>%
+  group_by(m) %>%
+  mutate(label = with(d.tidy %>% filter(models==m),
+                          corr_eqn(eig,aig))) %>%
+  ungroup() %>%
+  rename(models = m)
+
+
+  
+  ggplot(d.tidy, aes(x = eig, y = aig, 
+                #fill=models, 
+                label=experiment))+
+  #geom_jitter(shape=21, size=3)+
+  geom_jitter(size=2)+
+  geom_smooth(method='lm', color='black', lty=2, alpha=0.6, size = 0.3)+
+    #geom_point(shape = 21, position=position_jitter())+
+    geom_text(data=labels, aes(x=x, y=y, label=label), parse = TRUE)+
+    #geom_text(check_overlap = TRUE, position=position_jitter())+
+    facet_wrap(~models, scales='free')+
+    xlab("Expected Information Gain")+
+    ylab("Actual Information Gain")+
+    guides(fill=F)+
+  coord_fixed(ratio=1)
+
+#ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_aig_scatter_noText.pdf", height = 3.5, width = 7)
+
+```
+
+Models for coins
+
+```{r}
+library(rwebppl)
+  
+fairCoin <- "
+var fairSingle = cache(function(sequence) {
+    Enumerate(function() {
+        return flip()
+    })
+})
+fairSingle('no seq necessary')
+"
+
+biasCoin <- "
+var coinWeights = [0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.99];
+
+
+// assumes a.length == b.length
+var arraysEqual = function(as,bs) {
+    return all(idF, map2(function(a, b) { return a === b }, as, bs))
+}
+
+
+var biasCoin = function(sequence) {
+  Enumerate(function(){
+      var p = uniformDraw(coinWeights);
+      var sampled = repeat(sequence.length, function() { flip(p) })
+      condition(arraysEqual(sampled, sequence))
+      return flip(p)
+  })
+}
+
+biasCoin(map(function(x){return x==1}, input_seq))
+"
+
+markovCoin<-"
+var coinWeights = [0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.99];
+// assumes a.length == b.length
+var arraysEqual = function(as,bs) {
+    return all(idF, map2(function(a, b) { return a === b }, as, bs))
+}
+
+var markovCoin = function(sequence) {
+    Enumerate(function(){
+        var transitionProb = uniformDraw(coinWeights);
+        var generateSequence = function(n, flipsSoFar) {
+            if (flipsSoFar.length == n) {
+                return flipsSoFar;
+            } else {
+                var lastFlip = last(flipsSoFar);
+                return generateSequence(n,
+                                        append(flipsSoFar,
+                                               flip(transitionProb) ? !lastFlip : lastFlip))
+            }
+        }
+
+        var firstCoin = flip();
+        var sampled = generateSequence(sequence.length, [firstCoin]);
+        condition(arraysEqual(sampled, sequence));
+
+        return flip(transitionProb) ? !last(sampled) : last(sampled);
+    })
+}
+
+markovCoin(map(function(x){return x==1}, input_seq))
+"
+```
+
+Predictions
+
+```{r}
+opt_exp =  c(1,1,1,1)
+penopt_exp = c(1,1,1,0)
+
+model_predictions<-bind_rows(
+   webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = opt_exp, data_var='input_seq') %>%
+    mutate(model = 'fair',
+           expt = 'HHHH'),
+   webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = opt_exp, data_var='input_seq') %>%
+    mutate(model = 'bias',
+           expt = 'HHHH'),
+   webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = opt_exp, data_var='input_seq') %>%
+    mutate(model = 'markov',
+           expt = 'HHHH'),
+   webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = penopt_exp, data_var='input_seq') %>%
+    mutate(model = 'fair',
+           expt = 'HHHT'),
+   webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = penopt_exp, data_var='input_seq') %>%
+    mutate(model = 'bias',
+           expt = 'HHHT'),
+   webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = penopt_exp, data_var='input_seq') %>%
+    mutate(model = 'markov',
+           expt = 'HHHT')
+)
+  
+
+```
+
