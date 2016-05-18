@@ -174,14 +174,14 @@ Formal models alleviate some of these issues.
 Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
 This intuition may be biased towards experiments that show qualitative differences between models, even when more informative differences may exist.
-%\ndg{point out that this intuition can be wrong -- foreshadow MS result...}
-This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
+% \ndg{point out that this intuition can be wrong -- foreshadow MS result...}
+When both the spaces of models and experiments is explicit, it is possible to use optimal experiment design (OED) to partially \emph{automates} experiment design; OED performs as a sort of active learning, searching for experiments that maximally update our beliefs about a scientific question.
 
-We present a general and principled framework for experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
+In this work, we present a general and principled framework for optimal experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
 For such a framework to be domain-general, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
-This is a crucial step in making a practical optimal experiment design (OED) system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
+This is a crucial step in making a practical OED system: once you use a PPL to formalize your hypotheses, OED for free.
 
 We first describe our framework in general terms and then apply it in two case studies from cognitive psychology.
 Psychology experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
