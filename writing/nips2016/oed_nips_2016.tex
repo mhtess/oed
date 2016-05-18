@@ -187,7 +187,7 @@ We first describe our framework in general terms and then apply it in two case s
 Psychology experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}---functions that convert model output into direct experimental predictions.
 Our system naturally addresses these concerns.
 In the first case study, we consider the problem of disambiguating three toy models of human sequence prediction.
-In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning, which compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
+In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
@@ -215,7 +215,24 @@ Our general system opens a number of rich areas for future development, which we
 \section{Experiment design framework}
 \label{s:bayes}
 
-Let us put on our scientist hats---we wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
+We begin with a concrete example before giving formal details.
+Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (a uniform prior on the unit interval) but that can be learned from data.
+We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
+There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
+Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
+For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
+
+How informative would running the experiment, say, \lstinline{HHTT} be?
+$m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---neither experimental result would update our beliefs about the models, so this is a poor experiment.
+By contrast, the experiment \lstinline{HHHH} would be much more informative.
+Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$.
+If we ran our experiment with a single participant, \emph{either} empirical response would be informative.
+If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
+Thus, \lstinline{HHHH} would be a good experiment to run to disambiguate these models.
+OED automates this sort of reasoning.
+
+We now formalize our setup.
+We wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y$ for different possible experiments $x$ (we also write $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x$ that maximally updates this distribution.
 Formally, we wish to find
@@ -227,22 +244,6 @@ $$x^{*} = \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
 where $p(y ; x)$ is the probability of observing result $y$ for experiment $x$.
 If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models $ \sum\limits_{m}p_m(y \mid x)p(m) $.
 If, however, we do not believe that $M$ contains the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
-
-Consider a concrete example.
-Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (a uniform prior on the unit interval) but that can be learned from data.
-We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
-There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
-Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
-For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are IID.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
-
-How informative would running the experiment, say, \lstinline{HHTT} be?
-$m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---neither experimental result would change our belief in one of the models, so this is a poor experiment.
-By contrast, the experiment \lstinline{HHHH} would be much more informative.
-Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$ $p(\texttt{H}) = \frac{5}{6}$.
-If we ran our experiment with a single participant, \emph{either} empirical response would be informative.
-If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
-Thus, \lstinline{HHHH} would be a good experiment to run to disambiguate these models.
-OED automates this sort of reasoning.
 
 \subsection{Writing models as probabilistic programs}
 
