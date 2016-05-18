@@ -154,7 +154,7 @@ Designing good scientific experiments requires ingenuity, rigor, and patience to
 With the growing popularity of formal models, part of this time-consuming process can be automated.
 Here, we present a general and principled approach to experiment design.
 Our system is based on a user-friendly probabilistic programming language (PPL).
-Using such a high-level and universal modeling language means details of experiment selection calculation can be hidden from the scientist, without loss of generality; she needs only represent her hypothesis and space of potential experiments.
+Using a high-level and universal modeling language means details of experiment selection calculation can be hidden from the scientist, without loss of generality; she need only represent her hypothesis and space of potential experiments.
 We apply this system to differentiating competing models of psychological phenomena, but the framework is general to any domain where probabilistic models are used to represent theories.
 We validate our framework using case studies in the psychology of sequence prediction and categorization.
 We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
@@ -173,7 +173,7 @@ Scientists must have hypotheses and reason over a potentially large space of pos
 Formal models alleviate some of these issues.
 Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
-This intuition may be biased towards experiments that show qualitative differences between models, even when they are not very informative.
+This intuition may be biased towards experiments that show qualitative differences between models, even when more informative differences may exist.
 %\ndg{point out that this intuition can be wrong -- foreshadow MS result...}
 This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
 
@@ -181,11 +181,13 @@ We present a general and principled framework for experiment design that uses a 
 For such a framework to be domain-general, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
-This is a crucial step in making a practical OED system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
+This is a crucial step in making a practical optimal experiment design (OED) system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
 
-We first describe our framework in general terms and then apply it in two case studies from cognitive psychology, a field where experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to sample size, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
+We first describe our framework in general terms and then apply it in two case studies from cognitive psychology.
+Psychology experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
+Our system naturally addresses these concerns.
 In the first case study, we consider the problem of disambiguating three toy models of human sequence prediction.
-In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
+In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning, which compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
@@ -227,8 +229,8 @@ If we have reason to believe that $M$ contains the true model of the data, then 
 If, however, we do not believe that $M$ contains the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
 
 Consider a concrete example.
-Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has an unknown bias (a uniform prior on the unit interval) that can be learned from data.
-We have a uniform prior on the models but we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
+Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (a uniform prior on the unit interval) but that can be learned from data.
+We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
 There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
 Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
 For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are IID.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
@@ -239,8 +241,8 @@ By contrast, the experiment \lstinline{HHHH} would be much more informative.
 Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$ $p(\texttt{H}) = \frac{5}{6}$.
 If we ran our experiment with a single participant, \emph{either} empirical response would be informative.
 If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
-Thus, \lstinline{HHHH} would be a good experiment to run.
-In what follows, we show how to automate this sort of reasoning.
+Thus, \lstinline{HHHH} would be a good experiment to run to disambiguate these models.
+OED automates this sort of reasoning.
 
 \subsection{Writing models as probabilistic programs}
 
@@ -261,7 +263,7 @@ var conditionalBinomial = function(){
 
 In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} is used for soft constraints), and return \lstinline{x}.
 \lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
-To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
+To actually obtain samples, we must perform inference on this model using \lstinline{Infer(options, model)}.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
 WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamilton Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
 
@@ -302,7 +304,7 @@ We next illustrate our system by applying it to distinguish psychological theori
 \section{Case study 1: Sequence prediction}
 \label{s:tutorial}
 
-Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
+Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might believe the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
 There are many hypotheses one might have about what underlies human intuitions such sequences.
 Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes.
 We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
