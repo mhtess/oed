@@ -318,15 +318,14 @@ Formally, the model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{m
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
 
 \begin{lstlisting}[caption=Fair coin model,  label={lst:m_fair},upquote=true]
-  var fairCoin = function(seq) {
-    Infer(function(){
-      return flip(0.5)
-    }, {method: 'Enumerate'})
-  }
+var fairCoin = function(seq) {
+  Infer(function(){
+    return flip(0.5)
+  })
+}
 \end{lstlisting}
-
+Here, \lstinline{flip} samples from the Bernoulli distribution.
 Note the type signature of this model -- it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
-This distribution is computed using a particular inference strategy, here, an exhaustive \lstinline{Enumerate} algorithm.
 $m_{\text{bias}}$ generalizes this fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip:
 
 \begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}, upquote=true]
@@ -338,7 +337,7 @@ var biasCoin = function(seq) {
     var sampledSeq = repeat(seq.length, flipCoin)
     condition(arrayEquals(seq,sampledSeq))
     return flipCoin()
-  }, {method: 'Enumerate'})
+  })
 }
 \end{lstlisting}
 
@@ -369,7 +368,7 @@ var markovCoin = function(seq) {
 	  var sampledSeq = sampleSeq([flip(0.5)], seq.length - 1)
     condition(arrayEquals(seq, sampledSeq));
     return sampleOne(last(sampledSeq))
-  }, {method: 'Enumerate'})
+  })
 }
 \end{lstlisting}
 
