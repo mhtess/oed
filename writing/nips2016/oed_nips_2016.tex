@@ -263,7 +263,7 @@ var conditionalBinomial = function(){
 
 In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} is used for soft constraints), and return \lstinline{x}.
 \lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
-To actually obtain samples, we must perform inference on this model using \lstinline{Infer(options, model)}.
+To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
 WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamilton Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
 
@@ -305,9 +305,9 @@ We next illustrate our system by applying it to distinguish psychological theori
 \label{s:tutorial}
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might believe the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
-There are many hypotheses one might have about what underlies human intuitions such sequences.
-Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes.
-We consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
+There are many hypotheses one might have about what underlies human intuitions about such sequences.
+Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
+As in our example above, we consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
 
 \subsection{Formalization}
@@ -342,7 +342,7 @@ var biasCoin = function(seq) {
 \end{lstlisting}
 
 $m_{\text{bias}}$ first samples a coin weight \lstinline{bias} from a discretized uniform distribution, and
-then creates a helper function \lstinline{flipCoin} which samples observation from the weighted coin.
+then creates a helper function \lstinline{flipCoin} which samples observations from the weighted coin.
 The model then generates a sequence of coin flips the same length as the observed sequence \lstinline{repeat(seq.length, flipCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
 The model then returns the outcome of the next coin flip.
 
@@ -398,13 +398,15 @@ This is also intuitive---the bias model would infer a strongly biased coin and m
 Next, consider the bias--Markov comparison.
 \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments---similar to fair--bias comparison, the models make similar predictions for these experiments.
 \lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
-This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of the last observed value (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
+This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 Note that the most informative experiments in one model comparison may be the least informative in another.
 
 Finally, consider the fair--bias--Markov comparison.
 The worst experiments, \lstinline{TTHH}, \lstinline{THHT}, \lstinline{HTTH}, and \lstinline{HHTT}, are cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
 This result is more difficult to understand because we are trying to disambiguate three models.
+\lstinline{HHHH} is very good at separating the fair model from the other tool models. 
+The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing 
 An automated tool for experiment design has even more utility in these settings.
 
 %Finally, the expected information gain of experiments designed to disambiguate all three models is more complex to understand.
