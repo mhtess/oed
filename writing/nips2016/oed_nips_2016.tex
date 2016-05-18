@@ -247,6 +247,7 @@ If, however, we do not believe that $M$ contains the true model, then an uninfor
 
 \subsection{Writing models as probabilistic programs}
 
+\lou{say that generative models are functions (samplers), we turn them into distributions using Infer, which produces probability tables}
 A key requirement for automating experiment design is to write models of the data as programs---in our case, probabilistic programs.
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
 WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which  support generating samples and calculating the density of values.
@@ -262,7 +263,7 @@ var conditionalBinomial = function(){
 }
 \end{lstlisting}
 
-In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} is used for soft constraints), and return \lstinline{x}.
+In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
 \lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
 To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
