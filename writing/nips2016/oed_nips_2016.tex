@@ -10,7 +10,6 @@
 %% Figure 3 histogram: vertical line with AIG
 %% create n_subjects analysis figure (a la FIgure 3, line plot) for sequence prediction... bootstrap up to n=100 to observe crossover
 
-
 % if you need to pass options to natbib, use, e.g.:
 % \PassOptionsToPackage{numbers, compress}{natbib}
 % before loading nips_2016
@@ -385,13 +384,12 @@ OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
 
 \underline{\textsf{Output:}}\\
 \includegraphics[width=\columnwidth]{img/coin_eig.pdf}
-\caption{Running OED in the sequence prediction domain \mht{this is with the number of subjects that we collected; might want to make this for n = 1 (or n = 20) to highlight the symmetries}} \mht{Note this is also with the ignorance prior}
-%\lou{make this figure in ggplot, clean it up}
+\caption{Running OED in the sequence prediction domain \mht{make this for n = 1 to highlight symmetries}}
 \label{fig:run-coin}
 \end{figure}
-Consider the fair--bias comparison.
+Consider the fair--bias comparison (Figure \ref{fig:run-coin}, left).
 Observe that there are several experiments that have 0 information gain (e.g., \lstinline{TTHH}).
-This is intuitive---the models make exactly the same predictions in this case, so the experiment has no distinguishing power.
+This is intuitive---the bias coin model infers a coin weight symmetrically centered around 0.5, and so the models make exactly the same predictions in this case (albeit for different reasons): The experiment has no distinguishing power.
 The most informative experiments are \lstinline{HHHH} and \lstinline{TTTT}.
 This is also intuitive---the bias model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
 
@@ -399,22 +397,24 @@ Next, consider the bias--Markov comparison.
 \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments---similar to fair--bias comparison, the models make similar predictions for these experiments.
 \lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
 This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of the last observed value (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
+Note that the most informative experiments in one model comparison may be the least informative in another.
 
 Finally, consider the fair--bias--Markov comparison.
 The worst experiments, \lstinline{TTHH}, \lstinline{THHT}, \lstinline{HTTH}, and \lstinline{HHTT}, are cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
-This result is less intuitive, which reveals the utility of an automated tool for experiment design.
+This result is more difficult to understand because we are trying to disambiguate three models.
+An automated tool for experiment design has even more utility in these settings.
 
 %Finally, the expected information gain of experiments designed to disambiguate all three models is more complex to understand.
 %The information gain now depends on how well the experiments disambiguate all three models. Here, we see that for
 
 
 \subsection{Empirical validation}
-We validated our OED system by running all of 16 experiments and comparing expected information gain with the actual information gain from empirical results.
-We recruited 330 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
+We validated our OED system by running all 16 experiments and comparing expected information gain with the actual information gain from empirical results.
+We recruited 351 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
 
-For each experiment $x$ and result $y$, we computed the expected information gain from running 20 participants\footnote{because we do client-side randomization, N's are not actually 20; we use the empirical N's for EIG} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
+For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
 
 \begin{figure}[t]
