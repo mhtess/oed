@@ -279,19 +279,19 @@ This is not essential---we could also replace the outermost \lstinline|Infer()| 
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample) {
-  var mPrior = Infer(function() { mSample() })
-  Infer(function() {
-    var x = xSample();
-    var KLDist = Infer(function() {
+  var mPrior = Infer(mSample)             // compute prior on models
+  Infer(function() {                      // search over x
+    var x = xSample()
+    var KLDistrib = Infer(function() {    // compute expected KLs
       var y = ySample()                   // ${\color{purple} p(y ; x)}$
       var mPosterior = Infer(function() { // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
-        var m = sample(mPrior)
+        var m = mSample()
         factor(score(m(x), y))
-        return m.name
+        return m
       })
       return KL(mPosterior, mPrior)
     })
-    var EIG = expectation(KLDist)  // ${\color{purple} \sum_{y} p(y ; x) \dkl{ P(M \mid Y = y) }{ P(M) } }$
+    var EIG = expectation(KLDistrib)  // ${\color{purple} \sum_{y} p(y ; x) \dkl{ P(M \mid Y = y) }{ P(M) } }$
     factor(Math.log(EIG / maxEIG)) // optional (inference as search)
     return {x: x, EIG: EIG}
   })
