@@ -325,7 +325,7 @@ var fairCoin = function(seq) {
 }
 \end{lstlisting}
 Here, \lstinline{flip} samples from the Bernoulli distribution.
-Note the type signature of this model -- it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
+Note the type signature of this model---it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
 $m_{\text{bias}}$ generalizes this fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip:
 
 \begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}, upquote=true]
@@ -377,7 +377,7 @@ var markovCoin = function(seq) {
 Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov (Fig.~\ref{fig:run-coin}).
 
 \begin{figure}[h]
-\underline{\textsf{(Example) Input:}}
+\underline{\textsf{Example input for fair-bias comparison:}}
 \begin{lstlisting}
 OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
      xSample: function() { repeat(4, flip) }, // experiment space
@@ -417,6 +417,7 @@ An automated tool for experiment design has even more utility in these settings.
 We validated our OED system by running all 16 experiments and comparing expected information gain with the actual information gain from empirical results.
 We recruited 351 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
+\lou{use consistent level of detail for coin and category experiments}
 
 For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
@@ -492,7 +493,9 @@ Thus, the optimal experiment provides the same amount of information for 1/3 the
 
 In our reading of the literature, we found that the basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10).
 
-These papers, however, often implement OED in a one-off fashion, specializing for  particular models (e.g., in biology: parameter estimation for ordinary differential equations with Gaussian noise) and commiting to a single inference technique (e.g., Metropolis-Hastings).
+These papers, however, often implement OED in a one-off fashion, specializing for  particular models and commiting to a single inference technique.
+For example, Liepe et al. (cite), working in systems biology, developed an OED method for finding experiments that optimize information gain for parameters of biomolecular models (ordinary differential equations with Gaussian noise).
+Their information gain measure (Shannon entropy) is similar to ours, but they narrowed in on a specific family of models and committed to a bespoke inference technique (an ABC scheme based on Sequential Monte Carlo).
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
 
