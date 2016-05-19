@@ -237,9 +237,9 @@ The goal of OED is to automate this reasoning.
 
 We now formalize our framework.
 We wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
-A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y$ for different possible experiments $x$ (we also write $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
-We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x$ that maximally updates this distribution, providing as much information as possible.
-That is, we wish to maximize $\dkl{ P(M \mid X = x) }{ P(M) }$.
+A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y$ for different possible experiments $x$.
+We begin with a prior $P(M)$ and aim to conduct an experiment $x^*$ that maximally updates this distribution, providing as much information as possible.
+That is, we wish to maximize $\dkl{ P(M \mid X = x^*) }{ P(M) }$.
 %$$x^{*} = \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
 \emph{A priori}, we do not know what the result of any particular experiment will be, so we must marginalize over the possible results $y$:
 \begin{align}
@@ -257,22 +257,21 @@ WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}),
 For instance, we can sample from $\text{Binomial}(4, \frac{1}{2})$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
 
 Oftentimes, we are interested in posterior inference. Let's say we are interested in the $\text{Binomial}(4, \frac{1}{2})$ distribution conditional on at least 2 successes. We write this as:
-%
-%\begin{lstlisting}[mathescape, label={code:webppl}, caption = {Posterior inference in WebPPL.}]
 \begin{lstlisting}[mathescape, label={code:webppl}]
-var conditionalBinomial = function(){
+var g = function(){
 	var x = sample(Binomial({n: 4, p: 0.5}))
 	condition(x >= 2)
 	return x
 }
-var marginalDist = Infer(conditionalBinomial)
+var marginalDist = Infer(g)
+// returns a probability table: p(2) = 6/11, p(3) = 4/11, p(4) = 1/11
 \end{lstlisting}
-Here, \lstinline{conditionalBinomial} is a generative model written as a function.
-This function represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
-\lstinline{conditionalBinomial} is thus a declarative specification of the generative model we would like to sample from.
-To reify the conditional distribution for further use, we must perform marginal inference on this model using \lstinline{Infer(model, options)}, which yields a distribution object.
-This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
-In the above snippet, and throughout, we leave out the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms to choose from: MCMC (MH, HMC, SMC), enumeration for discrete models, and variational inference.
+\lstinline{g} is a function representing the conditional distribution.
+Conceptually, it draws a sample \lstinline{x} from the prior, rejects values less than 2 using \lstinline{condition} (which enforces hard constraints\footnote{ An alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them}) and returns \lstinline{x}.
+However, \lstinline{g} is not directly runnable.
+To reify the conditional distribution, we must perform marginal inference on this model using \lstinline{Infer(g, options)}, which yields a distribution object (a probability table).
+This provides a useful separation---we distinguish \emph{what} we wish to compute from \emph{how} we try to compute it.
+In the above snippet, and throughout, we omit the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms: MCMC (MH, HMC, SMC), enumeration for discrete models, and variational inference.
 
 \subsection{Writing OED as a probabilistic program}
 
