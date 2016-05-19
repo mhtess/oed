@@ -170,24 +170,29 @@ Our framework opens up a number of interesting questions, which we explore in th
 %\ndg{agree: first talk about OED in general, and why we should do OED within a PPL setup, then talk about psych as a target domain.}
 Designing scientific experiments is hard.
 Scientists must have hypotheses and reason over a potentially large space of possible experiments.
-Formal models alleviate some of these issues.
+Formal, matehmatical models alleviate some of these issues.
 Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
-This intuition may be biased towards experiments that show qualitative differences between models, even when more informative differences may exist.
+This intuition may be biased in a number of ways, such as towards experiments that show qualitative differences between models, even when more informative quantitative differences may exist.
 % \ndg{point out that this intuition can be wrong -- foreshadow MS result...}
-When both the spaces of models and experiments is explicit, it is possible to use optimal experiment design (OED) to partially \emph{automates} experiment design; OED performs as a sort of active learning, searching for experiments that maximally update our beliefs about a scientific question.
+When the space of models and of experiments have been made explicit, it is possible to use optimal experiment design (OED) to \emph{automate} experiment design; OED searches for experiments that maximally update our beliefs about a scientific question.
 
-In this work, we present a general and principled framework for optimal experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
-For such a framework to be domain-general, the computation for experiment selection must be automatic.
+\ndg{need some cites to previous OED type work in this section...}
+While the mathematical formulation of OED is relatively straightforward, in information theoretic terms, there has been a key obstacle to applying OED in practice: a complex calculation is required to formulate the objective for each new set of models and experiments. 
+This can be sufficiently difficult and time-consuming to deter working scientists (particularly in the behavioral sciences) from OED. 
+%In this work, we present a general and principled framework for optimal experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
+In order for OED to be practical and domain-general, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
-This is a crucial step in making a practical OED system: once you use a PPL to formalize your hypotheses, OED for free.
+In this work we describe a system in which the user expresses the competing hypotheses and possible experiments in a PPL; the optimal experiment is then computed with no further input from the user.
+%This is a crucial step in making a practical OED system: once you use a PPL to formalize your hypotheses, OED for free.
 
 We first describe our framework in general terms and then apply it in two case studies from cognitive psychology.
-Psychology experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions} to convert model output into predictions about data.
+Psychology is a good target domain for OED: hypotheses can often be expressed as mathematical models, rapid experiment iteration is possible and beneficial, and there is a large community ready to use (but not necessarily develop) sophisticated tools.
+Psychological experiments also have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions} to convert model output into predictions about data.
 Our system naturally addresses these concerns.
 In the first case study, we consider the problem of disambiguating three toy models of human sequence prediction.
-In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
+In the second case study, we go beyond toy models and analyze a classic paper on human category learning. This influential paper compared two models using an experiment designed by hand; we find that OED discovers experiments that are several times more effective than the original, in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
