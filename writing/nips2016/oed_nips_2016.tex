@@ -224,7 +224,7 @@ Imagine that we are studying how people predict values for sequence data (e.g., 
 We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
 There are 16 possible experiments and $2^n$ possible outcomes---heads or tails for each of $n$ human participants.
 Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
-For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
+For convenience, we write our models in terms of a what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
 
 How informative would running the experiment, say, \lstinline{HHTT} be?
 $m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---neither experimental result would update our beliefs about the models, so this is a poor experiment.
