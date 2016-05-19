@@ -151,7 +151,7 @@ var groupify = function(model) {
   var groupified = function(x) {
     var sequence = x.sequence, n = x.n;
     var singleResponseDist = model(sequence);
-    var p = Math.exp(score(singleResponseDist), true)
+    var p = Math.exp(score(singleResponseDist, true))
     return Binomial({n: n, p: p})
   }
   return groupified
