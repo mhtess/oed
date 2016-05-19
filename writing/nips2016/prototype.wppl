@@ -1,0 +1,41 @@
+var prototype = function(x) {
+  var as = x.as, bs = x.bs, recall = append(as, bs);
+
+  var recallStrings = map(function(obj) { obj.join(',') }, recall);
+  // returns true if x is in the training set, false if not
+  var isRecall = (function(obj) {
+    var objString = obj.join(',');
+    return recallStrings.indexOf(objString) > -1;
+  });
+
+  var g = function() {
+    var weights = repeat(4, function() { uniform(0, 1) });
+    var alpha = uniform(0,5);
+    var bias = uniform(-1, 1);
+
+    var classify = function(object) {
+      // a function of dimension index
+      var h = function(i) {
+        var matchObjects = filter(function(x) { x[i] == object[i] },
+                                  recall);
+        var n = matchingObjects.length;
+        var nA = filter(function(x) { return as.indexOf(x) > -1 },
+                        matchingObjects).length;
+        var nB = n - nA;
+        return weights[i] * (nA - nB)/n;
+      }
+
+      var totalEvidence = sum(map(h,[0,1,2,3])) + (isRecall(object) ? bias : 0);
+      var prob = 1 / (1 + exp(-alpha * totalEvidence));
+      return prob;
+    }
+
+    return map(classify, objects)
+  };
+
+  var numSamples = 5000;
+  var dist = Infer(g, {method: 'MH', samples: 5000}).support();
+
+  // get expected distribution on responses
+  return map(function(x) { return x / numSamples }, columnSum(dist))
+}

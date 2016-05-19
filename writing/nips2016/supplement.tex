@@ -117,7 +117,9 @@ captionpos=b
 
 \maketitle
 
-\section{Markov model}
+\section{Sequence prediction}
+
+\subsection{Markov model}
 
 \begin{lstlisting}[upquote=true]
 var markovCoin = function(seq) {
@@ -142,15 +144,29 @@ var markovCoin = function(seq) {
 }
 \end{lstlisting}
 
-\section{\texttt{groupify} linking function}
+\subsection{\texttt{groupify} linking function}
 
-\section{Category learning models}
+\begin{lstlisting}[upquote=true]
+var groupify = function(model) {
+  var groupified = function(x) {
+    var sequence = x.sequence, n = x.n;
+    var singleResponseDist = model(sequence);
+    var p = Math.exp(score(singleResponseDist), true)
+    return Binomial({n: n, p: p})
+  }
+}
+\end{lstlisting}
+
+\lstinline{groupify} is a higher order function that takes in a model of single-participant responses and returns an i.i.d. model of group responses.
+We use the Bernoulli response probability defined by the single-subject model for a given sequence and use that to return a Binomial distribution on the number of heads responses from $n$ subjects.
+
+\section{Category learning}
 
 \subsection{Exemplar model}
 
 Recall that the category learning models are classifiers that receive objects (vectors of boolean features) as input and return probability of A/B assignment as output.
 
-The exemplar model defines a similarity function between two objects:
+The exemplar model defines a similarity function between two objects $s$ and $r$:
 $$ \text{sim}(r, s) = \prod_i{\max{w_i, \delta_{s_i,r_i}}  }$$
 where $i$ denotes components of the objects, and $w_i$ are free parameters.
 The model classifies an object $s$ as an A with probability:
@@ -158,21 +174,23 @@ $$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\text{sim}(s,r)}}{
 \sum\limits_{r \in A}{\text{sim}(s,r)} +
 \sum\limits_{r \in B}{\text{sim}(s,r)}
  }$$
-
-We express this model in WebPPL on the next page:
-\pagebreak
+We express this model in WebPPL as:
 
 \begin{lstinputlisting}[caption=Exemplar model in WebPPL, upquote=true]{exemplar.wppl}
-\lstinline{exemplar} takes as input set of As and Bs and returns as output the probability of A for each of the 16 objects in the experiment.
+\lstinline{exemplar} takes as input a set of As and Bs and returns as output the probability of A classification for each of the 16 objects in the experiment.
 Because the model has continuous parameters, we integrate over them using 5000 samples of Metropolis-Hastings.
 
 \subsection{Prototype model}
 
-Note that the original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.
-
+The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.
+Recall that the prototype model assumes people do not store information about all training examples but instead summary prototypes of A and B (these are computed from the training value by taking the mode).
+The model defines a relative similarity function $h_i(s)$ that computes how much more similar $s$ is to the A prototype than it is to the B prototype along dimension $i$:
+$$ h_i(s) =  w_i\left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right)$$
+where $w_i$ are free parameters and $R = A \cup B$.
 
 The prototype model classifies an object $s$ as an A with probability:
-$$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\}$$
-where $R = A \cup B$, $w$ is a vector of weights, $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before.
+$$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}{h_i(s)} \right] \right\}$$
+where $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before. We express this model in WebPPL on the next page:
+\begin{lstinputlisting}[caption=Prototype model in WebPPL, upquote=true]{prototype.wppl}
 
 \end{document}
