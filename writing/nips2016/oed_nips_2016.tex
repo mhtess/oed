@@ -248,9 +248,10 @@ If, however, we do not believe that $M$ contains the true model, then an uninfor
 \subsection{Writing models as probabilistic programs}
 
 \lou{say that generative models are functions (samplers), we turn them into distributions using Infer, which produces probability tables}
+\mht{attempted to address this in the last paragraph of 2.1}
 A key requirement for automating experiment design is to write models of the data as programs---in our case, probabilistic programs.
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
-WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which  support generating samples and calculating the density of values.
+WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which support generating samples and calculating the density of values.
 For instance, we can sample from $\text{Binomial}(4, \frac{1}{2})$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
 
 Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditional on at least 2 successes. We write this as:
@@ -262,9 +263,10 @@ var conditionalBinomial = function(){
 	return x
 }
 \end{lstlisting}
-Here, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
-\lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
-To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
+Here, \lstinline{conditionalBinomial} is a generative model written as a function.
+This function represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
+\lstinline{conditionalBinomial} is thus a declarative specification of the generative model we would like to sample from.
+To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)} and turn it into a distribution.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
 WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamilton Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
 
