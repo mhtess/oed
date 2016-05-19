@@ -382,24 +382,29 @@ The probability of transitioning from the current coin flip is inferred from the
 
 \subsection{Predictions of optimal experiment design}
 
-Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov, assuming we would collect data from 20 participants (Fig.~\ref{fig:run-coin}).
-
-\ndg{i kind of liked having an example of the complete call to OED... if we can squeeze it back in, it'd be nice.}
+Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov, assuming we would collect data from 20 participants:
 
 \begin{figure}[h]
+\underline{\textsf{(Example) Input:}}
+\begin{lstlisting}
+OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
+     xSample: function() { uniformDraw(["HHHH","HHHT",...,"TTTT"]) }, 
+     ySample: function() { flip() })          // response space
+\end{lstlisting}
+\underline{\textsf{Output:}}\\
 \includegraphics[width=\columnwidth]{img/coin_eig_n20_ignorance.pdf}
 \caption{OED results for sequence prediction model comparisons with 20 participants.}
 \label{fig:run-coin}
 \end{figure}
 Consider the fair--bias comparison (Figure \ref{fig:run-coin}, left).
 Observe that there are several experiments that have 0 information gain (e.g., \lstinline{HTHT}, see also Figure \ref{fig:coin_preds}a).
-This is intuitive---the bias coin model infers a coin weight symmetrically centered around 0.5, and so the models make exactly the same predictions in this case (albeit for different reasons): The experiment has no distinguishing power.
+This confirms the intuition spelled out before---the models make exactly the same predictions in this case (albeit for different reasons): The experiment has no distinguishing power.
 The most informative experiments are \lstinline{HHHH} and \lstinline{TTTT}.
 This is also intuitive---the bias model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
 
 Next, consider the bias--Markov comparison.
 The least and most informative experiments reverse.
-Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments---similar to fair--bias comparison, the models make similar predictions for these experiments.
+Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments: Similar to fair--bias comparison, the models make similar predictions for these experiments.
 \lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
 This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 %Note that the most informative experiments in one model comparison may be the least informative in another.
@@ -425,8 +430,8 @@ This makes sense---the bias model infers a 0.5 probability of heads and so assig
 Finally, consider the fair--bias--Markov comparison.
 The worst experiments, \lstinline{TTHH}, \lstinline{THHT}, \lstinline{HTTH}, and \lstinline{HHTT}, are cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
-This result is more difficult to understand because we are trying to disambiguate three models.
-\lstinline{HHHH} is very good at separating the fair model from the other tool models.
+The result is non-obvious because we are trying to disambiguate three models.
+\lstinline{HHHH} is very good at separating the fair model from the other two models.
 The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}a), but the actual information gain is predicted to be less.
 An automated tool for experiment design is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
