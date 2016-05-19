@@ -27,7 +27,26 @@ eigs = unname(unlist(Map(function(e) { e$EIG }, dfs)))
 
 plot
 ```{r}
-qplot(x = eigs, geom = 'histogram', color = I('white')) + xlab("EIG") + ylab("Count")
+d.eig = data.frame(eig = eigs) 
+
+breaks = seq(from = 0, to = 0.09, by = 0.01/2)
+
+d.eigcut = d.eig %>%
+  transform(bucket = cut(eig,
+                         breaks = breaks,
+                         labels = breaks[2:length(breaks)]
+                         )) %>%
+  transform(bucket = as.numeric(as.character(bucket))) %>%
+  group_by(bucket) %>% summarise(count = n())
+
+d.eigcut = d.eigcut %>% transform(Experiment = ifelse(bucket == 0.03, "MS",
+                                                      ifelse(bucket == 0.085, "Optimal", "Other")))
+
+ggplot(data = d.eigcut) + geom_bar(mapping = aes(x = bucket, y = count, fill = Experiment), stat = 'identity') + 
+  ylab("Count") +
+  xlab("Expected information gain") + 
+  scale_x_continuous(limits = c(0,0.09), breaks = seq(from = 0, to = 0.09, by = 0.09 / 3)) + 
+  scale_fill_manual(values = c("MS" = "red2", "Optimal" = "blue", "Other" = "grey30"))
 ```
 
 # curve of AIGs vs subjects
@@ -53,6 +72,7 @@ ci.u <- function(x) {
 }
 ```
 
+todo: optimize CI time
 ```{r}
 aigs = rbind(fromJSON("aig-curve-ms.json"),
              fromJSON("aig-curve-opt.json"))
@@ -68,6 +88,7 @@ aigs.agg = aigs %>%
 aigs.agg$Experiment = factor(aigs.agg$ex, levels = rev(levels(aigs.agg$ex)))
 ```
 
+(export as 6x3)
 ```{r}
 qplot(data =  aigs.agg,
       x = n,
