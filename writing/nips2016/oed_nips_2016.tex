@@ -250,7 +250,7 @@ Conceptually, it draws a sample \lstinline{x} from the prior, rejects values les
 However, \lstinline{g} is not directly runnable.
 To reify the conditional distribution, we must perform marginal inference on this model using \lstinline{Infer(g, options)}, which yields a distribution object (a probability table).
 This provides a useful separation---we distinguish \emph{what} we wish to compute from \emph{how} we try to compute it.
-In the above snippet, and throughout, we omit the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms: MCMC (MH, HMC, SMC), enumeration for discrete models, and variational inference.
+In the above snippet, and throughout, we omit the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms: MCMC (MH, HMC), SMC, enumeration for discrete models, and variational inference.
 
 \subsection{Writing OED as a probabilistic program}
 
@@ -504,7 +504,7 @@ Adaptive testing can be formulated as a problem of information gain of sequences
 %Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive tests).
 %Fourth, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
 %Our informativeness approach could be usefully integrated with for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
-In this paper, we showed case studies of our method in cognitive psychology but we believe that it is broadly useful, so we invite practitioners to test our method.
+In this paper, we showed case studies of our method in cognitive psychology but we believe that it is broadly useful, so we invite practitioners to test our method and system.
 
 \bibliographystyle{ieeetr}
 \bibliography{oed_nips_2016}
