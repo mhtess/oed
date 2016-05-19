@@ -1,0 +1,82 @@
+```{r}
+library(jsonlite)
+library(dplyr)
+library(ggplot2)
+library(directlabels)
+library(memoise)
+theme_set(theme_classic(16) +
+theme(
+    axis.line.x = element_line(colour = "black"),
+    axis.line.y = element_line(colour = "black")
+  ))
+```
+
+# histogram of EIG values
+
+read in json files
+
+```{r}
+json.filenames = (function(x) { x[grepl("json", x)] })(list.files())
+dfs = Map(fromJSON, json.filenames)
+```
+
+extract eigs so far
+```{r}
+eigs = unname(unlist(Map(function(e) { e$EIG }, dfs)))
+```
+
+plot
+```{r}
+qplot(x = eigs, geom = 'histogram', color = I('white')) + xlab("EIG") + ylab("Count")
+```
+
+# curve of AIGs vs subjects
+
+```{r}
+generic.ci_ <- function(x, n = 5000){
+    structure(
+        quantile(
+            replicate(n, mean(sample(x, replace = TRUE),
+                              na.rm = TRUE)),
+            c(0.025, 0.975)),
+        names=c("ci.l","ci.u"))
+}
+
+generic.ci <- memoise(generic.ci_)
+
+ci.l <- function(x) {
+  generic.ci(x)["ci.l"]
+}
+
+ci.u <- function(x) {
+  generic.ci(x)["ci.u"]
+}
+```
+
+```{r}
+aigs = rbind(fromJSON("aig-curve-ms.json"),
+             fromJSON("aig-curve-opt.json"))
+
+aigs.agg = aigs %>%
+  group_by(ex, n) %>%
+  summarise(mean.aig = mean(aig),
+            cl = ci.l(aig),
+            cu = ci.u(aig)) %>%
+  ungroup() %>%
+  mutate(ex = factor(ifelse(ex == 'ms', 'MS','Optimal')))
+
+aigs.agg$Experiment = factor(aigs.agg$ex, levels = rev(levels(aigs.agg$ex)))
+```
+
+```{r}
+qplot(data =  aigs.agg,
+      x = n,
+      y = mean.aig,
+      ymin = cl,
+      ymax = cu,
+      color = Experiment,
+      geom = c('point','errorbar','line')) + ylab("Actual information gain") + xlab("Number of participants")
+
+```
+
+
