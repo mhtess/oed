@@ -5,3 +5,7 @@
 *.pdf
 *.blg
 .Rproj.user
+.Rhistory
+*.bbl
+*.fdb_latexmk
+*.fls
