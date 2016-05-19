@@ -272,18 +272,16 @@ This function represents a sampler for the conditional distribution---we draw a 
 \lstinline{conditionalBinomial} is thus a declarative specification of the generative model we would like to sample from.
 To reify the conditional distribution for further use, we must perform marginal inference on this model using \lstinline{Infer(model, options)}, which yields a distribution object.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
-In the above snippet, and throughout, we leave out the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamiltonian Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
-
+In the above snippet, and throughout, we leave out the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms to choose from: MCMC (MH, HMC, SMC), enumeration for discrete models, and variational inference.
 
 \subsection{Writing OED as a probabilistic program}
 
 Surprisingly, after expressing the space of models, experiments, and responses as probabilistic programs, it is also straightforward to express OED as a probabilistic program (see Listing \ref{code:oed-pp}).
 Equation~\ref{eq:oed} translates to around 20 lines of WebPPL code, expressing that OED is an inference problem.
-Formulating OED in this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., mixtures of Enumeration and HMC for experiment spaces that have continuous and discrete subspaces).
-
-Note that we implement search for the optimal experiment using inference.
+A rich language like WebPPL is particularly well-suited here, as we lean heavily on the ability to perform \emph{nested} inference.
+Also, writing OED as a probabilistic program gives us access to algorithms that are more sophisticated than previous research has considered (e.g., mixtures of enumeration and HMC for experiment spaces that have continuous and discrete subspaces).
+Finally, note that we implement search for the optimal experiment using inference.
 This is not essential---we could also replace the outermost \lstinline|Infer()| call with an optimization procedure (e.g., \lstinline|Search()|).
-\ndg{point out that WebPPL is particularly well-suited to this application because we make heavy use of nested Infer?}
 
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
@@ -307,7 +305,7 @@ var OED = function(mSample, xSample, ySample) {
 }
 \end{lstlisting}
 %\end{minipage}
-Our OED code is as a WebPPL package at \url{https://censored}. %--- \url{https://github.com/mhtess/webppl-oed}.
+Our OED code is available as a WebPPL package at \url{https://censored}. %--- \url{https://github.com/mhtess/webppl-oed}.
 We next illustrate our system by applying it to distinguish psychological theories of sequence prediction.
 %\ndg{check nips anonymity requirements...}
 
