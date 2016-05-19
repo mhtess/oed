@@ -183,7 +183,7 @@ Because the model has continuous parameters, we integrate over them using 5000 s
 \subsection{Prototype model}
 
 The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.
-Recall that the prototype model assumes people do not store information about all training examples but instead summary prototypes of A and B (these are computed from the training value by taking the mode).
+Recall that the prototype model assumes people do not store information about all training examples but instead summary prototypes of A and B (these are computed from the training set by taking the mode).
 The model defines a relative similarity function $h_i(s)$ that computes how much more similar $s$ is to the A prototype than it is to the B prototype along dimension $i$:
 $$ h_i(s) =  w_i\left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right)$$
 where $w_i$ are free parameters and $R = A \cup B$.
