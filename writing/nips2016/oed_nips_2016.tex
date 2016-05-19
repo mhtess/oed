@@ -221,11 +221,11 @@ Our general system opens a number of rich areas for future development, which we
 \label{s:bayes}
 \mht{Should we address number of participants in this section? If not, seems like we should address it explicitly somewhere.}
 We begin with a concrete example before giving formal details.
-Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (a uniform prior on the unit interval) but that can be learned from data.
+Imagine that we are studying how people predict values for sequence data (e.g., flips of a possibly-trick coin) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (expressed as a uniform prior on the unit interval) but that can be learned from data.
 We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
-There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
+There are 16 possible experiments and $2^n$ possible outcomes---heads or tails for each of $n$ human participants.
 Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
-For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
+For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
 
 How informative would running the experiment, say, \lstinline{HHTT} be?
 $m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---neither experimental result would update our beliefs about the models, so this is a poor experiment.
@@ -234,52 +234,55 @@ Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}
 If we ran our experiment with a single participant, \emph{either} empirical response would be informative.
 If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
 Thus, \lstinline{HHHH} would be a good experiment to run to disambiguate these models.
-OED automates this sort of reasoning.
+The goal of OED is to automate this reasoning.
 
 We now formalize our framework.
 We wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y$ for different possible experiments $x$ (we also write $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
-We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x$ that maximally updates this distribution.
-Formally, we wish to find
-$$x^{*} = \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
-\emph{A priori}, we do not know what the result of any particular experiment will be, so we must integrate over the possible results $y$:
+We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x$ that maximally updates this distribution, providing as much information as possible.
+That is, we wish to maximize $\dkl{ P(M \mid X = x) }{ P(M) }$.
+%$$x^{*} = \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
+\emph{A priori}, we do not know what the result of any particular experiment will be, so we must marginalize over the possible results $y$:
 \begin{align}
-  x^{*} &= \argmax_{x} \sum\limits_{y}p(y ; x) \dkl{ P(M \mid X = x, Y = y) }{ P(M) }  \label{eq:oed}
+  x^{*} &= \argmax_{x} {\mathbb E}_{p(y ; x)} \dkl{ P(M \mid X = x, Y = y) }{ P(M) }  \label{eq:oed}
 \end{align}
 where $p(y ; x)$ is the probability of observing result $y$ for experiment $x$.
-If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models $ \sum\limits_{m}p_m(y \mid x)p(m) $.
-If, however, we do not believe that $M$ contains the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
+If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models $p(y ; x) = {\mathbb E}_{p(m)} p_m(y \mid x)$.
+If, however, we think $M$ may not contain the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
 
 \subsection{Writing models as probabilistic programs}
 
 \lou{say that generative models are functions (samplers), we turn them into distributions using Infer, which produces probability tables}
 \mht{attempted to address this in the last paragraph of 2.1}
-A key requirement for automating experiment design is to write models of the data as programs---in our case, probabilistic programs.
+A key requirement for automating experiment design is to write hypotheses about the data as explicit models---in our case, probabilistic programs.
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
-WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which support generating samples and calculating the density of values.
+WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which support generating samples and calculating the probability density of values from the domain.
 For instance, we can sample from $\text{Binomial}(4, \frac{1}{2})$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
 
 Oftentimes, we are interested in posterior inference. Let's say we are interested in the Binomial(4, 0.5) distribution conditional on at least 2 successes. We write this as:
 %
-\begin{lstlisting}[mathescape, label={code:webppl}, caption = {Posterior inference in WebPPL.}]
+%\begin{lstlisting}[mathescape, label={code:webppl}, caption = {Posterior inference in WebPPL.}]
+\begin{lstlisting}[mathescape, label={code:webppl}]
 var conditionalBinomial = function(){
 	var x = sample(Binomial({n: 4, p: 0.5}))
 	condition(x >= 2)
 	return x
 }
+var marginalDist = Infer(conditionalBinomial)
 \end{lstlisting}
 Here, \lstinline{conditionalBinomial} is a generative model written as a function.
 This function represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
 \lstinline{conditionalBinomial} is thus a declarative specification of the generative model we would like to sample from.
-To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)} and turn it into a distribution.
+To reify the conditional distibrution for further use, we must perform marginal inference on this model using \lstinline{Infer(model, options)}, which yields a distribution object.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
-WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamilton Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
+In the above snippet, and throughout, we leave out the \lstinline{options} object, which describes to \lstinline{Infer} which inference algorithm to use. WebPPL currently provides several inference algorithms to choose from: MCMC (Metropolis-Hasting, Hamilton Monte Carlo), full enumeration for discrete models, Sequential Monte Carlo, and variational inference.
+
 
 \subsection{Writing OED as a probabilistic program}
 
-Surprisingly, because we have expressed the space of models, experiments, and responses in the language of probability, it is also straightforward to express OED as a probabilistic program (see Listing \ref{code:oed-pp}).
-Equation~\ref{eq:oed} translates to around 20 lines of WebPPL code that makes it clear that OED is an inference problem.
-Expressing OED in this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., mixtures of Enumeration and HMC for  experiment spaces that have continuous and discrete subspaces).
+Surprisingly, after expressing the space of models, experiments, and responses as probabilistic programs, it is also straightforward to express OED as a probabilistic program (see Listing \ref{code:oed-pp}).
+Equation~\ref{eq:oed} translates to around 20 lines of WebPPL code, expressing OED is an inference problem.
+Formulating OED in this way gives us access to algorithms that are more sophisticated than previous research has considered  (e.g., mixtures of Enumeration and HMC for experiment spaces that have continuous and discrete subspaces).
 
 Note that we implement search for the optimal experiment using inference.
 This is not essential---we could also replace the outermost \lstinline|Infer()| call with an optimization procedure (e.g., \lstinline|Search()|).
@@ -299,8 +302,8 @@ var OED = function(mSample, xSample, ySample) {
       })
       return KL(mPosterior, mPrior)      // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
     })
-    var EIG = expectation(KLDistrib)     // take expectation of KLs
-    factor(Math.log(EIG / maxEIG)) // optional (inference as search)
+    var EIG = expectation(KLDistrib)     // ${\color{purple} {\mathbb E}_{p(y ; x)} \dkl{ P(M \mid Y = y) }{ P(M) } }$
+    factor(Math.log(EIG / maxEIG)) // optional (search by inference)
     return {x: x, EIG: EIG}
   })
 }
@@ -308,6 +311,7 @@ var OED = function(mSample, xSample, ySample) {
 %\end{minipage}
 Our OED code is available as a WebPPL package---see \url{https://github.com/mhtess/webppl-oed}.
 We next illustrate our system by applying it to distinguish psychological theories of sequence prediction.
+\ndg{check nips anonymity requirements...}
 
 \section{Case study 1: Sequence prediction}
 \label{s:tutorial}
