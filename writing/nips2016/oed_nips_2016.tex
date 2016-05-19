@@ -376,50 +376,54 @@ var markovCoin = function(seq) {
 Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov (Fig.~\ref{fig:run-coin}).
 
 \begin{figure}[h]
-\includegraphics[width=\columnwidth]{img/coin_eig.pdf}
-\caption{OED results for sequence prediction model comparisons \mht{make this for n = 1 to highlight symmetries}}
+\includegraphics[width=\columnwidth]{img/coin_eig_n20_ignorance.pdf}
+\caption{OED results for sequence prediction model comparisons with 20 participants.}
 \label{fig:run-coin}
 \end{figure}
 Consider the fair--bias comparison (Figure \ref{fig:run-coin}, left).
-Observe that there are several experiments that have 0 information gain (e.g., \lstinline{TTHH}).
+Observe that there are several experiments that have 0 information gain (e.g., \lstinline{HTHT}, see also Figure \ref{fig:coin_preds}a).
 This is intuitive---the bias coin model infers a coin weight symmetrically centered around 0.5, and so the models make exactly the same predictions in this case (albeit for different reasons): The experiment has no distinguishing power.
 The most informative experiments are \lstinline{HHHH} and \lstinline{TTTT}.
 This is also intuitive---the bias model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
 
 Next, consider the bias--Markov comparison.
-\lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments---similar to fair--bias comparison, the models make similar predictions for these experiments.
+The least and most informative experiments reverse.
+Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments---similar to fair--bias comparison, the models make similar predictions for these experiments.
 \lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
 This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
-Note that the most informative experiments in one model comparison may be the least informative in another.
+%Note that the most informative experiments in one model comparison may be the least informative in another.
 
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.7\columnwidth]{img/coin_predictions.pdf}
-\caption{Model predictions for the optimal and penoptimal experiment for distinguishing all three models.}
-\label{fig:coin_preds}
-\end{figure}
 
 %\begin{figure}[t]
 %\centering
-%\begin{tabular}{l l}
-%(a) & (b)\\
-%\includegraphics[width=2.5in]{img/coin_predictions.pdf} & \includegraphics[width=2.5in]{img/coin_eig_aig_scatter_noText.pdf}\\
-%\end{tabular}
-%\caption{Actual vs. expected information gain for three model comparison setups.}
-%\label{fig:dist}
+%\includegraphics[width=0.7\columnwidth]{img/coin_predictions.pdf}
+%\caption{Model predictions for the optimal and penoptimal experiment for distinguishing all three models.}
+%\label{fig:coin_preds}
 %\end{figure}
+
+\begin{figure}[t]
+\centering
+\begin{tabular}{l l}
+(a) & (b)\\
+\includegraphics[width=0.6\columnwidth]{img/coin_predictions.pdf} &
+\includegraphics[width=0.4\columnwidth]{img/coin_eig_3way_nsubj.pdf} \\\end{tabular}
+\caption{(a) Model predictions for the optimal and two other experiments.(b) Expected information gain for distinguishing three models for three experiments as a function of the number of participants.}
+\label{fig:coin_preds}
+\end{figure}
 
 Finally, consider the fair--bias--Markov comparison.
 The worst experiments, \lstinline{TTHH}, \lstinline{THHT}, \lstinline{HTTH}, and \lstinline{HHTT}, are cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
 This result is more difficult to understand because we are trying to disambiguate three models.
 \lstinline{HHHH} is very good at separating the fair model from the other tool models.
-The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}), but the actual information gain is predicted to be less .
+The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}a), but the actual information gain is predicted to be less.
 An automated tool for experiment design is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
-%Finally, the expected information gain of experiments designed to disambiguate all three models is more complex to understand.
-%The information gain now depends on how well the experiments disambiguate all three models. Here, we see that for
+The information carried by an experiment will vary according to the number of participants in that experiment.
+Figure \ref{fig:coin_preds}b shows the expected information gain in distinguishing the three models for three experiments of interest as a function of the number of participants.
+We see the information gain is a non-linear function of the number of participants, and the rank ordering of experiments may change with more participants.
+This is particularly relevant when three models are being compared, because small quantitative differences between two models may become more reliable as the sample size grows.
+In our example here, the optimal experiment with 1 participant is the same as with 30 participants.
 
 
 \subsection{Empirical validation}
@@ -428,13 +432,13 @@ We recruited 351 participants from Amazon's Mechanical Turk and randomly assigne
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
 \lou{use consistent level of detail for coin and category experiments}
 
-For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
+For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
-\caption{Actual vs. expected information gain for three model comparison setups.}
+\caption{Actual vs. Expected Information Gain for three model comparison setups.}
 \label{fig:aig_vs_eig}
 \end{figure}
 
@@ -493,8 +497,9 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 \subsection{Empirical validation}
 
 To validate our expected information gain calculations, we ran the MS and optimal experiments with 60 participants each.
-Figure~\ref{fig:dist}b shows that both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum, whereas the MS experiment takes around 30.
-Thus, the optimal experiment provides the same amount of information for 1/3 the experimental cost.
+Figure~\ref{fig:dist}b shows that the optimal experiment we found for a single participant is indeed better than the MS experiment (n=1, blue greater than red).
+In addition, by incrementally introducing more data, we observe both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum, whereas the MS experiment takes around 30.
+Thus, the optimal experiment provides the same amount of information for a third of the experimental cost.
 
 % and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
