@@ -543,11 +543,13 @@ Thus, the optimal experiment provides the same amount of information for a third
 
 The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10). \ndg{fix cites}
 
-These papers, however, often implement OED in a one-off fashion, specializing for  particular models and committing to a single inference technique.
+These papers, however, implement OED for either one-off or relatively limited cases, specializing for  particular models and committing to a single inference technique.
 For example, Liepe et al. (cite), working in systems biology, developed an OED method for finding experiments that optimize information gain for parameters of biomolecular models (ordinary differential equations with Gaussian noise).
 Their information gain measure (Shannon entropy) is similar to ours, but they narrowed in on a specific family of models and committed to a bespoke inference technique (an ABC scheme based on Sequential Monte Carlo).
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
+
+\ndg{probably worth another line or two talking about myung and pitt, as closest to us in psych...}
 
 \ndg{point out that WebPPL is particularly well-suited to this application because we make heavy use of nested Infer?}
 
@@ -555,12 +557,13 @@ Additionally, our work is the first to (1) demonstrate that expected information
 
 Practitioners aim to design experiments that yield informative results.
 Our approach partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
-With our approach, the scientist writes her hypotheses as probabilistic programs, sketches a space of possible experiments, and turns the crank of Bayesian inference.
+With our approach, the scientist writes her hypotheses as probabilistic programs, sketches a space of possible experiments, and hands these to OED for experiment selection.
 We stress that our work \emph{complements} practitioners; it does not replace them.
 Our tool eliminates the need to manually comb large spaces in search of good experiments; we hope that this will free scientists and engineers to work on the more interesting problems---devising empirical paradigms and building models.
 
+\ndg{rework this paragraph to flow better; if possible not just a list.}
 We close by outlining some interesting directions for future work.
-First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
+%First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
 Second, there might exist inference techniques that take advantage of the particular structure of the OED problem (e.g., it may be acceptable to have a less precise estimate of information gain when $p(y)$ is negligible).
 Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive tests).
 Fourth, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
