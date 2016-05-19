@@ -381,7 +381,7 @@ Using an uninformative prior for $p(y; x)$, we ran OED for three model compariso
 \underline{\textsf{(Example) Input:}}
 \begin{lstlisting}
 var n = 20; 
-var fairGroup = groupify(fairCoin,n), biasGroup = groupify(biasCoin,n)
+var fairGroup = groupify(fairCoin), biasGroup = groupify(biasCoin)
 OED({mSample: function() { uniformDraw([fairGroup, biasGroup]) },
      xSample: function() { 
     		 { n: n, seq: uniformDraw(["HHHH","HHHT",...,"TTTT"]) } 
