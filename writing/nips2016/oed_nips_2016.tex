@@ -255,8 +255,7 @@ A key requirement for automating experiment design is to write hypotheses about 
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
 WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which support generating samples and calculating the probability density of values from the domain.
 For instance, we can sample from $\text{Binomial}(4, \frac{1}{2})$ using \lstinline|sample(Binomial({n: 4, p: 0.5}))| and we can determine the log-probability of the value 2 under this distribution using \lstinline|score(Binomial({n: 4, p: 0.5}), 2)|.
-
-Oftentimes, we are interested in posterior inference. Let's say we are interested in the $\text{Binomial}(4, \frac{1}{2})$ distribution conditional on at least 2 successes. We write this as:
+Often, we are interested in posterior inference. Let's say we are interested in the $\text{Binomial}(4, \frac{1}{2})$ distribution conditional on at least 2 successes. We write this as:
 \begin{lstlisting}[mathescape, label={code:webppl}]
 var g = function(){
 	var x = sample(Binomial({n: 4, p: 0.5}))
@@ -311,10 +310,10 @@ We next illustrate our system by applying it to distinguish psychological theori
 \section{Case study 1: Sequence prediction}
 \label{s:tutorial}
 
-Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might believe the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
+Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might be unsure for the sequence \lstinline{THHTHTHT}.
 There are many hypotheses one might have about what underlies human intuitions about such sequences \cite{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
-Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
-As in our example above, we consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
+Here, we consider three simple models of people's beliefs\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
+As in our example above, we consider experiments setup where participants observe four flips of the same coin and must predict the next flip.
 
 
 \subsection{Formalization}
@@ -330,7 +329,7 @@ var fairCoin = function(seq) {
 Here, \lstinline{flip(0.5)} is shorthand for \lstinline|sample(Bernoulli({p:0.5}))|.
 Note the type signature of this model---it takes as input an experiment and returns a distribution on possible results of that experiment.
 
-$m_{\text{bias}}$ generalizes the fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip.
+In $m_{\text{bias}}$, people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip.
 %var coinWeights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
 \begin{lstlisting}[upquote=true]
 var biasCoin = function(seq) {
@@ -342,12 +341,11 @@ var biasCoin = function(seq) {
   })
 }
 \end{lstlisting}
-%$m_{\text{bias}}$
 \lstinline{biasCoin} first samples a coin weight \lstinline{w} from a uniform distribution, and then samples a sequence of flips, conditioning on this matching the observed sequence \lstinline{seq}.
 Thus, it learns the likely coin weights to have generated the observed sequence, and makes a prediction about the next flip.
 
-Finally, $m_{\text{markov}}$ (see supplement for code) assumes that the coin is generated by a Markov process where the first coin flip is uniform and subsequent flips have some probability of transitioning away from the previous value.
-The probability of transitioning from the current coin flip is inferred from the data, and is then used to predict the next flip.
+Finally, $m_{\text{markov}}$ (see supplement for code) assumes that the flips are generated by a Markov process where the first coin flip is uniform and subsequent flips have some probability \lstinline{p} of transitioning away from the previous value.
+\lstinline{p} is learned from the data and used to predict the next flip.
 
 %\begin{lstlisting}[upquote=true]
 %var markovCoin = function(seq) {
@@ -376,7 +374,7 @@ The probability of transitioning from the current coin flip is inferred from the
 
 Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov, assuming we would collect data from 20 participants:
 
-\begin{figure}[h]
+\begin{figure}[t]
 \underline{\textsf{(Example) Input:}}
 \begin{lstlisting}
 var n = 20;
@@ -396,67 +394,56 @@ In the example call to \lstinline{OED} (Fig. \ref{fig:run-coin}, Input), we firs
 The experiment space \lstinline{xSample} includes a fixed number of participants and the unique experiments.
 The response space \lstinline{ySample} is reflected in an uninformative prior over the number of \lstinline{H} responses (dependent on n).
 
-Consider the fair--bias comparison (Figure \ref{fig:run-coin}, Output, left).
-Observe that there are several experiments that have 0 information gain (e.g., \lstinline{HTHT}, see also Figure \ref{fig:coin_preds}a).
-This confirms the intuition spelled out before---the models make exactly the same predictions in this case (albeit for different reasons): The experiment has no distinguishing power.
-The most informative experiments are \lstinline{HHHH} and \lstinline{TTTT}.
-This is also intuitive---the bias model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
+Consider the fair--bias comparison.
+Observe that several experiments that have 0 information gain (e.g., \lstinline{HTHT}).
+The models make exactly the same predictions in this case (albeit for different reasons), so the experiment has no distinguishing power.
+The best experiments are \lstinline{HHHH} and \lstinline{TTTT}.
+This is intuitive---the bias model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
 
-Next, consider the bias--Markov comparison.
-The least and most informative experiments reverse.
-Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative experiments: Similar to fair--bias comparison, the models make similar predictions for these experiments.
-\lstinline{HTHT} and \lstinline{THTH} are the most informative experiments.
-This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
-%Note that the most informative experiments in one model comparison may be the least informative in another.
+Moving to the bias--Markov comparison, the best and worst experiments actually reverse.
+Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative (because, as before, the models make similar predictions here), whereas \lstinline{HTHT} and \lstinline{THTH} are the most informative.
+This makes sense---the bias model learns a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model learns that the transition probability is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
-
-%\begin{figure}[t]
-%\centering
-%\includegraphics[width=0.7\columnwidth]{img/coin_predictions.pdf}
-%\caption{Model predictions for the optimal and penoptimal experiment for distinguishing all three models.}
-%\label{fig:coin_preds}
-%\end{figure}
-
-\begin{figure}[t]
-\centering
-\begin{tabular}{l l}
-(a) & (b)\\
-\includegraphics[width=0.6\columnwidth]{img/coin_predictions.pdf} &
-\includegraphics[width=0.4\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf} \\\end{tabular}
-\caption{(a) Model predictions for the optimal and two other experiments.(b) Expected information gain for distinguishing three models for three experiments as a function of the number of participants.}
-\label{fig:coin_preds}
-\end{figure}
-
-Finally, consider the fair--bias--Markov comparison.
-The worst experiments, \lstinline{TTHH}, \lstinline{THHT}, \lstinline{HTTH}, and \lstinline{HHTT}, are cases where all models make similar predictions.
+In the full (fair--bias--Markov) comparison, the worst experiments (e.g., \lstinline{TTHH} ) are again cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
 The result is non-obvious because we are trying to disambiguate three models.
 \lstinline{HHHH} is very good at separating the fair model from the other two models.
-The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}a), but the actual information gain is predicted to be less.
+The second best experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}a), but the actual information gain is predicted to be less.
 An automated tool for experiment design is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
-The information carried by an experiment will vary according to the number of participants in that experiment.
-Figure \ref{fig:coin_preds}b shows the expected information gain in distinguishing the three models for three experiments of interest as a function of the number of participants.
-We see the information gain is a non-linear function of the number of participants, and the rank ordering of experiments may change with more participants.
+The expected information gain of an experiment depends on the the sample size of participants in that experiment.
+Figure \ref{fig:coin_preds}b shows how, in the full comparison, the expected information gain for the top three experiments varies as a function of sample size.
+This function is non-linear and the rank ordering of experiments changes with more participants---\lstinline{HTHT} and \lstinline{HHHT} switch places at around 12 participants.
 This is particularly relevant when three models are being compared, because small quantitative differences between two models may become more reliable as the sample size grows.
 In our example here, the optimal experiment with 1 participant is the same as with 30 participants.
 
+\begin{figure}[t]
+  \centering
+  \begin{tabular}{l l}
+    (a) & (b)\\
+    \includegraphics[width=0.6\columnwidth]{img/coin_predictions.pdf} &
+                                                                        \includegraphics[width=0.4\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf} \\
+  \end{tabular}
+  \caption{(a) Model predictions for the optimal (HHH) and two other experiments. (b) Expected information gain for HHHH, HHHT, and HTHT as a function of sample size (three-way model comparison).}
+  \label{fig:coin_preds}
+\end{figure}
+
 
 \subsection{Empirical validation}
-We validated our OED system by collecting human judgements for all 16 experiments and comparing expected information gain with the actual information gain from the empirical results.
-We recruited 351 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
+We validated our system by collecting human judgements for all 16 experiments and comparing expected information gain with the actual information gain from the empirical results.
+We randomly assigned 351 participants to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
-\lou{use consistent level of detail for coin and category experiments}
 
-For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
+\begin{figure}[h]
+  \centering
+  \includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
+  \caption{Actual vs. Expected Information Gain for each experiment}
+  \label{fig:aig_vs_eig}
+\end{figure}
+
+For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are uneven due to randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
-\caption{Actual vs. Expected Information Gain for each possible experiment, across three model comparison setups.}
-\label{fig:aig_vs_eig}
-\end{figure}
 
 \section{Case study 2: Category learning}
 
