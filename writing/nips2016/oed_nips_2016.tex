@@ -174,20 +174,20 @@ Formal models alleviate some of these issues.
 Models make explicit hypotheses about observed data, and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching through a large space of possible experiments is still largely driven by the scientist's intuition.
 This intuition may be biased towards experiments that show qualitative differences between models, even when more informative differences may exist.
-%\ndg{point out that this intuition can be wrong -- foreshadow MS result...}
-This need not be the case: If both the set of hypotheses and the space of experiments are explicit, then we can partially \emph{automate} experiment design as a sort of active learning problem, searching for experiments that maximally update our beliefs about a scientific question.
+% \ndg{point out that this intuition can be wrong -- foreshadow MS result...}
+When both the spaces of models and experiments is explicit, it is possible to use optimal experiment design (OED) to partially \emph{automates} experiment design; OED performs as a sort of active learning, searching for experiments that maximally update our beliefs about a scientific question.
 
-We present a general and principled framework for experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
+In this work, we present a general and principled framework for optimal experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
 For such a framework to be domain-general, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
-This is a crucial step in making a practical optimal experiment design (OED) system: Once you're using a PPL to formalize your hypotheses, OED comes for free.
+This is a crucial step in making a practical OED system: once you use a PPL to formalize your hypotheses, OED for free.
 
 We first describe our framework in general terms and then apply it in two case studies from cognitive psychology.
-Psychology experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}.
+Psychology experiments have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions}---functions that convert model output into direct experimental predictions.
 Our system naturally addresses these concerns.
 In the first case study, we consider the problem of disambiguating three toy models of human sequence prediction.
-In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning, which compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
+In the second case study, we go beyond toy models and analyze a classic paper on human categorization learning that compared two models using an experiment designed by hand; we find that OED discovers experiments that are more effective in an information-theoretic sense.
 Our general system opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
@@ -215,7 +215,24 @@ Our general system opens a number of rich areas for future development, which we
 \section{Experiment design framework}
 \label{s:bayes}
 
-Let us put on our scientist hats---we wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
+We begin with a concrete example before giving formal details.
+Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (a uniform prior on the unit interval) but that can be learned from data.
+We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
+There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
+Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
+For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
+
+How informative would running the experiment, say, \lstinline{HHTT} be?
+$m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---neither experimental result would update our beliefs about the models, so this is a poor experiment.
+By contrast, the experiment \lstinline{HHHH} would be much more informative.
+Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$.
+If we ran our experiment with a single participant, \emph{either} empirical response would be informative.
+If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
+Thus, \lstinline{HHHH} would be a good experiment to run to disambiguate these models.
+OED automates this sort of reasoning.
+
+We now formalize our framework.
+We wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y$ for different possible experiments $x$ (we also write $m(x)$ as shorthand for $P_m(Y \mid X = x)$).
 We begin with a prior belief distribution $P(M)$ and aim to conduct an experiment $x$ that maximally updates this distribution.
 Formally, we wish to find
@@ -228,24 +245,9 @@ where $p(y ; x)$ is the probability of observing result $y$ for experiment $x$.
 If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models $ \sum\limits_{m}p_m(y \mid x)p(m) $.
 If, however, we do not believe that $M$ contains the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
 
-Consider a concrete example.
-Imagine that we are studying how people predict values for sequence data (e.g., coin flips) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (a uniform prior on the unit interval) but that can be learned from data.
-We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
-There are 16 possible experiments and $2^n$ possible responses---heads or tails for each of $n$ human participants.
-Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
-For convenience, we write our models $m_{\text{fair}}$ and $m_{\text{bias}}$ in terms of a what a single person would do and assume that all people use this same model, i.e., participant responses are IID.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models).}
-
-How informative would running the experiment, say, \lstinline{HHTT} be?
-$m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---neither experimental result would change our belief in one of the models, so this is a poor experiment.
-By contrast, the experiment \lstinline{HHHH} would be much more informative.
-Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$ $p(\texttt{H}) = \frac{5}{6}$.
-If we ran our experiment with a single participant, \emph{either} empirical response would be informative.
-If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
-Thus, \lstinline{HHHH} would be a good experiment to run to disambiguate these models.
-OED automates this sort of reasoning.
-
 \subsection{Writing models as probabilistic programs}
 
+\lou{say that generative models are functions (samplers), we turn them into distributions using Infer, which produces probability tables}
 A key requirement for automating experiment design is to write models of the data as programs---in our case, probabilistic programs.
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
 WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which  support generating samples and calculating the density of values.
@@ -260,8 +262,7 @@ var conditionalBinomial = function(){
 	return x
 }
 \end{lstlisting}
-
-In Listing \ref{code:webppl}, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} is used for soft constraints), and return \lstinline{x}.
+Here, \lstinline{conditionalBinomial} represents a sampler for the conditional distribution---we draw a sample \lstinline{x} from the prior, reject values less than 2 using \lstinline{condition}, which enforces hard constraints (an alternate form called \lstinline{factor} generalizes \lstinline{condition}, continuously weighting different program execution paths rather than simply accepting or rejecting them), and return \lstinline{x}.
 \lstinline{conditionalBinomial} is a declarative specification of the model we would like to sample from.
 To actually obtain samples, we must perform inference on this model using \lstinline{Infer(model, options)}.
 This provides a useful separation for the scientist--we distinguish \emph{what} we would like to compute from \emph{how} we try to compute it.
@@ -279,19 +280,19 @@ This is not essential---we could also replace the outermost \lstinline|Infer()| 
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
 var OED = function(mSample, xSample, ySample) {
-  var mPrior = Infer(function() { mSample() })
-  Infer(function() {
-    var x = xSample();
-    var KLDist = Infer(function() {
+  var mPrior = Infer(mSample)             // store prior on models
+  Infer(function() {                      // search over x
+    var x = xSample()
+    var KLDistrib = Infer(function() {    // compute KL for each y
       var y = ySample()                   // ${\color{purple} p(y ; x)}$
-      var mPosterior = Infer(function() { // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
-        var m = sample(mPrior)
+      var mPosterior = Infer(function() { // $\color{purple} P(M \mid Y = y)$
+        var m = mSample()
         factor(score(m(x), y))
-        return m.name
+        return m
       })
-      return KL(mPosterior, mPrior)
+      return KL(mPosterior, mPrior)      // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
     })
-    var EIG = expectation(KLDist)  // ${\color{purple} \sum_{y} p(y ; x) \dkl{ P(M \mid Y = y) }{ P(M) } }$
+    var EIG = expectation(KLDistrib)     // take expectation of KLs
     factor(Math.log(EIG / maxEIG)) // optional (inference as search)
     return {x: x, EIG: EIG}
   })
@@ -317,15 +318,14 @@ Formally, the model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{m
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
 
 \begin{lstlisting}[caption=Fair coin model,  label={lst:m_fair},upquote=true]
-  var fairCoin = function(seq) {
-    Infer(function(){
-      return flip(0.5)
-    }, {method: 'Enumerate'})
-  }
+var fairCoin = function(seq) {
+  Infer(function(){
+    return flip(0.5)
+  })
+}
 \end{lstlisting}
-
-Note the type signature of this model -- it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
-This distribution is computed using a particular inference strategy, here, an exhaustive \lstinline{Enumerate} algorithm.
+Here, \lstinline{flip} samples from the Bernoulli distribution.
+Note the type signature of this model---it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
 $m_{\text{bias}}$ generalizes this fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip:
 
 \begin{lstlisting}[caption=Biased coin model,  label={lst:m_weighted}, upquote=true]
@@ -337,13 +337,14 @@ var biasCoin = function(seq) {
     var sampledSeq = repeat(seq.length, flipCoin)
     condition(arrayEquals(seq,sampledSeq))
     return flipCoin()
-  }, {method: 'Enumerate'})
+  })
 }
 \end{lstlisting}
 
 $m_{\text{bias}}$ first samples a coin weight \lstinline{bias} from a discretized uniform distribution, and
 then creates a helper function \lstinline{flipCoin} which samples observations from the weighted coin.
 The model then generates a sequence of coin flips the same length as the observed sequence \lstinline{repeat(seq.length, flipCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
+\lou{further emphasize that this model learns}
 The model then returns the outcome of the next coin flip.
 
 Finally, $m_{\text{markov}}$ assumes that the coin is generated by a Markov process where the first coin flip is uniform and subsequent flips have some probability of transitioning away from the previous value.
@@ -368,7 +369,7 @@ var markovCoin = function(seq) {
 	  var sampledSeq = sampleSeq([flip(0.5)], seq.length - 1)
     condition(arrayEquals(seq, sampledSeq));
     return sampleOne(last(sampledSeq))
-  }, {method: 'Enumerate'})
+  })
 }
 \end{lstlisting}
 
@@ -377,7 +378,7 @@ var markovCoin = function(seq) {
 Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov (Fig.~\ref{fig:run-coin}).
 
 \begin{figure}[h]
-\underline{\textsf{(Example) Input:}}
+\underline{\textsf{Example input for fair-bias comparison:}}
 \begin{lstlisting}
 OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
      xSample: function() { repeat(4, flip) }, // experiment space
@@ -435,6 +436,7 @@ An automated tool for experiment design is especially useful in these settings, 
 We validated our OED system by running all 16 experiments and comparing expected information gain with the actual information gain from empirical results.
 We recruited 351 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
+\lou{use consistent level of detail for coin and category experiments}
 
 For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
@@ -481,10 +483,10 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 \subsection{Predictions of optimal experimental design}
 
 Using the predictive prior for $p(y; x)$, we computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
-Indeed, the MS experiment ranks 665th out of 993 experiments total (Figure~\ref{fig:dist}a) \lou{rerun this with unconditioned prior}.
+Indeed, the MS experiment is near the bottom third of all experiments (Figure~\ref{fig:dist}a).
 
 Why is the MS experiment ineffcient?
-One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., if an object is predicted to be an A by one model but a B by the other).
+One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts an object is an A  but another predicts it is a B).
 The experiment they designed indeed predicts a qualitative difference, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
 
@@ -492,9 +494,9 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 \centering
 \begin{tabular}{l l}
 (a) & (b)\\
-\includegraphics[width=2.5in]{img/dist.eps} & \includegraphics[width=2.5in]{img/category-ns.pdf}\\
+\includegraphics[width=2.5in]{img/category-eig-dist.pdf} & \includegraphics[width=2.5in]{img/category-aig-curve.pdf}\\
 \end{tabular}
-\caption{Comparing MS and optimal experiments. MS experiment has lower expected information gain and requires three times as many participants to achieve maximum actual information gain.}
+\caption{(a) Distribution of expected information gain for all possible category learning experiments. MS has low expected information gain. (b) Actual information gain versus number of experimental participants included in analysis (error bars are 95\% bootstrapped confidence intervals). MS requires three times as many participants to achieve maximum actual information gain.}
 \label{fig:dist}
 \end{figure}
 
@@ -510,7 +512,9 @@ Thus, the optimal experiment provides the same amount of information for 1/3 the
 
 In our reading of the literature, we found that the basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10).
 
-These papers, however, often implement OED in a one-off fashion, specializing for  particular models (e.g., in biology: parameter estimation for ordinary differential equations with Gaussian noise) and commiting to a single inference technique (e.g., Metropolis-Hastings).
+These papers, however, often implement OED in a one-off fashion, specializing for  particular models and commiting to a single inference technique.
+For example, Liepe et al. (cite), working in systems biology, developed an OED method for finding experiments that optimize information gain for parameters of biomolecular models (ordinary differential equations with Gaussian noise).
+Their information gain measure (Shannon entropy) is similar to ours, but they narrowed in on a specific family of models and committed to a bespoke inference technique (an ABC scheme based on Sequential Monte Carlo).
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
 
