@@ -134,7 +134,7 @@ Here, we present a general and principled approach to experiment design based on
 PPLs offer a clean separation between declaring problems and solving them, which means that the scientist can automate experiment design by simply declaring her model and experiment spaces in the PPL without having to worry about the details of calculating information gain.
 We demonstrate our system in two case studies drawn from cognitive psychology, where we use it to design optimal experiments in the domains of sequence prediction and categorization.
 %, but the framework is general to any domain where probabilistic models are used to represent theories.
-We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
+We find strong empirical validation that our automatically designed experiments were indeed optimal.
 We conclude by discussing a number of interesting questions for future research.
 
 
@@ -158,8 +158,8 @@ This intuition may be biased in a number of ways, such as towards experiments th
 
 When the space of models and of experiments have been made explicit, it is possible to use optimal experiment design (OED) to \emph{automate} experiment design; OED searches for experiments that maximally update our beliefs about a scientific question.
 The information-theoretic foundations of OED are fairly straightforward \cite{Lindley1956}, but it has not enjoyed widespread use in practice.
-Some OED systems are too narrow to be of general use (e.g., optimizing information gain for parameter estimation of certain classes biomolecular models).
-There are general systems but they require too much conceptual and implementation input (e.g., users must supply their own objective function and derive a solution algorithm for it).
+Some OED systems are too narrow to be of general use, and % (e.g., optimizing information gain for parameter estimation of certain classes of biomolecular models).
+the more general systems require too much conceptual and implementation know-how (e.g., users must supply their own objective function and derive a solution algorithm for it).
 In order for OED to be both general and practical, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
@@ -299,7 +299,7 @@ As in our example above, we consider experiments setup where participants observ
 \subsection{Formalization}
 
 The model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$.
-For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) but also other components like dependent measure and sample size. As we will see, this matters.}
+For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.}
 Finally, $Y$ is the response set $\{\texttt{H}, \texttt{T}\}^1$.
 
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
