@@ -256,7 +256,7 @@ In the above snippet, and throughout, we omit the \lstinline{options} object, wh
 
 \subsection{Writing OED as a probabilistic program}
 
-Surprisingly, after expressing the space of models, experiments, and responses as probabilistic programs, it is also straightforward to express OED as a probabilistic program (see Listing \ref{code:oed-pp}).
+Surprisingly, after expressing the space of models, experiments, and responses as probabilistic programs, it is straightforward to express OED as a probabilistic program as well (see Listing \ref{code:oed-pp}).
 Equation~\ref{eq:oed} translates to around 20 lines of WebPPL code, expressing that OED is an inference problem.
 A rich language like WebPPL is particularly well-suited here, as we lean heavily on the ability to perform \emph{nested} inference.
 Also, writing OED as a probabilistic program gives us access to algorithms that are more sophisticated than previous research has considered (e.g., mixtures of enumeration and HMC for experiment spaces that have continuous and discrete subspaces).
@@ -301,7 +301,7 @@ As in our example above, we consider experiments setup where participants observ
 \subsection{Formalization}
 
 The model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$.
-For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.}
+For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size of 1 and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.}
 Finally, $Y$ is the response set $\{\texttt{H}, \texttt{T}\}^1$.
 
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
@@ -380,8 +380,8 @@ This makes sense---the bias model learns a 0.5 probability of heads and so assig
 
 In the full model comparison (full--bias--Markov), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}, a result that is non-obvious because we are comparing three models rather than two.
-The best experiment \lstinline{HHHH} is very good at separating the fair model from the other two models (Fig.~\ref{fig:coin_preds}a).
-The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference, but this comes at the cost of less expected information gain overall.
+The best experiment \lstinline{HHHH} is very good at separating the fair model from the other two models, while still predicting a difference between bias and Markov (Fig.~\ref{fig:coin_preds}a, right).
+The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference (Fig.~\ref{fig:coin_preds}a, middle), but this comes at the cost of less expected information gain overall.
 An automated design tool is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
 Finally, expected information gain of an experiment varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
