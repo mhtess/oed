@@ -129,7 +129,7 @@
 
 Scientists often run experiments to distinguish competing theories.
 This requires patience, rigor, and ingenuity---there is often a large space of possible experiments one could run.
-But we need not comb this space by hand---if we represent our theories as formal models and explicitly declare the space of experiments, we can automate the search for good experiments, looking for experiments with high \emph{expected information gain}.
+But we need not comb this space by hand---if we represent our theories as formal models and explicitly declare the space of experiments, we can automate the search for good experiments, looking for those with high \emph{expected information gain}.
 Here, we present a general and principled approach to experiment design based on probabilistic programming languages (PPLs).
 PPLs offer a clean separation between declaring problems and solving them, which means that the scientist can automate experiment design by simply declaring her model and experiment spaces in the PPL without having to worry about the details of calculating information gain.
 We demonstrate our system in two case studies drawn from cognitive psychology, where we use it to design optimal experiments in the domains of sequence prediction and categorization.
@@ -160,7 +160,7 @@ When the space of models and of experiments have been made explicit, it is possi
 The information-theoretic foundations of OED are fairly straightforward \cite{Lindley1956}, but it has not enjoyed widespread use in practice.
 Some OED systems are too narrow to be of general use, and % (e.g., optimizing information gain for parameter estimation of certain classes of biomolecular models).
 the more general systems require too much conceptual and implementation know-how (e.g., users must supply their own objective function and derive a solution algorithm for it).
-In order for OED to be both general and practical, the computation for experiment selection must be automatic.
+In order for OED to be both of general and practical use, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
 In this work we describe a system in which the user expresses the competing hypotheses and possible experiments in a PPL; the optimal experiment is then computed with no further input from the user.
@@ -200,7 +200,9 @@ Our work opens a number of rich areas for future development, which we explore i
 \section{Experiment design framework}
 \label{s:bayes}
 We begin with a concrete example before giving formal details.
-Imagine that we are studying how people predict values for sequence data (e.g., flips of a possibly-trick coin) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (expressed as a uniform prior on the unit interval) but that can be learned from data.
+Imagine that we are studying how people predict values for sequence data (e.g., people observe flips of a possibly-trick coin and are asked to predict what will happen with the next flip of the coin).
+We want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (expressed as a uniform prior on the unit interval) but that can be learned from data.
+%People would see a sequence of outcomes, and be asked to predict the next outcome.
 We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
 There are 16 possible experiments and $2^n$ possible outcomes---heads or tails for each of $n$ human participants.
 Thus, each model is a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
