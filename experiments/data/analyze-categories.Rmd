@@ -16,6 +16,7 @@ theme(
 read in json files
 
 ```{r}
+setwd("category-expt-sweep")
 json.filenames = (function(x) { x[grepl("json", x)] })(list.files())
 dfs = Map(fromJSON, json.filenames)
 ```
