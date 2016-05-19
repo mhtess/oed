@@ -500,7 +500,7 @@ Indeed, the MS experiment is near the bottom third of all experiments (Figure~\r
 
 Why is the MS experiment ineffective?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts an object is an A  but another predicts it is a B).
-The experiment they designed indeed predicts a qualitative difference in one stimulus, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
+The experiment they designed indeed predicts a qualitative difference in one stimulus, but this has a small magnitude and comes at the expense of little information gain from the remaining eight stimuli.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
 
 \begin{figure}[t]
@@ -530,7 +530,7 @@ The basic intuition behind OED---to find experiments that maximize some expected
 
 These papers, however, implement OED for either one-off or relatively limited cases, specializing for  particular models and committing to a single inference technique.
 For example, in systems biology, Liepe et al. \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
-Their information measure (Shannon entropy) is similar to ours, but they focus on a narow family of models and commit to a bespoke inference technique (an ABC scheme based on SMC).
+Their information measure (Shannon entropy) is similar to ours, but they focus on a narrow family of models and commit to a bespoke inference technique (an ABC scheme based on SMC).
 In psychology, Myung \& Pitt \cite{Myung2009} devised a general method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
 For example, they compared six memory retention models using Fisher Information Approximation as a utility function and performed inference using a custom annealed SMC algorithm.
 Such ``bring-your-own'' requirements impose a significant burden on practitioners.
