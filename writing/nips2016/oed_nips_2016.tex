@@ -283,6 +283,7 @@ Formulating OED in this way gives us access to algorithms that are more sophisti
 
 Note that we implement search for the optimal experiment using inference.
 This is not essential---we could also replace the outermost \lstinline|Infer()| call with an optimization procedure (e.g., \lstinline|Search()|).
+\ndg{point out that WebPPL is particularly well-suited to this application because we make heavy use of nested Infer?}
 
 %\begin{minipage}{\linewidth}
 \begin{lstlisting}[mathescape, label={code:oed-pp}, caption = {OED implementation. For clarity, we have omitted some book-keeping details.}]
@@ -300,13 +301,13 @@ var OED = function(mSample, xSample, ySample) {
       return KL(mPosterior, mPrior)      // ${\color{purple} \dkl{ P(M \mid Y = y) }{ P(M) } }$
     })
     var EIG = expectation(KLDistrib)     // ${\color{purple} {\mathbb E}_{p(y ; x)} \dkl{ P(M \mid Y = y) }{ P(M) } }$
-    factor(Math.log(EIG / maxEIG)) // optional (search by inference)
+    factor(Math.log(EIG / maxEIG))  // optional (search by inference)
     return {x: x, EIG: EIG}
   })
 }
 \end{lstlisting}
 %\end{minipage}
-Upon publication, our OED code will be available as a WebPPL package. %---see \url{https://github.com/mhtess/webppl-oed}.
+Our OED code is as a WebPPL package at \url{https://censored}. %--- \url{https://github.com/mhtess/webppl-oed}.
 We next illustrate our system by applying it to distinguish psychological theories of sequence prediction.
 %\ndg{check nips anonymity requirements...}
 
@@ -541,17 +542,17 @@ Thus, the optimal experiment provides the same amount of information for a third
 
 \section{Related work}
 
-The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10). \ndg{fix cites}
+The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics \cite{vanDenBerg2003}, chemistry \cite{Huan2010}, biology \cite{Vanlier2012, Liepe2013}, psychology \cite{Myung2009}, statistics \cite{Lindley1956}, and machine learning \cite{Golovin2010}.
 
 These papers, however, implement OED for either one-off or relatively limited cases, specializing for  particular models and committing to a single inference technique.
-For example, Liepe et al. (cite), working in systems biology, developed an OED method for finding experiments that optimize information gain for parameters of biomolecular models (ordinary differential equations with Gaussian noise).
-Their information gain measure (Shannon entropy) is similar to ours, but they narrowed in on a specific family of models and committed to a bespoke inference technique (an ABC scheme based on Sequential Monte Carlo).
+For example, in systems biology, Liepe et al. \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
+Their information measure (Shannon entropy) is similar to ours, but they focus on a narow family of models and commit to a bespoke inference technique (an ABC scheme based on SMC).
+In psychology, Myung \& Pitt \cite{Myung2009} devised a general method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
+For example, they compared six memory retention models using Fisher Information Approximation as a utility function and performed inference using a custom annealed SMC algorithm.
+Such ``bring-your-own'' requirements impose a significant burden on practitioners.
+
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
-
-\ndg{probably worth another line or two talking about myung and pitt, as closest to us in psych...}
-
-\ndg{point out that WebPPL is particularly well-suited to this application because we make heavy use of nested Infer?}
 
 \section{Conclusion}
 
