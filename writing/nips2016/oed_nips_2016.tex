@@ -373,10 +373,9 @@ Finally, $m_{\text{markov}}$ (see supplement for code) assumes that the flips ar
 
 \subsection{Predictions of optimal experiment design}
 
-Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov, assuming we would collect data from 20 participants:
-
+Using an uninformative prior for $p(y; x)$, we ran OED for three different model comparison: fair--bias, bias--Markov, and fair--bias--Markov and planned to collect data from 20 participants (rather than 1).
 \begin{figure}[t]
-\underline{\textsf{(Example) Input:}}
+\underline{\textsf{Example input for fair-bias comparison:}}
 \begin{lstlisting}
 var n = 20;
 var fairGroup = groupify(fairCoin), biasGroup = groupify(biasCoin)
@@ -391,11 +390,13 @@ OED({mSample: function() { uniformDraw([fairGroup, biasGroup]) },
 \caption{OED call and results for sequence prediction model comparisons with 20 participants.}
 \label{fig:run-coin}
 \end{figure}
-In the example call to \lstinline{OED} (Fig. \ref{fig:run-coin}, Input), we first make composite models using a helper function \lstinline{groupify}, which takes  a function \lstinline{f(x)} and return a function \lstinline{f_group(x,n)}, to reflect predictions for the whole sample of \lstinline{n}.
-The experiment space \lstinline{xSample} includes a fixed number of participants and the unique experiments.
-The response space \lstinline{ySample} is reflected in an uninformative prior over the number of \lstinline{H} responses (dependent on n).
 
-Consider the fair--bias comparison.
+
+In the example call to \lstinline{OED} (Fig. \ref{fig:run-coin}, Input), we first lift each single-subject model into a model of group responses using an i.i.d. linking function \lstinline{groupify} (see supplement).
+The experiment space \lstinline{xSample} includes a fixed number of participants and the unique experiments.
+The response space \lstinline{ySample} is an uninformative prior over the number of \lstinline{H} responses.
+
+Consider the fair--bias comparison (Fig.~\ref{fig:run-coin}, Output).
 Observe that several experiments that have 0 information gain (e.g., \lstinline{HTHT}).
 The models make exactly the same predictions in this case (albeit for different reasons), so the experiment has no distinguishing power.
 The best experiments are \lstinline{HHHH} and \lstinline{TTTT}.
@@ -405,35 +406,34 @@ Moving to the bias--Markov comparison, the best and worst experiments actually r
 Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative (because, as before, the models make similar predictions here), whereas \lstinline{HTHT} and \lstinline{THTH} are the most informative.
 This makes sense---the bias model learns a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model learns that the transition probability is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
-In the full (fair--bias--Markov) comparison, the worst experiments (e.g., \lstinline{TTHH} ) are again cases where all models make similar predictions.
-The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
-The result is non-obvious because we are trying to disambiguate three models.
-\lstinline{HHHH} is very good at separating the fair model from the other two models.
-The second best experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}a), but the actual information gain is predicted to be less.
-An automated tool for experiment design is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
-
-The expected information gain of an experiment depends on the the sample size of participants in that experiment.
-Figure \ref{fig:coin_preds}b shows how, in the full comparison, the expected information gain for the top three experiments varies as a function of sample size.
-This function is non-linear and the rank ordering of experiments changes with more participants---\lstinline{HTHT} and \lstinline{HHHT} switch places at around 12 participants.
-This is particularly relevant when three models are being compared, because small quantitative differences between two models may become more reliable as the sample size grows.
-In our example here, the optimal experiment with 1 participant is the same as with 30 participants.
-
-\begin{figure}[t]
+\begin{figure}[h]
   \centering
   \begin{tabular}{l l}
     (a) & (b)\\
     \includegraphics[width=0.6\columnwidth]{img/coin_predictions.pdf} &
                                                                         \includegraphics[width=0.4\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf} \\
   \end{tabular}
-  \caption{(a) Model predictions for the optimal (HHH) and two other experiments. (b) Expected information gain for HHHH, HHHT, and HTHT as a function of sample size (three-way model comparison).}
+  \caption{(a) Model predictions for top three experiments (HHHH, HHHT, HTHT) in the full comparison (b) Expected information gain for these experiments versus sample size.}
   \label{fig:coin_preds}
 \end{figure}
+
+In the full model comparison (full--bias--Markov), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
+The best experiments are \lstinline{TTTT} and \lstinline{HHHH}, a result that is non-obvious because we are comparing three models rather than two.
+The best experiment \lstinline{HHHH} is very good at separating the fair model from the other two models (Fig.~\ref{fig:coin_preds}a).
+The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference, but this comes at the cost of less expected information gain overall.
+An automated design tool is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
+
+Finally, expected information gain of an experiment varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
+This function is non-linear and, crucially, the rank ordering of experiment can change.
+For the the full model comparison, the experiments \lstinline{HTHT} and \lstinline{HHHT} switch places after 12 participants (Fig.~\ref{fig:coin_preds}b).
+This is particularly relevant when three models are being compared, as small quantitative differences between two models may amplify as the sample size grows.
+In our example here, the optimal experiment with 1 participant is the same as with 30 participants.
 
 
 \subsection{Empirical validation}
 We validated our system by collecting human judgements for all 16 experiments and comparing expected information gain with the actual information gain from the empirical results.
-We randomly assigned 351 participants to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
-Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
+We randomly assigned 351 participants to an experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
+Participants pressed a key to sequentially reveal the sequence of 4 flips and then predicted the next coin flip (either heads or tails).
 
 \begin{figure}[h]
   \centering
