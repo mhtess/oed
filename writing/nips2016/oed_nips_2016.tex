@@ -150,15 +150,15 @@
 
 \begin{abstract}
 
-Designing good scientific experiments requires ingenuity, rigor, and patience. % to consider a large space of possible experiments.
-The scientist must evaluate a large space of possible experiments for how well they will distinguish competing theories.
-With the growing popularity of formal models, part of this time-consuming process can be automated: the value of an experiment can be formulated in terms of information gain, which can be computed from a formal specification of hypotheses and experiments.
+Scientists often run experiments to distinguish competing theories.
+This requires patience, rigor, and ingenuity---there is often a large space of possible experiments one could run.
+But we need not comb this space by hand---if we represent our theories as formal models and explicitly declare the space of experiments, we can automate the search for good experiments, looking for experiments with high \emph{expected information gain}.
 Here, we present a general and principled approach to experiment design based on probabilistic programming languages (PPLs).
-Using such a high-level and universal modeling language means details of experiment selection calculations can be hidden from the scientist, without loss of generality; she need only represent her hypotheses and space of potential experiments in the PPL.
-We apply this system to differentiating competing models of psychological phenomena, validating our framework using case studies in the psychology of sequence prediction and categorization.
+PPLs offer a clean separation between declaring problems and solving them, which means that the scientist can automate experiment design by simply declaring her model and experiment spaces in the PPL without having to worry about the details of calculating information gain.
+We demonstrate our system in two case studies drawn from cognitive psychology, where we use it to design optimal experiments in the domains of sequence prediction and categorization.
 %, but the framework is general to any domain where probabilistic models are used to represent theories.
 We find strong empirical validation that our automatically designed optimal experiments were indeed optimal.
-Our framework opens up a number of interesting questions, which we explore in the discussion.
+We conclude by discussing a number of interesting questions for future research.
 
 
 \end{abstract}
