@@ -1,0 +1,185 @@
+fair-bias,TTTT,0.6091046934884625
+fair-bias,TTTH,0.4695991071930552
+fair-bias,TTHT,0.4695991071930552
+fair-bias,TTHH,5.551115123125837e-17
+fair-bias,THTT,0.4695991071930552
+fair-bias,THTH,5.551115123125837e-17
+fair-bias,THHT,5.551115123125837e-17
+fair-bias,THHH,0.4695991071930553
+fair-bias,HTTT,0.46959910719305553
+fair-bias,HTTH,5.551115123125837e-17
+fair-bias,HTHT,5.551115123125837e-17
+fair-bias,HTHH,0.4695991071930553
+fair-bias,HHTT,5.551115123125837e-17
+fair-bias,HHTH,0.4695991071930553
+fair-bias,HHHT,0.4695991071930553
+fair-bias,HHHH,0.6091046934884624
+bias-markov,TTTT,0.2943293026713839
+bias-markov,TTTH,0.5513092292676812
+bias-markov,TTHT,0.5513092292676812
+bias-markov,TTHH,0.33018373723893885
+bias-markov,THTT,0.551309229267681
+bias-markov,THTH,0.5954990789857326
+bias-markov,THHT,0.33018373723893885
+bias-markov,THHH,0.2423685687141295
+bias-markov,HTTT,0.2423685687141302
+bias-markov,HTTH,0.3301837372389381
+bias-markov,HTHT,0.5954990789857326
+bias-markov,HTHH,0.5513092292676812
+bias-markov,HHTT,0.3301837372389381
+bias-markov,HHTH,0.5513092292676812
+bias-markov,HHHT,0.5513092292676812
+bias-markov,HHHH,0.2943293026713834
+threeway,TTTT,0.784334949606659
+threeway,TTTH,0.6389090960435363
+threeway,TTHT,0.6389090960435363
+threeway,TTHH,0.3099073920106097
+threeway,THTT,0.6389090960435354
+threeway,THTH,0.5199057696193181
+threeway,THHT,0.3099073920106097
+threeway,THHH,0.5163326682548417
+threeway,HTTT,0.5163326682548419
+threeway,HTTH,0.309907392010609
+threeway,HTHT,0.5199057696193182
+threeway,HTHH,0.6389090960435356
+threeway,HHTT,0.309907392010609
+threeway,HHTH,0.6389090960435356
+threeway,HHHT,0.6389090960435356
+threeway,HHHH,0.7843349496066591
+
+* Program return value:
+
+{ 'fair-bias': '', 'bias-markov': '', threeway: '' }
+mbp woed $ make _coin.js
+Processing coin.wppl
+Wrote webppl code to _coin.js
+rm coin.wppl
+mbp woed $ node _coin.js
+comparison,sequence,eig
+fair-bias,TTTT,0.6124544821848
+fair-bias,TTTH,0.22879194982769938
+fair-bias,TTHT,0.22879194982769938
+fair-bias,TTHH,-5.648121571410038e-17
+fair-bias,THTT,0.22879194982769938
+fair-bias,THTH,-5.648121571410038e-17
+fair-bias,THHT,-5.648121571410038e-17
+fair-bias,THHH,0.22879194982769968
+fair-bias,HTTT,0.2287919498276998
+fair-bias,HTTH,-5.648121571410038e-17
+fair-bias,HTHT,-5.648121571410038e-17
+fair-bias,HTHH,0.22879194982769968
+fair-bias,HHTT,-5.648121571410038e-17
+fair-bias,HHTH,0.22879194982769968
+fair-bias,HHHT,0.22879194982769968
+fair-bias,HHHH,0.6124544821847997
+bias-markov,TTTT,0.02113660240095658
+bias-markov,TTTH,0.43259648755000724
+bias-markov,TTHT,0.43259648755000724
+bias-markov,TTHH,0.09342133897142525
+bias-markov,THTT,0.43259648755000674
+bias-markov,THTH,0.5673549055617157
+bias-markov,THHT,0.09342133897142525
+bias-markov,THHH,0.04615386757803753
+bias-markov,HTTT,0.046153867578037744
+bias-markov,HTTH,0.09342133897142488
+bias-markov,HTHT,0.5673549055617161
+bias-markov,HTHH,0.43259648755000707
+bias-markov,HHTT,0.09342133897142488
+bias-markov,HHTH,0.43259648755000707
+bias-markov,HHHT,0.43259648755000707
+bias-markov,HHHH,0.021136602400956488
+threeway,TTTT,0.5528498429181985
+threeway,TTTH,0.34365211864916695
+threeway,TTHT,0.34365211864916695
+threeway,TTHH,0.08358862585226262
+threeway,THTT,0.3436521186491661
+threeway,THTH,0.5176462807336133
+threeway,THHT,0.08358862585226262
+threeway,THHH,0.1660025808560741
+threeway,HTTT,0.16600258085607414
+threeway,HTTH,0.08358862585226218
+threeway,HTHT,0.5176462807336126
+threeway,HTHH,0.34365211864916745
+threeway,HHTT,0.08358862585226218
+threeway,HHTH,0.34365211864916745
+threeway,HHHT,0.34365211864916745
+threeway,HHHH,0.5528498429181986
+
+* Program return value:
+
+{ 'fair-bias': '', 'bias-markov': '', threeway: '' }
+mbp woed $ make _coin.js
+Processing coin.wppl
+Wrote webppl code to _coin.js
+rm coin.wppl
+mbp woed $ node _coin.js
+comparison,sequence,eig
+/Users/long/Projects/oed/woed/_coin.js:376
+                                                                return m(globalStore, function (globalStore, scoreY) {
+                                                                       ^
+
+ReferenceError: m is not defined
+    at /Users/long/Projects/oed/woed/_coin.js:376:72
+    at __runner__ (/Users/long/Projects/oed/woed/_coin.js:10:11)
+    at /Users/long/Projects/oed/woed/_coin.js:29:13
+    at Object.<anonymous> (/Users/long/Projects/oed/woed/_coin.js:774:17)
+    at Module._compile (module.js:435:26)
+    at Object.Module._extensions..js (module.js:442:10)
+    at Module.load (module.js:356:32)
+    at Function.Module._load (module.js:311:12)
+    at Function.Module.runMain (module.js:467:10)
+    at startup (node.js:134:18)
+mbp woed $ make _coin.js
+Processing coin.wppl
+Wrote webppl code to _coin.js
+rm coin.wppl
+mbp woed $ node _coin.js
+comparison,sequence,eig
+fair-bias,TTTT,0.6091046934884625
+fair-bias,TTTH,0.4695991071930552
+fair-bias,TTHT,0.4695991071930552
+fair-bias,TTHH,5.551115123125837e-17
+fair-bias,THTT,0.4695991071930552
+fair-bias,THTH,5.551115123125837e-17
+fair-bias,THHT,5.551115123125837e-17
+fair-bias,THHH,0.4695991071930553
+fair-bias,HTTT,0.46959910719305553
+fair-bias,HTTH,5.551115123125837e-17
+fair-bias,HTHT,5.551115123125837e-17
+fair-bias,HTHH,0.4695991071930553
+fair-bias,HHTT,5.551115123125837e-17
+fair-bias,HHTH,0.4695991071930553
+fair-bias,HHHT,0.4695991071930553
+fair-bias,HHHH,0.6091046934884624
+bias-markov,TTTT,0.2943293026713839
+bias-markov,TTTH,0.5513092292676812
+bias-markov,TTHT,0.5513092292676812
+bias-markov,TTHH,0.33018373723893885
+bias-markov,THTT,0.551309229267681
+bias-markov,THTH,0.5954990789857326
+bias-markov,THHT,0.33018373723893885
+bias-markov,THHH,0.2423685687141295
+bias-markov,HTTT,0.2423685687141302
+bias-markov,HTTH,0.3301837372389381
+bias-markov,HTHT,0.5954990789857326
+bias-markov,HTHH,0.5513092292676812
+bias-markov,HHTT,0.3301837372389381
+bias-markov,HHTH,0.5513092292676812
+bias-markov,HHHT,0.5513092292676812
+bias-markov,HHHH,0.2943293026713834
+threeway,TTTT,0.784334949606659
+threeway,TTTH,0.6389090960435363
+threeway,TTHT,0.6389090960435363
+threeway,TTHH,0.3099073920106097
+threeway,THTT,0.6389090960435354
+threeway,THTH,0.5199057696193181
+threeway,THHT,0.3099073920106097
+threeway,THHH,0.5163326682548417
+threeway,HTTT,0.5163326682548419
+threeway,HTTH,0.309907392010609
+threeway,HTHT,0.5199057696193182
+threeway,HTHH,0.6389090960435356
+threeway,HHTT,0.309907392010609
+threeway,HHTH,0.6389090960435356
+threeway,HHHT,0.6389090960435356
+threeway,HHHH,0.7843349496066591
