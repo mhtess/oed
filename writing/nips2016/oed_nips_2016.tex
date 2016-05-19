@@ -315,7 +315,6 @@ We next illustrate our system by applying it to distinguish psychological theori
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might believe the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
 There are many hypotheses one might have about what underlies human intuitions about such sequences \cite{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
-%\ndg{add some cites pointing to previous work. eg josh and tom's randomness papers...}
 Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
 As in our example above, we consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
@@ -333,44 +332,24 @@ var fairCoin = function(seq) {
   })
 }
 \end{lstlisting}
-Here, \lstinline{flip} is shorthand to sample from the Bernoulli distribution.
+Here, \lstinline{flip} is shorthand for \lstinline|sample(Bernoulli({p:0.5}))|.
 Note the type signature of this model---it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
-We can write the other two models in similar fashion.
-%
+
+$m_{\text{bias}}$ generalizes the fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip.
+%var coinWeights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
 \begin{lstlisting}[upquote=true]
-var coinWeights = [0.01,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.99]
 var biasCoin = function(seq) {
   Infer(function(){
-    var bias = uniformDraw(coinWeights)
+    var bias = uniform(0,1)
     var flipCoin = function(){ return flip(bias) }
     var sampledSeq = repeat(seq.length, flipCoin)
     condition(arrayEquals(seq,sampledSeq))
     return flipCoin()
   })
 }
-var markovCoin = function(seq) {
-  Infer(function(){
-    var transProb = uniformDraw(coinWeights)
-    var sampleOne = function(lastFlip) {
-        return flip(transProb) ? !lastFlip : lastFlip
-    }
- 	  var sampleSeq = function(flipsSoFar, n) {
-      if (n == 0) {
-        return flipsSoFar
-      } else {
-        var nextFlip = sampleOne(last(flipsSoFar))
-        return sampleSequence(append(flipsSoFar, nextFlip), n - 1)
-      }
-    }
-	  var sampledSeq = sampleSeq([flip(0.5)], seq.length - 1)
-    condition(arrayEquals(seq, sampledSeq));
-    return sampleOne(last(sampledSeq))
-  })
-}
 \end{lstlisting}
-$m_{\text{bias}}$ generalizes the fair coin model---people assume the coin has some unknown bias, learn it from observations, and use it to predict the next coin flip.
 %$m_{\text{bias}}$
-\lstinline{biasCoin} first samples a coin weight \lstinline{bias} from a discretized uniform distribution, and
+\lstinline{biasCoin} first samples a coin weight \lstinline{bias} from a uniform distribution, and
 then creates a helper function \lstinline{flipCoin} which samples observations from the weighted coin.
 The model then generates a sequence of coin flips the same length as the observed sequence \lstinline{repeat(seq.length, flipCoin)} and conditions on this matching the observed sequence \lstinline{seq}.
 Thus, it learns the likely coin weights to have generated the observed sequence, and makes a prediction about the next outcome of flipping such a coin.
