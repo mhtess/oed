@@ -388,16 +388,24 @@ Using an uninformative prior for $p(y; x)$, we ran OED for three model compariso
 \begin{figure}[h]
 \underline{\textsf{(Example) Input:}}
 \begin{lstlisting}
-OED({mSample: function() { uniformDraw([fairCoin, biasCoin]) }),
-     xSample: function() { uniformDraw(["HHHH","HHHT",...,"TTTT"]) }, 
-     ySample: function() { flip() })          // response space
+var n = 20; 
+var fairGroup = groupify(fairCoin,n), biasGroup = groupify(biasCoin,n)
+OED({mSample: function() { uniformDraw([fairGroup, biasGroup]) },
+     xSample: function() { 
+    		 { n: n, seq: uniformDraw(["HHHH","HHHT",...,"TTTT"]) } 
+   	 },
+     ySample: function() { return randomInteger(n + 1) } })
 \end{lstlisting}
 \underline{\textsf{Output:}}\\
 \includegraphics[width=\columnwidth]{img/coin_eig_n20_ignorance.pdf}
-\caption{OED results for sequence prediction model comparisons with 20 participants.}
+\caption{OED call and results for sequence prediction model comparisons with 20 participants.}
 \label{fig:run-coin}
 \end{figure}
-Consider the fair--bias comparison (Figure \ref{fig:run-coin}, left).
+In the example call to \lstinline{OED} (Fig. \ref{fig:run-coin}, Input), we first make composite models using a helper function \lstinline{groupify}, which takes  a function \lstinline{f(x)} and return a function \lstinline{f_group(x,n)}, to reflect predictions for the whole sample of \lstinline{n}.
+The experiment space \lstinline{xSample} includes a fixed number of participants and the unique experiments.
+The response space \lstinline{ySample} is reflected in an uninformative prior over the number of \lstinline{H} responses (dependent on n).
+
+Consider the fair--bias comparison (Figure \ref{fig:run-coin}, Output, left).
 Observe that there are several experiments that have 0 information gain (e.g., \lstinline{HTHT}, see also Figure \ref{fig:coin_preds}a).
 This confirms the intuition spelled out before---the models make exactly the same predictions in this case (albeit for different reasons): The experiment has no distinguishing power.
 The most informative experiments are \lstinline{HHHH} and \lstinline{TTTT}.
