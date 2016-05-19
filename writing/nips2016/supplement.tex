@@ -187,10 +187,9 @@ Recall that the prototype model assumes people do not store information about al
 The model defines a relative similarity function $h_i(s)$ that computes how much more similar $s$ is to the A prototype than it is to the B prototype along dimension $i$:
 $$ h_i(s) =  w_i\left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right)$$
 where $w_i$ are free parameters and $R = A \cup B$.
-
-The prototype model classifies an object $s$ as an A with probability:
+The model classifies an object $s$ as an A with probability:
 $$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}{h_i(s)} \right] \right\}$$
-where $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before. We express this model in WebPPL on the next page:
+where $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before. We express this model in WebPPL as:
 \lstinputlisting[caption=Prototype model in WebPPL, upquote=true]{prototype.wppl}
 
 \end{document}
