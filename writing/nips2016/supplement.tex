@@ -168,7 +168,7 @@ We use the Bernoulli response probability defined by the single-subject model fo
 Recall that the category learning models are classifiers that receive objects (vectors of boolean features) as input and return probability of A/B assignment as output.
 
 The exemplar model defines a similarity function between two objects $s$ and $r$:
-$$ \text{sim}(r, s) = \prod_i{\max{w_i, \delta_{s_i,r_i}}  }$$
+$$ \text{sim}(r, s) = \prod_i{\max(w_i, \delta_{s_i,r_i})  }$$
 where $i$ denotes components of the objects, and $w_i$ are free parameters.
 The model classifies an object $s$ as an A with probability:
 $$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\text{sim}(s,r)}}{
