@@ -401,13 +401,31 @@ Next, consider the bias--Markov comparison.
 This makes sense---the bias model infers a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model infers that the probability of transitioning is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 Note that the most informative experiments in one model comparison may be the least informative in another.
 
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.7\columnwidth]{img/coin_predictions.pdf}
+\caption{Model predictions for the optimal and penoptimal experiment for distinguishing all three models.}
+\label{fig:coin_preds}
+\end{figure}
+
+%\begin{figure}[t]
+%\centering
+%\begin{tabular}{l l}
+%(a) & (b)\\
+%\includegraphics[width=2.5in]{img/coin_predictions.pdf} & \includegraphics[width=2.5in]{img/coin_eig_aig_scatter_noText.pdf}\\
+%\end{tabular}
+%\caption{Actual vs. expected information gain for three model comparison setups.}
+%\label{fig:dist}
+%\end{figure}
+
 Finally, consider the fair--bias--Markov comparison.
 The worst experiments, \lstinline{TTHH}, \lstinline{THHT}, \lstinline{HTTH}, and \lstinline{HHTT}, are cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}.
 This result is more difficult to understand because we are trying to disambiguate three models.
 \lstinline{HHHH} is very good at separating the fair model from the other tool models. 
-The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing 
-An automated tool for experiment design has even more utility in these settings.
+The second-most optimal experiment, \lstinline{HHHT}, is much better at distinguishing the bias model from the Markov model (because it predicts a qualitative difference; Figure \ref{fig:coin_preds}), but the actual information gain is predicted to be less .
+An automated tool for experiment design is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
 %Finally, the expected information gain of experiments designed to disambiguate all three models is more complex to understand.
 %The information gain now depends on how well the experiments disambiguate all three models. Here, we see that for
