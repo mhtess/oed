@@ -6,36 +6,72 @@ output: html_document
 ---
 
 ```{r}
+library(rwebppl)
+
 d0<-read.csv("~/Documents/research/oed/oed/experiments/data/subjrand-1-trials.csv")
 ```
 
 ```{r}
-d<-read.csv("~/Documents/research/oed/oed/experiments/oed/subjectiveRandomness_eig_aig_ignorancePrior.csv")
+d<-read.csv("~/Documents/research/oed/oed/experiments/data/coins-eig-n20-ignorance.csv")
 ```
+
+EIG by experiment
 
 ```{r}
 d %>% 
-  filter(models != "fairVmarkov") %>%
-  mutate(models = factor(models, 
-                  levels = c("fairVbias", "biasVmarkov",
-                                     "fairVbiasVmarkov"),
+  filter(comparison != "fair-markov") %>%
+  mutate(comparison = factor(comparison, 
+                  levels = c("fair-bias", "bias-markov",
+                                     "threeway"),
                   labels = c(
                     "fair vs. bias",
                     "bias vs. markov",
                     "fair vs. bias vs. markov"
                   ))) %>%
   rowwise() %>%
-  mutate(eig = ifelse(eig == 0, 0.005, eig)) %>%
-  ggplot(., aes(x = experiment, y = eig))+
+  mutate(eig = ifelse(eig < 0.005, 0.005, eig)) %>%
+  ggplot(., aes(x = sequence, y = eig))+
     geom_bar(stat='identity', position=position_dodge())+
     coord_flip()+
-    facet_wrap(~models)+
-    ylab("Expected Information Gain")+
+    facet_wrap(~comparison)+
+    ylab("Expected Information Gain from 20 participants")+
     xlab("Experiment")+
-    guides(fill=F)
+    guides(fill=F)+
+  theme_paper()
   
-#ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig.pdf", height = 4, width = 9)
+ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
+       height = 4, width = 11)
 ```
+
+EIG by experiment and N
+
+```{r}
+
+d1<-read.csv("~/Documents/research/oed/oed/experiments/data/coins-eig-curve-3way-ignorance.csv")
+
+experiments.of.interest<- c("HHHH", "HHHT", "HTHT")
+
+d1.n <- d1 %>%
+  filter(seq%in%experiments.of.interest & n <= 30) %>%
+  rename(Experiment = seq) %>%
+  mutate(Experiment = factor(Experiment, levels=c("HTHT", "HHHT", "HHHH")))
+
+
+ggplot(d1.n, aes(x=n, y=eig, 
+                 color=Experiment, group=Experiment, linetype=Experiment))+
+  geom_line(size=1.3)+
+  scale_color_brewer(palette="Set1")+
+  scale_linetype_manual(values=c(3,2,1))+
+  xlab("Number of participants")+
+  ylab("Expected Information Gain")+
+  theme_paper()+
+  guides(color=F, linetype = F)
+
+ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_3way_nsubj.pdf", width = 5, height = 3.5)
+```
+
+
+
 
 ```{r}
 corr_eqn <- function(x,y, digits = 2) {
@@ -43,6 +79,7 @@ corr_eqn <- function(x,y, digits = 2) {
   paste("italic(r^2) == ", corr_coef)
 }
 
+d<-read.csv("~/Documents/research/oed/oed/experiments/oed/subjectiveRandomness_eig_aig_ignorancePrior.csv")
 
 d.tidy <- d %>% 
   filter(models != "fairVmarkov") %>%
@@ -56,11 +93,12 @@ d.tidy <- d %>%
   
 
 
-labels = data.frame(x = c(0.1, 0.5, 0.4), 
+labels <- data.frame(x = c(0.1, 0.5, 0.4), 
                     y = c(0.6, 0.1, 0.8),
                     m = c("fair vs. bias",
                     "bias vs. markov",
-                    "fair vs. bias vs. markov")) %>%
+                    "fair vs. bias vs. markov")
+                    ) %>%
   group_by(m) %>%
   mutate(label = with(d.tidy %>% filter(models==m),
                           corr_eqn(eig,aig))) %>%
@@ -68,8 +106,12 @@ labels = data.frame(x = c(0.1, 0.5, 0.4),
   rename(models = m)
 
 
+d.tidy %>%
+  group_by(models) %>%
+  summarize(cor(aig,eig, method='spearman'))
+
   
-  ggplot(d.tidy, aes(x = eig, y = aig, 
+ggplot(d.tidy, aes(x = eig, y = aig, 
                 #fill=models, 
                 label=experiment))+
   #geom_jitter(shape=21, size=3)+
@@ -91,8 +133,6 @@ labels = data.frame(x = c(0.1, 0.5, 0.4),
 Models for coins
 
 ```{r}
-library(rwebppl)
-  
 fairCoin <- "
 var fairSingle = cache(function(sequence) {
     Enumerate(function() {
@@ -162,9 +202,10 @@ Predictions
 ```{r}
 opt_exp =  c(1,1,1,1)
 penopt_exp = c(1,1,1,0)
+penopt_exp2 = c(1,0,1,0)
 
 model_predictions<-bind_rows(
-   webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+   webppl(model_code = fairCoin, model_file = model_packages=c("~/Documents/research/oed/webppl-oed/"),
          data = opt_exp, data_var='input_seq') %>%
     mutate(model = 'fair',
            expt = 'HHHH'),
@@ -187,9 +228,38 @@ model_predictions<-bind_rows(
    webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
          data = penopt_exp, data_var='input_seq') %>%
     mutate(model = 'markov',
-           expt = 'HHHT')
+           expt = 'HHHT'),
+   webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = penopt_exp2, data_var='input_seq') %>%
+    mutate(model = 'fair',
+           expt = 'HTHT'),
+   webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = penopt_exp2, data_var='input_seq') %>%
+    mutate(model = 'bias',
+           expt = 'HTHT'),
+   webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+         data = penopt_exp2, data_var='input_seq') %>%
+    mutate(model = 'markov',
+           expt = 'HTHT')
 )
-  
-
 ```
 
+```{r}
+mp<-model_predictions %>% 
+  filter(support==TRUE) %>% 
+  mutate(model = factor(model, levels=c("fair", "bias", "markov")),
+         expt = factor(expt, levels=c("HTHT", "HHHT", "HHHH")))
+
+ggplot(mp, aes(x=model, y = probs, fill=expt))+
+  geom_bar(stat='identity', position=position_dodge())+
+  facet_wrap(~expt)+
+  ylab("Predicted probability of H")+
+  xlab("Model")+
+  theme_paper()+
+  scale_fill_brewer(palette="Set1")+
+  guides(fill=F)
+
+
+ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_predictions.pdf", width = 7, height =3.5)
+
+```
