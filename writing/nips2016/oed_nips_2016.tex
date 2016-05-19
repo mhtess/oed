@@ -218,7 +218,6 @@ Our work opens a number of rich areas for future development, which we explore i
 
 \section{Experiment design framework}
 \label{s:bayes}
-\mht{Should we address number of participants in this section? If not, seems like we should address it explicitly somewhere.}
 We begin with a concrete example before giving formal details.
 Imagine that we are studying how people predict values for sequence data (e.g., flips of a possibly-trick coin) and we want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (expressed as a uniform prior on the unit interval) but that can be learned from data.
 We have a uniform prior on the models and we wish to update this belief distribution by conducting an experiment where we show people 4 coin flips and ask them to predict the next one.
@@ -312,13 +311,15 @@ We next illustrate our system by applying it to distinguish psychological theori
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might be unsure for the sequence \lstinline{THHTHTHT}.
 There are many hypotheses one might have about what underlies human intuitions about such sequences \cite{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
-Here, we consider three simple models of people's beliefs\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
+Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
 As in our example above, we consider experiments setup where participants observe four flips of the same coin and must predict the next flip.
 
 
 \subsection{Formalization}
 
-$M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$, $X$ is the set of all possible sequences of four coin flips, and $Y$ is a choice between heads or tails for the fifth flip.
+The model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$.
+For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties---e.g., coin sequence---but also other components like dependent measure and sample size. As we will see, this matters.}
+Finally, $Y$ is the response set $\{\texttt{H}, \texttt{T}\}^1$.
 
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
 \begin{lstlisting}[upquote=true]
