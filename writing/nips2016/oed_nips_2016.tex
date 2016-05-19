@@ -175,11 +175,15 @@ Models make explicit hypotheses about observed data and thus make it easier (or 
 However, exploring models can be time-consuming and searching for experiments where the models sufficiently diverge is still largely driven by the scientist's intuition.
 This intuition may be biased in a number of ways, such as towards experiments that show qualitative differences between models even when more informative quantitative differences may exist.
 
+% a key obstacle has hindered its use in practice: a complex calculation is required to formulate the objective for each new set of models and experiments, which has brought out a pluralism of idiosyncratic approaches \cite{Chaloner1995}.
+% Adapting the general formulation to one's specific problem can be sufficiently difficult and time-consuming to deter working scientists from using OED.
+
+
 When the space of models and of experiments have been made explicit, it is possible to use optimal experiment design (OED) to \emph{automate} experiment design; OED searches for experiments that maximally update our beliefs about a scientific question.
-The information-theoretic foundations of OED are fairly straightforward \cite{Lindley1956}, but a key obstacle has hindered its use in practice: a complex calculation is required to formulate the objective for each new set of models and experiments, which has brought out a pluralism of idiosyncratic approaches \cite{Chaloner1995}.
-Adapting the general formulation to one's specific problem can be sufficiently difficult and time-consuming to deter working scientists from using OED.
-%In this work, we present a general and principled framework for optimal experiment design that uses a Bayesian approach to find experiments that best distinguish competing hypotheses.
-In order for OED to be practical and domain-general, the computation for experiment selection must be automatic.
+The information-theoretic foundations of OED are fairly straightforward \cite{Lindley1956}, but it has not enjoyed widespread use in practice.
+Some OED systems are too narrow to be of general use (e.g., optimizing information gain for parameter estimation of certain classes biomolecular models).
+There are general systems but they require too much conceptual and implementation input (e.g., users must supply their own objective function and derive a solution algorithm for it).
+In order for OED to be both general and practical, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
 In this work we describe a system in which the user expresses the competing hypotheses and possible experiments in a PPL; the optimal experiment is then computed with no further input from the user.
