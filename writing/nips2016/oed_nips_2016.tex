@@ -314,8 +314,8 @@ We next illustrate our system by applying it to distinguish psychological theori
 \label{s:tutorial}
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might believe the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
-There are many hypotheses one might have about what underlies human intuitions about such sequences.
-\ndg{add some cites pointing to previous work. eg josh and tom's randomness papers...}
+There are many hypotheses one might have about what underlies human intuitions about such sequences \cite{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
+%\ndg{add some cites pointing to previous work. eg josh and tom's randomness papers...}
 Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
 As in our example above, we consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
