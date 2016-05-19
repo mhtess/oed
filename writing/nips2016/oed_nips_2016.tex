@@ -252,8 +252,6 @@ If, however, we think $M$ may not contain the true model, then an uninformative 
 
 \subsection{Writing models as probabilistic programs}
 
-\lou{say that generative models are functions (samplers), we turn them into distributions using Infer, which produces probability tables}
-\mht{attempted to address this in the last paragraph of 2.1}
 A key requirement for automating experiment design is to write hypotheses about the data as explicit models---in our case, probabilistic programs.
 We use the probabilistic programming language WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
 WebPPL supplies a number of primitive distributions (e.g. \lstinline{Binomial}), which support generating samples and calculating the probability density of values from the domain.
@@ -318,6 +316,7 @@ We next illustrate our system by applying it to distinguish psychological theori
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might believe the next flip in the  sequence of coin flips \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might assign equal probability of \lstinline{H} and \lstinline{T} for the sequence \lstinline{THHTHTHT}.
 There are many hypotheses one might have about what underlies human intuitions about such sequences.
+\ndg{add some cites pointing to previous work. eg josh and tom's randomness papers...}
 Here, we consider three simple hypotheses about the beliefs that participants have about the coin flips\footnote{These are computational-level models of a \emph{person's model} of the situation. For more details on this kind of cognitive modeling, see \url{https://probmods.org}}: (a) \emph{Fair coin}: participants assume the coin is fair, (b) \emph{Bias coin}: participants believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: participants believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
 As in our example above, we consider an experimental setup where participants observe four flips of the same coin and are asked to predict the outcome of the next flip.
 
@@ -335,7 +334,7 @@ var fairCoin = function(seq) {
   })
 }
 \end{lstlisting}
-Here, \lstinline{flip} samples from the Bernoulli distribution.
+Here, \lstinline{flip} is shorthand to sample from the Bernoulli distribution.
 Note the type signature of this model---it takes as input an experiment and returns a distribution on possible responses for the measurement of that experiment.
 We can write the other two models in similar fashion.
 %
@@ -407,6 +406,8 @@ The probability of transitioning from the current coin flip is inferred from the
 
 Using an uninformative prior for $p(y; x)$, we ran OED for three model comparison scenarios: fair--bias, bias--Markov, and fair--bias--Markov, assuming we would collect data from 20 participants (Fig.~\ref{fig:run-coin}).
 
+\ndg{i kind of liked having an example of the complete call to OED... if we can squeeze it back in, it'd be nice.}
+
 \begin{figure}[h]
 \includegraphics[width=\columnwidth]{img/coin_eig_n20_ignorance.pdf}
 \caption{OED results for sequence prediction model comparisons with 20 participants.}
@@ -459,18 +460,18 @@ In our example here, the optimal experiment with 1 participant is the same as wi
 
 
 \subsection{Empirical validation}
-We validated our OED system by running all 16 experiments and comparing expected information gain with the actual information gain from empirical results.
+We validated our OED system by collecting human judgements for all 16 experiments and comparing expected information gain with the actual information gain from the empirical results.
 We recruited 351 participants from Amazon's Mechanical Turk and randomly assigned each participant to a single experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then made a prediction about the of the next coin flip (either heads or tails).
 \lou{use consistent level of detail for coin and category experiments}
 
 For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are $\geq$ 20, because we do client-side randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
-Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857).
+Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.7\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
-\caption{Actual vs. Expected Information Gain for three model comparison setups.}
+\caption{Actual vs. Expected Information Gain for each possible experiment, across three model comparison setups.}
 \label{fig:aig_vs_eig}
 \end{figure}
 
@@ -478,12 +479,14 @@ Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable p
 
 Here, we explore a more complex and realistic space of models and experiments.
 In particular, we analyze a classic paper in the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
-Using intuition, Medin and Schaffer (MS) designed an experiment where the models made diverging predictions and found that the empirical data from this experiment supported the exemplar model.
+Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as ``the 5-4 experiment'') where the models made diverging predictions and found that the empirical data from this experiment supported the exemplar model.
 Subsequently, many other authors followed their lead, replicating and using this experiment to test competing models.
+Here, we ask: how good was the MS 5-4 experiment?
+Could they have run an experiment that would have distinguished the two models with less data?
+%was more information-theoretically efficient?
+%Using our OED framework, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.
 
-Here, we ask: how good was the MS experiment?
-Could they have run an experiment that was more information-theoretically efficient?
-Using our OED framework, we find that there are many superior experiments that Medin and Schaffer could have designed but did not.\footnote{Our work here is an exercise in counterfactual history; the Medin and Schaffer models are not state of the art. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear set of possible experiments.}
+%\footnote{Our work here is an exercise in counterfactual history; the Medin and Schaffer models are not state of the art. We chose the Medin and Schaffer research (rather than newer work) as an object of study because it commits to a clear set of competing models and a clear set of possible experiments.}
 
 
 
@@ -493,7 +496,7 @@ Both the exemplar and prototypes model are classifiers that map inputs (objects 
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 By contrast, the prototype model assumes that people store a measure of central tendency for each category---a prototype.
 Categorization of an object is thus a function of its similarity to the A prototype versus its similarity to the B prototype.
-For details, see the supplement.
+For details, and representation of these models in WebPPL, see the supplement.
 
 \subsection{Experiments}
 
@@ -508,7 +511,7 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 
 \subsection{Predictions of optimal experimental design}
 
-Using the predictive prior for $p(y; x)$, we computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
+Using the predictive prior for $p(y; x)$, we computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS 5-4 experiment had an expected information gain of only 0.03 nats; thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
 \mht{this is the first usage of the term ``nats''}
 Indeed, the MS experiment is near the bottom third of all experiments (Figure~\ref{fig:dist}a).
 
@@ -529,8 +532,9 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 
 \subsection{Empirical validation}
 
-To validate our expected information gain calculations, we ran the MS and optimal experiments with 60 participants each.
+To validate our expected information gain calculations, we ran the MS 5-4 and the optimal experiment with 60 participants each.
 Figure~\ref{fig:dist}b shows that the optimal experiment we found for a single participant is indeed better than the MS experiment (n=1, blue greater than red).
+\ndg{report how many times more informative opt is than MS in nats at N=1, to compare to the prediction above.}
 In addition, by incrementally introducing more data, we observe both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum, whereas the MS experiment takes around 30.
 Thus, the optimal experiment provides the same amount of information for a third of the experimental cost.
 
@@ -538,13 +542,15 @@ Thus, the optimal experiment provides the same amount of information for a third
 
 \section{Related work}
 
-In our reading of the literature, we found that the basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10).
+The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics (berg03), chemistry (huan10), biology (vanlier12, liepe13), psychology (myung09), statistics (lindley72), and machine learning (golovin10). \ndg{fix cites}
 
 These papers, however, often implement OED in a one-off fashion, specializing for  particular models and committing to a single inference technique.
 For example, Liepe et al. (cite), working in systems biology, developed an OED method for finding experiments that optimize information gain for parameters of biomolecular models (ordinary differential equations with Gaussian noise).
 Their information gain measure (Shannon entropy) is similar to ours, but they narrowed in on a specific family of models and committed to a bespoke inference technique (an ABC scheme based on Sequential Monte Carlo).
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
+
+\ndg{point out that WebPPL is particularly well-suited to this application because we make heavy use of nested Infer?}
 
 \section{Conclusion}
 
