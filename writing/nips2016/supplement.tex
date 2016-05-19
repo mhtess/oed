@@ -176,7 +176,7 @@ $$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\text{sim}(s,r)}}{
  }$$
 We express this model in WebPPL as:
 
-\begin{lstinputlisting}[caption=Exemplar model in WebPPL, upquote=true]{exemplar.wppl}
+\lstinputlisting[caption=Exemplar model in WebPPL, upquote=true]{exemplar.wppl}
 \lstinline{exemplar} takes as input a set of As and Bs and returns as output the probability of A classification for each of the 16 objects in the experiment.
 Because the model has continuous parameters, we integrate over them using 5000 samples of Metropolis-Hastings.
 
@@ -191,6 +191,6 @@ where $w_i$ are free parameters and $R = A \cup B$.
 The prototype model classifies an object $s$ as an A with probability:
 $$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}{h_i(s)} \right] \right\}$$
 where $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before. We express this model in WebPPL on the next page:
-\begin{lstinputlisting}[caption=Prototype model in WebPPL, upquote=true]{prototype.wppl}
+\lstinputlisting[caption=Prototype model in WebPPL, upquote=true]{prototype.wppl}
 
 \end{document}
