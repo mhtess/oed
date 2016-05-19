@@ -541,8 +541,8 @@ Our approach suggests a number of interesting directions for future work.
 %First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
 We cast the OED problem as a problem of inference, and this might suggest particular inference techniques.
 For instance, if a particular response is quite unlikely (i.e., $p(y)$ is negligible), it may be acceptable to have a less precise estimate of information gain for that response.
-Additionally, our framework naturally integrates the cost of experiments into the design computation (as a prior on experiments).
-This enables principled treatment of multi-objective optimization problems (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
+Additionally, while our framework \emph{can} accommodate different costs of experiments using a prior distribution, the focus of our work is on finding \emph{informative} experiments.
+It could be useful to integrate our system into multi-objective optimization systems for balancing multiple design considerations (e.g., informativeness, cost, ethics).
 Finally, we have explored the trajectory of information gain as the number of \emph{i.i.d.} observations increases.
 Observations need not independent, however.
 Adaptive testing can be formulated as a problem of information gain of sequences of experiments, which produce dependent and non-identical responses.
