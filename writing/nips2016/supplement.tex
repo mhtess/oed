@@ -1,11 +1,178 @@
-% category learning models
+\documentclass{article}
 
-Formally, the exemplar model classifies an object $s$ as an A with probability:
-$$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})} }{
-  \sum\limits_{r \in A}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i} )} + \sum\limits_{r \in B}{\sum\limits_{i}\max (w_i, \delta_{s_i, r_i})}} $$
-where $w$ is a free parameter of dimensional weights.
+% to do (5/16)
+
+%% put more sparkles around writing OED in a program. Why is this clever and useful?
+
+%% introduce max Entropy prior early (could also be interpolation between max ent and the predictive)
+%%%% results of sequence prediction (formerly, "randomness") w.r.t. maxEnt vs. predictive (discuss why we think maxEnt is giving a better prediction here)
+
+%% Figure 3 histogram: vertical line with AIG
+%% create n_subjects analysis figure (a la FIgure 3, line plot) for sequence prediction... bootstrap up to n=100 to observe crossover
+
+% if you need to pass options to natbib, use, e.g.:
+% \PassOptionsToPackage{numbers, compress}{natbib}
+% before loading nips_2016
+%
+% to avoid loading the natbib package, add option nonatbib:
+
+%\usepackage{nips_2016}
+
+% to compile a camera-ready version, add the [final] option, e.g.:
+\usepackage[final]{nips_2016}
+
+\usepackage[utf8]{inputenc} % allow utf-8 input
+\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+%\usepackage{hyperref}       % hyperlinks
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{fancyvrb}
+\usepackage{multirow}
+\usepackage{color}
+\usepackage{textcomp}
+
+
+% HT http://tex.stackexchange.com/a/151987/41154
+\DeclarePairedDelimiterX{\infdivx}[2]{(}{)}{%
+#1\;\delimsize\|\;#2%
+}
+\newcommand{\dkl}{D_\mathrm{KL}\infdivx}
+
+\usepackage{listings}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+\definecolor{orange}{rgb}{1,0.5,0}
+
+\definecolor{Red}{RGB}{255,0,0}
+\newcommand{\red}[1]{\textcolor{Red}{#1}}
+\definecolor{Green}{RGB}{10,200,100}
+\definecolor{Blue}{RGB}{10,100,200}
+\newcommand{\ndg}[1]{\textcolor{Green}{[ndg: #1]}}
+\newcommand{\mht}[1]{\textcolor{Blue}{[mht: #1]}}
+\newcommand{\lou}[1]{\textcolor{orange}{[lou: #1]}}
+
+% casual outlining font
+\newcommand{\cas}[1]{ \textsf{\color{darkgray} \scriptsize #1} }
+
+\lstdefinelanguage{JavaScript}{
+keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+keywordstyle=\color{blue}\bfseries,
+ndkeywords={class, export, boolean, throw, implements, import, this},
+ndkeywordstyle=\color{darkgray}\bfseries,
+identifierstyle=\color{black},
+sensitive=false,
+comment=[l]{//},
+morecomment=[s]{/*}{*/},
+commentstyle=\color{purple}\ttfamily,
+stringstyle=\color{red}\ttfamily,
+morestring=[b]',
+morestring=[b]"
+}
+
+\lstset{
+language=JavaScript,
+backgroundcolor=\color{white},
+extendedchars=true,
+basicstyle=\footnotesize\ttfamily,
+showstringspaces=false,
+showspaces=false,
+numbers=none,
+numberstyle=\footnotesize,
+numbersep=9pt,
+tabsize=2,
+breaklines=true,
+showtabs=false,
+captionpos=b
+}
+
+
+
+\usepackage[ruled,vlined]{algorithm2e}
+
+\newcommand{\ud}{\,\mathrm{d}}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+
+\title{Practical optimal experiment design with probabilistic programs: supplementary material}
+
+% The \author macro works with any number of authors. There are two
+% commands used to separate the names and addresses of multiple
+% authors: \And and \AND.
+%
+% Using \And between authors leaves it to LaTeX to determine where to
+% break the lines. Using \AND forces a line break at that point. So,
+% if LaTeX puts 3 of 4 authors names on the first line, and the last
+% on the second line, try using \AND instead of \And before the third
+% author name.
+
+
+\begin{document}
+% \nipsfinalcopy is no longer used
+
+\maketitle
+
+\section{Markov model}
+
+\begin{lstlisting}[upquote=true]
+var markovCoin = function(seq) {
+ Infer(function(){
+   var transProb = uniformDraw(coinWeights)
+   var sampleOne = function(lastFlip) {
+       return flip(transProb) ? !lastFlip : lastFlip
+   }
+	  var sampleSeq = function(flipsSoFar, n) {
+     if (n == 0) {
+       return flipsSoFar
+     } else {
+       var nextFlip = sampleOne(last(flipsSoFar))
+       return sampleSequence(append(flipsSoFar, nextFlip),
+                             n - 1)
+     }
+   }
+	  var sampledSeq = sampleSeq([flip(0.5)], seq.length - 1)
+   condition(arrayEquals(seq, sampledSeq));
+   return sampleOne(last(sampledSeq))
+ })
+}
+\end{lstlisting}
+
+\section{\texttt{groupify} linking function}
+
+\section{Category learning models}
+
+\subsection{Exemplar model}
+
+Recall that the category learning models are classifiers that receive objects (vectors of boolean features) as input and return probability of A/B assignment as output.
+
+The exemplar model defines a similarity function between two objects:
+$$ \text{sim}(r, s) = \prod_i{\max{w_i, \delta_{s_i,r_i}}  }$$
+where $i$ denotes components of the objects, and $w_i$ are free parameters.
+The model classifies an object $s$ as an A with probability:
+$$ f_e(s ; w) = \frac{ \sum\limits_{r \in A}{\text{sim}(s,r)}}{
+\sum\limits_{r \in A}{\text{sim}(s,r)} +
+\sum\limits_{r \in B}{\text{sim}(s,r)}
+ }$$
+
+We express this model in WebPPL on the next page:
+\pagebreak
+
+\begin{lstinputlisting}[caption=Exemplar model in WebPPL, upquote=true]{exemplar.wppl}
+\lstinline{exemplar} takes as input set of As and Bs and returns as output the probability of A for each of the 16 objects in the experiment.
+Because the model has continuous parameters, we integrate over them using 5000 samples of Metropolis-Hastings.
+
+\subsection{Prototype model}
+
+Note that the original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.
+
 
 The prototype model classifies an object $s$ as an A with probability:
 $$ f_p(s ; w, \alpha, \beta) = \mathrm{logit}^{-1}\left\{ \alpha \times \left[ \beta |R \cap \{s\}| + \sum\limits_{i}w_i \left(2\frac{|\{r \in R ; r_i = s_i \} \cap A |}{|\{r \in R ; r_i = s_i \}|} - 1\right) \right] \right\}$$
-where $w$ is a vector of weights, $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before.
-\footnote{The original prototype model of Medin and Schaffer gave ordinal predictions; we consider a transformation of this model that gives continuous predictions.}
+where $R = A \cup B$, $w$ is a vector of weights, $\alpha$ is an extremizing parameter, and $\beta$ is a bias parameter for objects that have been encountered before.
+
+\end{document}

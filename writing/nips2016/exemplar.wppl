@@ -1,0 +1,37 @@
+var objects = [[false,false,false,false],
+               [false,false,false,true],
+               ...]
+var exemplar = function(x) {
+  var as = x.as, bs = x.bs;
+  var g = function() {
+    var weights = repeat(4, function() { uniform(0, 1) });
+
+    var classify = function(obj) {
+      var simTo = function(x,y) {
+        var dimProbs = map3(function(xi,yi,p) {
+          return xi == yi ? 1 : p
+        },x ,y, weights);
+        return product(dimProbs);
+      };
+
+      // sum of similarities to A objects
+      var ssa = sum(map(function(a) { return simTo(object, a) },
+                        as));
+
+      // sum of similarities to B objects
+      var ssb = sum(map(function(b) { return simTo(object, b) },
+                        bs));
+
+      var prob = ssa / (ssa + ssb);
+
+      return prob;
+    }
+
+    return map(classify, objects)
+  };
+  var numSamples = 5000;
+  var dist = Infer(g, {method: 'MH', samples: 5000}).support();
+
+  // get expected distribution on responses
+  return pam(columnSum(dist), function(x) { return x / numSamples });
+}
