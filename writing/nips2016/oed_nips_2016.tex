@@ -318,7 +318,7 @@ As in our example above, we consider experiments setup where participants observ
 \subsection{Formalization}
 
 The model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$.
-For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties---e.g., coin sequence---but also other components like dependent measure and sample size. As we will see, this matters.}
+For now, we assume that the experiment will include data from a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size and sequence space.\footnote{Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) but also other components like dependent measure and sample size. As we will see, this matters.}
 Finally, $Y$ is the response set $\{\texttt{H}, \texttt{T}\}^1$.
 
 In $m_{\text{fair}}$, we model participants as believing that the coin has an equal probability of coming up heads or tails:
@@ -449,7 +449,7 @@ Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable p
 \section{Case study 2: Category learning}
 
 Here, we explore a more complex and realistic space of models and experiments.
-In particular, we analyze a classic paper in the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
+In particular, we analyze a classic paper on the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
 Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as ``the 5-4 experiment'') where the models made diverging predictions and found that the empirical data from this experiment supported the exemplar model.
 Subsequently, many other authors followed their lead, replicating and using this experiment to test competing models.
 Here, we ask: how good was the MS 5-4 experiment?
@@ -487,7 +487,7 @@ Indeed, the MS experiment is near the bottom third of all experiments (Figure~\r
 
 Why is the MS experiment ineffective?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts an object is an A  but another predicts it is a B).
-The experiment they designed indeed predicts a qualitative difference in one stimulus, but this has a small magnitude and comes at the expense of little information gain from the remaining eight stimuli.
+The experiment they designed indeed predicts a qualitative difference in one stimulus, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
 
 \begin{figure}[t]
@@ -504,9 +504,9 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 
 To validate our expected information gain calculations, we ran the MS 5-4 and the optimal experiment with 60 participants each.
 Figure~\ref{fig:dist}b shows that the optimal experiment we found for a single participant is indeed better than the MS experiment ($n$=1, blue greater than red).
-For $n$=1, the mean AIG for the optimal experiment is 0.15, whereas it is 0.026 for the MS experiment.
-This 5-fold difference in informativity is even greater than the 2.5-fold difference we predicted using expected information gain.
-In addition, by incrementally introducing more data, we observe both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum, whereas the MS experiment takes around 30.
+For $n$=1, the mean actual information gain for the optimal experiment is 0.15, whereas it is 0.026 for the MS 5-4 experiment.
+This 5-fold difference in informativity is even greater than the 2.5-fold difference  predicted by expected information gain.
+In addition, by incrementally introducing more data, we observe that both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum whereas the MS experiment takes around 30.
 Thus, the optimal experiment provides the same amount of information for a third of the experimental cost.
 
 % and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
