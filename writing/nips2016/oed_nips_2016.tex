@@ -146,7 +146,7 @@ We conclude by discussing a number of interesting questions for future research.
 %\lou{start off more generally, don't specialize too much for psychology.}
 %\ndg{agree: first talk about OED in general, and why we should do OED within a PPL setup, then talk about psych as a target domain.}
 Designing scientific experiments to test competing theories is hard.
-To distinguish theories, we would like to run experiments where the theories make different predictions, but there are often many possible experiments one could run.
+To distinguish theories, we would like to run experiments for which the theories make different predictions, but there are often many possible experiments one could run.
 Formalizing theories as mathematical models can help.
 Models make explicit hypotheses about observed data and thus make it easier (or in some cases, possible) to explore the implications of a set of theoretical ideas.
 However, exploring models can be time-consuming and searching for experiments where the models sufficiently diverge is still largely driven by the scientist's intuition.
@@ -159,7 +159,7 @@ This intuition may be biased in a number of ways, such as towards experiments th
 When the space of models and of experiments have been made explicit, it is possible to use optimal experiment design (OED) to \emph{automate} experiment design; OED searches for experiments that maximally update our beliefs about a scientific question.
 The information-theoretic foundations of OED are fairly straightforward \cite{Lindley1956}, but it has not enjoyed widespread use in practice.
 Some OED systems are too narrow to be of general use, and % (e.g., optimizing information gain for parameter estimation of certain classes of biomolecular models).
-the more general systems require too much conceptual and implementation know-how (e.g., users must supply their own objective function and derive a solution algorithm for it).
+the more general systems require too much conceptual and implementational know-how to be widely adopted (e.g., users must supply their own objective function and derive a solution algorithm for it).
 In order for OED to be both of general and practical use, the computation for experiment selection must be automatic.
 This is only possible with a common formalism for specifying hypotheses and experiments.
 \emph{Probabilistic programming languages} (PPLs) are such a formalism; they are high-level and universal languages for expressing probabilistic models.
@@ -385,7 +385,7 @@ The second best experiment, \lstinline{HHHT}, better distinguishes the bias mode
 An automated design tool is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
 Finally, expected information gain of an experiment varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
-This function is non-linear and, crucially, the rank ordering of experiment can change.
+This function is non-linear and, crucially, the rank ordering of experiments can change.
 For the the full model comparison, the experiments \lstinline{HTHT} and \lstinline{HHHT} switch places after 12 participants (Fig.~\ref{fig:coin_preds}b).
 This is particularly relevant when three models are being compared, as small quantitative differences between two models may amplify as the sample size grows.
 In our example here, the optimal experiment with 1 participant is the same as with 30 participants.
@@ -447,7 +447,7 @@ Using the predictive prior for $p(y; x)$, we computed the expected information g
 Indeed, the MS experiment is near the bottom third of all experiments (Figure~\ref{fig:dist}a).
 
 Why is the MS experiment ineffective?
-One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts an object is an A  but another predicts it is a B).
+One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts an object is an A  while the other predicts it is a B).
 The experiment they designed indeed predicts a qualitative difference in one stimulus, but this has a small magnitude and comes at the expense of little information gain from the remaining stimuli.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the stimuli simultaneously.
 
@@ -479,9 +479,9 @@ The basic intuition behind OED---to find experiments that maximize some expected
 These papers, however, implement OED for either one-off or relatively limited cases, specializing for  particular models and committing to a single inference technique.
 For example, in systems biology, Liepe et al. \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
 Their information measure (Shannon entropy) is similar to ours, but they focus on a narrow family of models and commit to a bespoke inference technique (an ABC scheme based on SMC).
-In psychology, Myung \& Pitt \cite{Myung2009} devised a general method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
+In psychology, Myung \& Pitt \cite{Myung2009} devised a general design optimization method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
 For example, they compared six memory retention models using Fisher Information Approximation as a utility function and performed inference using a custom annealed SMC algorithm.
-Such ``bring-your-own'' requirements impose a significant burden on practitioners.
+Such ``bring-your-own'' requirements impose a significant burden on practitioners and are a real barrier to entry.
 
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
 Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
