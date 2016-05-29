@@ -16,8 +16,8 @@ theme(
 read in json files
 
 ```{r}
-setwd("category-expt-sweep")
-json.filenames = (function(x) { x[grepl("json", x)] })(list.files())
+search.data.dir = "../data/categories-search/"
+json.filenames = (function(x) { paste0(search.data.dir, x[grepl("json", x)]) })(list.files(search.data.dir))
 dfs = Map(fromJSON, json.filenames)
 ```
 
@@ -77,8 +77,8 @@ ci.u <- function(x) {
 
 todo: optimize CI time
 ```{r}
-aigs = rbind(fromJSON("aig-curve-ms.json"),
-             fromJSON("aig-curve-opt.json"))
+aigs = rbind(fromJSON("../data/categories-aig-curve-ms.json"),
+             fromJSON("../data/categories-aig-curve-opt.json"))
 
 aigs.agg = aigs %>%
   group_by(ex, n) %>%
