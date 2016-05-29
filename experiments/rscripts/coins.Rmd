@@ -37,8 +37,9 @@ d %>%
     ylab("Expected Information Gain from 20 participants")+
     xlab("Experiment")+
     guides(fill=F)+
-  theme_paper()
+  theme_paper() # TODO: add theme_paper() to version control
   
+# TODO: switch to a knitting workflow
 ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
        height = 4, width = 11)
 ```
