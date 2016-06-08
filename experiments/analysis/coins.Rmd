@@ -1,25 +1,97 @@
 ---
 title: "coins"
-author: "mht"
+author: "mhtess and louyang"
 date: "May 11, 2016"
 output: html_document
 ---
 
-```{r}
-library(rwebppl)
+Packages, helper functions, and plot theme
 
-d0<-read.csv("../data/coins-trials.csv")
+```{r echo=F}
+#library(rwebppl)
+
+corr_eqn <- function(x,y, digits = 2) {
+  corr_coef <- round(cor(x, y)^2, digits = digits)
+  paste("italic(r^2) == ", corr_coef)
+}
+
+theme_paper <- function(base_size = 12, base_family = "Helvetica") {
+  theme(
+    line =               element_line(colour = "black", 
+                                      size = 0.5, linetype = 1,
+                                      lineend = "butt"),
+    rect =               element_rect(fill = "black", 
+                                      colour = "black", 
+                                      size = 0.5, linetype = 1),
+    text =               element_text(family = base_family, face = "plain",
+                                      colour = "black", size = base_size,
+                                      hjust = 0.5, vjust = 0.5, 
+                                      angle = 0, lineheight = 0.9,
+                                      margin = margin(2,1,3,1), debug = FALSE),
+    axis.text =          element_text(size = 12, 
+                                      colour = "black", 
+                                      margin=margin(1,1,1,1)),
+    strip.text =         element_text(size = 12, 
+                                      colour = "black", 
+                                      margin=margin(1,1,4,1)),
+    
+    axis.line =          element_blank(),
+    axis.ticks =         element_line(colour = "black", size = 0.2),
+    axis.title =         element_text(colour = "black", size=16),
+    axis.ticks.length =  unit(0.3, "lines"),
+
+    legend.background =  element_rect(colour = "white", fill='white'),
+    legend.margin =      unit(0.2, "cm"),
+    legend.key =         element_rect(fill = "white", colour = "white"),
+    legend.key.size =    unit(1.2, "lines"),
+    legend.key.height =  NULL,
+    legend.key.width =   NULL,
+    legend.text =        element_text(size = rel(1.2), colour = "black"),
+    legend.text.align =  NULL,
+    legend.title =       element_text(size = rel(1.2), 
+                                      face = "bold", hjust = 0, 
+                                      colour = "black"),
+    legend.title.align = NULL,
+    legend.position =    "right",
+    legend.direction =   "vertical",
+    legend.justification = "center",
+    legend.box =         NULL,
+    
+    panel.background =   element_rect(fill = "white", colour = NA),
+    panel.border =       element_rect(fill = NA, colour = "black"),
+    panel.grid.major =   element_line(colour = "white", size = 0.2),
+    panel.grid.minor =   element_line(colour = "white", size = 0.5),
+    panel.margin =       unit(0.5, "lines"),
+
+    strip.background =   element_rect(fill = "white", colour = "white"),
+    strip.text.x =       element_text(),
+    strip.text.y =       element_text(angle = -90),
+    
+    plot.background =    element_rect(colour = "white", fill = "white"),
+    plot.title =         element_text(size = rel(1.2)),
+    plot.margin =        unit(c(1, 1, 0.5, 0.5), "lines"),
+    
+    complete = TRUE
+  )
+}
+
 ```
 
+
+
 ```{r}
-d<-read.csv("../data/coins-eig-n20-ignorance.csv")
+#setwd("experiments/analysis")
+d.human <-read.csv(file = "../data/coins-trials.csv")
+d.eig <- read.csv(file = "../data/coins-eig-n1-n20.csv")
+d.eig.curve <- read.csv(file = "../data/coins-eig-curve-3way.csv")
 ```
+
 
 EIG by experiment
 
-```{r}
-d %>% 
-  filter(comparison != "fair-markov") %>%
+```{r, fig.width=11, fig.height=4}
+d.eig %>% 
+  filter(comparison != "fair-markov" & response_prior == "ignorance") %>%
   mutate(comparison = factor(comparison, 
                   levels = c("fair-bias", "bias-markov",
                                      "threeway"),
@@ -37,29 +109,22 @@ d %>%
     ylab("Expected Information Gain from 20 participants")+
     xlab("Experiment")+
     guides(fill=F)+
-  theme_paper() # TODO: add theme_paper() to version control
+  theme_paper()
   
-
-# TODO: switch to a knitting workflow
-ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
-       height = 4, width = 11)
+#ggsave("writing/nips2016/img/coin_eig_n20_ignorance.pdf", height = 4, width = 11)
 ```
 
 EIG by experiment and N
 
-```{r}
-
-d1<-read.csv("~/Documents/research/oed/oed/experiments/data/coins-eig-curve-3way-ignorance.csv")
-
+```{r, fig.width=5, fig.height=3.5}
 experiments.of.interest<- c("HHHH", "HHHT", "HTHT")
 
-d1.n <- d1 %>%
+d.eig.curve %>%
+  filter(response_prior == "ignorance") %>%
   filter(seq%in%experiments.of.interest & n <= 30) %>%
   rename(Experiment = seq) %>%
-  mutate(Experiment = factor(Experiment, levels=c("HTHT", "HHHT", "HHHH")))
-
-
-ggplot(d1.n, aes(x=n, y=eig, 
+  mutate(Experiment = factor(Experiment, levels=c("HTHT", "HHHT", "HHHH"))) %>%
+ggplot(., aes(x=n, y=eig, 
                  color=Experiment, group=Experiment, linetype=Experiment))+
   geom_line(size=1.3)+
   scale_color_brewer(palette="Set1")+
@@ -69,20 +134,14 @@ ggplot(d1.n, aes(x=n, y=eig,
   theme_paper()+
   guides(color=F, linetype = F)
 
-ggsave("~/Documents/research/oed/oed/writing/nips2016/img/legend.pdf", width = 5, height = 3.5)
+#ggsave("writing/nips2016/img/legend.pdf", width = 5, height = 3.5)
 ```
 
+Actual information gain vs. Expected information gain (using empirical Ns)
 
+```{r, fig.height=3.5, fig.width=7}
 
-
-```{r}
-corr_eqn <- function(x,y, digits = 2) {
-  corr_coef <- round(cor(x, y)^2, digits = digits)
-  paste("italic(r^2) == ", corr_coef)
-}
-
-# TODO: add this file to version control
-d<-read.csv("~/Documents/research/oed/oed/experiments/oed/subjectiveRandomness_eig_aig_ignorancePrior.csv")
+d<-read.csv("../data/coins-eig-vs-aig-empiricalN-ignorance.csv")
 
 d.tidy <- d %>% 
   filter(models != "fairVmarkov") %>%
@@ -108,7 +167,7 @@ labels <- data.frame(x = c(0.1, 0.5, 0.4),
   ungroup() %>%
   rename(models = m)
 
-
+# spearman correlations
 d.tidy %>%
   group_by(models) %>%
   summarize(cor(aig,eig, method='spearman'))
@@ -127,26 +186,33 @@ ggplot(d.tidy, aes(x = eig, y = aig,
     xlab("Expected Information Gain")+
     ylab("Actual Information Gain")+
     guides(fill=F)+
-  coord_fixed(ratio=1)
+  coord_fixed(ratio=1)+
+  theme_paper()
 
 #ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_aig_scatter_noText.pdf", height = 3.5, width = 7)
 
 ```
 
-Models for coins
+# Webppl Models for coins
+
+#### Fair coin model
 
 ```{r}
 fairCoin <- "
 var fairSingle = cache(function(sequence) {
-    Enumerate(function() {
+    Infer({method:'enumerate'}, function() {
         return flip()
     })
 })
 fairSingle('no seq necessary')
 "
+```
 
+#### Bias coin model
+```{r}
 biasCoin <- "
-var coinWeights = [0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.99];
+var coinWeights = [0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 
+                        0.60, 0.70, 0.80, 0.90, 0.99];
 
 
 // assumes a.length == b.length
@@ -156,7 +222,7 @@ var arraysEqual = function(as,bs) {
 
 
 var biasCoin = function(sequence) {
-  Enumerate(function(){
+  Infer({method:'enumerate'}, function(){
       var p = uniformDraw(coinWeights);
       var sampled = repeat(sequence.length, function() { flip(p) })
       condition(arraysEqual(sampled, sequence))
@@ -166,25 +232,29 @@ var biasCoin = function(sequence) {
 
 biasCoin(map(function(x){return x==1}, input_seq))
 "
+```
 
+### Markov coin model
+
+```{r}
 markovCoin<-"
-var coinWeights = [0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60, 0.70, 0.80, 0.90, 0.99];
+var coinWeights = [0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 
+                        0.60, 0.70, 0.80, 0.90, 0.99];
 // assumes a.length == b.length
 var arraysEqual = function(as,bs) {
     return all(idF, map2(function(a, b) { return a === b }, as, bs))
 }
 
 var markovCoin = function(sequence) {
-    Enumerate(function(){
+    Infer({method:'enumerate'}, function(){
         var transitionProb = uniformDraw(coinWeights);
         var generateSequence = function(n, flipsSoFar) {
             if (flipsSoFar.length == n) {
                 return flipsSoFar;
             } else {
                 var lastFlip = last(flipsSoFar);
-                return generateSequence(n,
-                                        append(flipsSoFar,
-                                               flip(transitionProb) ? !lastFlip : lastFlip))
+                return generateSequence(n, append(flipsSoFar,
+                                flip(transitionProb) ? !lastFlip : lastFlip))
             }
         }
 
@@ -203,66 +273,70 @@ markovCoin(map(function(x){return x==1}, input_seq))
 Predictions
 
 ```{r}
-opt_exp =  c(1,1,1,1)
-penopt_exp = c(1,1,1,0)
-penopt_exp2 = c(1,0,1,0)
-
-model_predictions<-bind_rows(
-   webppl(model_code = fairCoin, model_file = model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = opt_exp, data_var='input_seq') %>%
-    mutate(model = 'fair',
-           expt = 'HHHH'),
-   webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = opt_exp, data_var='input_seq') %>%
-    mutate(model = 'bias',
-           expt = 'HHHH'),
-   webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = opt_exp, data_var='input_seq') %>%
-    mutate(model = 'markov',
-           expt = 'HHHH'),
-   webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = penopt_exp, data_var='input_seq') %>%
-    mutate(model = 'fair',
-           expt = 'HHHT'),
-   webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = penopt_exp, data_var='input_seq') %>%
-    mutate(model = 'bias',
-           expt = 'HHHT'),
-   webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = penopt_exp, data_var='input_seq') %>%
-    mutate(model = 'markov',
-           expt = 'HHHT'),
-   webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = penopt_exp2, data_var='input_seq') %>%
-    mutate(model = 'fair',
-           expt = 'HTHT'),
-   webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = penopt_exp2, data_var='input_seq') %>%
-    mutate(model = 'bias',
-           expt = 'HTHT'),
-   webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
-         data = penopt_exp2, data_var='input_seq') %>%
-    mutate(model = 'markov',
-           expt = 'HTHT')
-)
+# opt_exp =  c(1,1,1,1)
+# penopt_exp = c(1,1,1,0)
+# penopt_exp2 = c(1,0,1,0)
+# 
+# model_predictions<-bind_rows(
+#    webppl(model_code = fairCoin, 
+#           model_packages = c("~/Documents/research/oed/webppl-oed/"),
+#           data = opt_exp, data_var = 'input_seq') %>%
+#     mutate(model = 'fair',
+#            expt = 'HHHH'),
+#    webppl(model_code = biasCoin,    
+#           model_packages = c("~/Documents/research/oed/webppl-oed/"),
+#          data = opt_exp, data_var='input_seq') %>%
+#     mutate(model = 'bias',
+#            expt = 'HHHH'),
+#    webppl(model_code = markovCoin,
+#           model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#           data = opt_exp, 
+#           data_var='input_seq') %>%
+#     mutate(model = 'markov',
+#            expt = 'HHHH'),
+#    webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#          data = penopt_exp, data_var='input_seq') %>%
+#     mutate(model = 'fair',
+#            expt = 'HHHT'),
+#    webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#          data = penopt_exp, data_var='input_seq') %>%
+#     mutate(model = 'bias',
+#            expt = 'HHHT'),
+#    webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#          data = penopt_exp, data_var='input_seq') %>%
+#     mutate(model = 'markov',
+#            expt = 'HHHT'),
+#    webppl(model_code = fairCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#          data = penopt_exp2, data_var='input_seq') %>%
+#     mutate(model = 'fair',
+#            expt = 'HTHT'),
+#    webppl(model_code = biasCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#          data = penopt_exp2, data_var='input_seq') %>%
+#     mutate(model = 'bias',
+#            expt = 'HTHT'),
+#    webppl(model_code = markovCoin, model_packages=c("~/Documents/research/oed/webppl-oed/"),
+#          data = penopt_exp2, data_var='input_seq') %>%
+#     mutate(model = 'markov',
+#            expt = 'HTHT')
+# )
 ```
 
 ```{r}
-mp<-model_predictions %>% 
-  filter(support==TRUE) %>% 
-  mutate(model = factor(model, levels=c("fair", "bias", "markov")),
-         expt = factor(expt, levels=c("HTHT", "HHHT", "HHHH")))
-
-ggplot(mp, aes(x=model, y = probs, fill=expt))+
-  geom_bar(stat='identity', position=position_dodge())+
-  facet_wrap(~expt)+
-  ylab("Predicted probability of H")+
-  xlab("Model")+
-  theme_paper()+
-  scale_fill_brewer(palette="Set1")+
-  guides(fill=F)
-
-
-ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_predictions.pdf", width = 7, height =3.5)
+# mp<-model_predictions %>% 
+#   filter(support==TRUE) %>% 
+#   mutate(model = factor(model, levels=c("fair", "bias", "markov")),
+#          expt = factor(expt, levels=c("HTHT", "HHHT", "HHHH")))
+# 
+# ggplot(mp, aes(x=model, y = probs, fill=expt))+
+#   geom_bar(stat='identity', position=position_dodge())+
+#   facet_wrap(~expt)+
+#   ylab("Predicted probability of H")+
+#   xlab("Model")+
+#   theme_paper()+
+#   scale_fill_brewer(palette="Set1")+
+#   guides(fill=F)
+# 
+# 
+# ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_predictions.pdf", width = 7, height =3.5)
 
 ```
