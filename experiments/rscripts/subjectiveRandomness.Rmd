@@ -39,7 +39,7 @@ d %>%
     guides(fill=F)+
   theme_paper()
   
-ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
+#ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
        height = 4, width = 11)
 ```
 
@@ -67,7 +67,7 @@ ggplot(d1.n, aes(x=n, y=eig,
   theme_paper()+
   guides(color=F, linetype = F)
 
-ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_3way_nsubj.pdf", width = 5, height = 3.5)
+ggsave("~/Documents/research/oed/oed/writing/nips2016/img/legend.pdf", width = 5, height = 3.5)
 ```
 
 
