@@ -1,5 +1,5 @@
 ---
-title: "subjective-randomness"
+title: "coins"
 author: "mht"
 date: "May 11, 2016"
 output: html_document
@@ -8,11 +8,11 @@ output: html_document
 ```{r}
 library(rwebppl)
 
-d0<-read.csv("~/Documents/research/oed/oed/experiments/data/subjrand-1-trials.csv")
+d0<-read.csv("../data/coins-trials.csv")
 ```
 
 ```{r}
-d<-read.csv("~/Documents/research/oed/oed/experiments/data/coins-eig-n20-ignorance.csv")
+d<-read.csv("../data/coins-eig-n20-ignorance.csv")
 ```
 
 EIG by experiment
@@ -37,9 +37,11 @@ d %>%
     ylab("Expected Information Gain from 20 participants")+
     xlab("Experiment")+
     guides(fill=F)+
-  theme_paper()
+  theme_paper() # TODO: add theme_paper() to version control
   
-#ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
+
+# TODO: switch to a knitting workflow
+ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_n20_ignorance.pdf", 
        height = 4, width = 11)
 ```
 
@@ -79,6 +81,7 @@ corr_eqn <- function(x,y, digits = 2) {
   paste("italic(r^2) == ", corr_coef)
 }
 
+# TODO: add this file to version control
 d<-read.csv("~/Documents/research/oed/oed/experiments/oed/subjectiveRandomness_eig_aig_ignorancePrior.csv")
 
 d.tidy <- d %>% 
