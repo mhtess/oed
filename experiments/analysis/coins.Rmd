@@ -9,6 +9,9 @@ Packages, helper functions, and plot theme
 
 ```{r echo=F}
 #library(rwebppl)
+library(jsonlite)
+library(ggplot2)
+library(dplyr)
 
 corr_eqn <- function(x,y, digits = 2) {
   corr_coef <- round(cor(x, y)^2, digits = digits)
