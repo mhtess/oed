@@ -1,0 +1,36 @@
+var _ = underscore;
+
+var formatExperiment = function(x) {
+  map(function(xi) { return xi ? 'H' : 'T' }, x).join('')
+}
+
+var comparisons = {
+  'fair-bias': function() { uniformDraw(['fairGroup', 'biasGroup'])},
+  'bias-markov': function() { uniformDraw(['biasGroup', 'markovGroup'])},
+  'threeway': function() { uniformDraw(['fairGroup', 'biasGroup', 'markovGroup'])}
+};
+
+var mFuncs = {fairGroup: fairGroup, biasGroup: biasGroup, markovGroup: markovGroup};
+
+// generate eig for every experiment for every comparison
+var rowsDict = mapObject(function(comparisonName, mNameSample) {
+  var n = 20;
+  var supp = EIG({
+    mNameSample: mNameSample,
+    mFuncs: mFuncs,
+    xSample: function() { repeat(4,flip) },
+    ySample: function() { var numHeads = randomInteger(n + 1);
+                          return [numHeads, n - numHeads];
+                        }
+  }).support();
+
+  var rowsFormatted = pam(supp, function(row) {
+    return {comparison: comparisonName,
+            experiment: formatExperiment(row.x),
+            eig: row.EIG}
+  });
+
+  return rowsFormatted
+}, comparisons);
+
+JSON.stringify(_.flatten(_.values(rowsDict)))
