@@ -11,4 +11,10 @@
   "dependencies": {
     "webppl-oed": "mhtess/webppl-oed"
   }
+  },
+  "webppl": {
+    "wppl": [
+      "models.wppl"
+    ]
+  }
 }
