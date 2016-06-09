@@ -1,9 +1,5 @@
 var _ = underscore;
 
-var formatExperiment = function(x) {
-  map(function(xi) { return xi ? 'H' : 'T' }, x).join('')
-}
-
 var comparisons = {
   'fair-bias': function() { uniformDraw(['fairGroup', 'biasGroup'])},
   'bias-markov': function() { uniformDraw(['biasGroup', 'markovGroup'])},

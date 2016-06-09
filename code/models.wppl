@@ -57,3 +57,7 @@ var groupify = function(m) {
 var fairGroup = groupify(fairSingle),
     biasGroup = groupify(biasSingle),
     markovGroup = groupify(markovSingle);
+
+var formatExperiment = function(x) {
+  map(function(xi) { return xi ? 'H' : 'T' }, x).join('')
+}
