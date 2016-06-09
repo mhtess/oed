@@ -331,6 +331,7 @@ Predictions
 #          expt = factor(expt, levels=c("HTHT", "HHHT", "HHHH")))
 # 
 # ggplot(mp, aes(x=model, y = probs, fill=expt))+
+
 #   geom_bar(stat='identity', position=position_dodge())+
 #   facet_wrap(~expt)+
 #   ylab("Predicted probability of H")+
@@ -343,3 +344,25 @@ Predictions
 # ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_predictions.pdf", width = 7, height =3.5)
 
 ```
+
+making figure 2a from fig2a.json:
+
+```{r}
+d = fromJSON(txt="../../code/fig2a.json") %>%
+  mutate(model = factor(model, levels=c("fair", "bias", "markov")),
+         experiment = factor(experiment, levels=c("HTHT", "HHHT", "HHHH")))
+
+ggplot(data = d) +
+  facet_wrap(~ experiment) +
+  geom_bar(mapping = aes(x = model,
+                         y = probHeads,
+                         fill = experiment),
+           stat = 'identity') +
+  xlab("Model") +
+  scale_x_discrete(labels = c("Fair", "Bias", "Markov")) +
+  ylab("Predicted probability of H") +
+  scale_fill_brewer(palette="Set1") +
+  guides(fill=F) +
+  theme_paper()
+```
+

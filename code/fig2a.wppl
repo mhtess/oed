@@ -1,0 +1,24 @@
+var _ = underscore;
+
+var experiments = [
+  [true,true,true,true],
+  [true,true,true,false],
+  [true,false,true,false]
+];
+
+// for each model, generate model predictions
+
+var modelNames = ['fair', 'bias', 'markov'];
+var modelDict = {fair: fairSingle, bias: biasSingle, markov: markovSingle };
+
+var output = map(function(x) {
+
+  return map(function(mName) {
+    var m = modelDict[mName];
+    var yDist = m(x);
+    return {model: mName, probHeads: Math.exp(yDist.score(true)), experiment: formatExperiment(x)}
+  }, modelNames);
+
+}, experiments)
+
+JSON.stringify(_.flatten(output))
