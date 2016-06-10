@@ -1,0 +1,27 @@
+var _ = underscore;
+
+var experiments = [
+  [true,true,true,true],
+  [true,true,true,false],
+  [true,false,true,false]
+];
+
+// for each model, generate model predictions
+
+var modelNames = ['fair', 'bias', 'markov'];
+var modelDict = {fair: fairGroup, bias: biasGroup, markov: markovGroup };
+
+var output = map(function(n) {
+  var dist = EIG({
+    mNameSample: function() { uniformDraw(modelNames) },
+    mFuncs: modelDict,
+    xSample: function() { uniformDraw(experiments) },
+    ySample: function() { var k = randomInteger(n); return [k, n-k] }
+  });
+  // add n, format experiment name
+  return map(function(res) { return _.extend(res, {n: n,
+                                                   experiment: formatExperiment(res.x)}) },
+             dist.support())
+}, _.range(1,30 + 1))
+
+JSON.stringify(_.flatten(output),null,1)
