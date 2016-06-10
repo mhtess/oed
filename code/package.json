@@ -1,5 +1,5 @@
 {
-  "name": "code",
+  "name": "project",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "babyparse": "^0.4.6",
     "underscore": "^1.8.3",
     "webppl-oed": "mhtess/webppl-oed"
   },

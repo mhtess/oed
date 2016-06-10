@@ -58,6 +58,13 @@ var fairGroup = groupify(fairSingle),
     biasGroup = groupify(biasSingle),
     markovGroup = groupify(markovSingle);
 
+// [true,false,true,false] -> HTHT
 var formatExperiment = function(x) {
   map(function(xi) { return xi ? 'H' : 'T' }, x).join('')
+}
+
+// HTHT -> [true,false,true,false]
+var parseExperiment = function(str) {
+  return map(function(c) { return c == 'H' },
+             str.split(''))
 }

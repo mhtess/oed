@@ -1,0 +1,45 @@
+var _ = underscore;
+
+var modelNames = ['fair', 'bias', 'markov'];
+var modelDict = {fair: fairGroup, bias: biasGroup, markov: markovGroup };
+
+var trialsRaw = project.readCsv('../experiments/data/coins-trials.csv')
+
+// TODO: map across different model comparisons
+
+// remove spaces from the sequence field
+var trials = map(function(row) {
+  return _.extend({}, row, {sequence: row.sequence.replace(/ /g,'')})
+}, trialsRaw);
+
+var outputDict = mapObject(function(seqString, rows) {
+  var sequence = parseExperiment(seqString)
+
+  var n = rows.length;
+  var eigDist = EIG({
+    mNameSample: function() { uniformDraw(modelNames) },
+    mFuncs: modelDict,
+    xSample: function() { return sequence },
+    ySample: function() { var k = randomInteger(n); return [k,n-k] }
+  })
+
+  // aig
+  var frequencies = _.countBy(rows, 'response');
+
+  var aig = AIG({
+    mNameSample: function() { uniformDraw(modelNames) },
+    mFuncs: modelDict,
+    x: sequence,
+    y: [frequencies['H'], frequencies['T']]
+  })
+
+  return {n: n,
+          experiment: seqString,
+          eig: eigDist.support()[0].EIG,
+          aig: aig
+         }
+}, _.groupBy(trials, 'sequence'))
+
+var output = _.values(outputDict);
+
+JSON.stringify(output, null, 1)
