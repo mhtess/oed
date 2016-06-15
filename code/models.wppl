@@ -91,6 +91,7 @@ var dummyx = booleanize(_dummyx);
 var log = function(x) { Math.log(x) };
 var exp = function(x) { Math.exp(x) };
 var pam = function(a,f) { map(f,a) };
+var pamObject = function(a,f) { mapObject(f,a) };
 var vectorAdd = function(xs,ys) { map2(function(x,y) { x + y }, xs,ys) };
 var columnSum = function(ar) { reduce(vectorAdd, ar[0], ar.slice(1)) };
 

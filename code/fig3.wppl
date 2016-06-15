@@ -1,45 +1,58 @@
 var _ = underscore;
 
-var modelNames = ['fair', 'bias', 'markov'];
+
 var modelDict = {fair: fairGroup, bias: biasGroup, markov: markovGroup };
 
 var trialsRaw = project.readCsv('../experiments/data/coins-trials.csv')
 
-// TODO: map across different model comparisons
+var comparisons = ['fair-bias','bias-markov','fair-bias-markov'];
 
 // remove spaces from the sequence field
 var trials = map(function(row) {
-  return _.extend({}, row, {sequence: row.sequence.replace(/ /g,'')})
+    return _.extend({}, row, {sequence: row.sequence.replace(/ /g,'')})
 }, trialsRaw);
 
-var outputDict = mapObject(function(seqString, rows) {
-  var sequence = parseExperiment(seqString)
 
-  var n = rows.length;
-  var eigDist = EIG({
-    mNameSample: function() { uniformDraw(modelNames) },
-    mFuncs: modelDict,
-    xSample: function() { return sequence },
-    ySample: function() { var k = randomInteger(n); return [k,n-k] }
-  })
+// TODO: map across different model comparisons
+var out = pam(
+    comparisons,
+    function(comparison) {
+        var modelNames = comparison.split('-');
 
-  // aig
-  var frequencies = _.countBy(rows, 'response');
+        var outputDict = pamObject(
+            _.groupBy(trials, 'sequence'),
+            function(seqString, rows) {
+                var sequence = parseExperiment(seqString)
 
-  var aig = AIG({
-    mNameSample: function() { uniformDraw(modelNames) },
-    mFuncs: modelDict,
-    x: sequence,
-    y: [frequencies['H'], frequencies['T']]
-  })
+                var n = rows.length;
+                var eigDist = EIG({
+                    mNameSample: function() { uniformDraw(modelNames) },
+                    mFuncs: modelDict,
+                    xSample: function() { return sequence },
+                    ySample: function() { var k = randomInteger(n); return [k,n-k] }
+                })
 
-  return {n: n,
-          experiment: seqString,
-          eig: eigDist.support()[0].EIG,
-          aig: aig
-         }
-}, _.groupBy(trials, 'sequence'))
+                // aig
+                var frequencies = _.countBy(rows, 'response');
 
-var output = _.values(outputDict);
+                var aig = AIG({
+                    mNameSample: function() { uniformDraw(modelNames) },
+                    mFuncs: modelDict,
+                    x: sequence,
+                    y: [frequencies['H'], frequencies['T']]
+                })
 
-JSON.stringify(output, null, 1)
+                return {
+                    comparison: comparison,
+                    n: n,
+                    experiment: seqString,
+                    eig: eigDist.support()[0].EIG,
+                    aig: aig
+                }
+            });
+
+        return _.values(outputDict);
+
+    })
+
+JSON.stringify(_.flatten(out), null, 1)
