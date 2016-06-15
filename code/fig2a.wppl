@@ -21,4 +21,4 @@ var output = map(function(x) {
 
 }, experiments)
 
-JSON.stringify(_.flatten(output))
+JSON.stringify(_.flatten(output),null,1)

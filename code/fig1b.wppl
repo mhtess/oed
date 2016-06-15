@@ -29,4 +29,4 @@ var rowsDict = mapObject(function(comparisonName, mNameSample) {
   return rowsFormatted
 }, comparisons);
 
-JSON.stringify(_.flatten(_.values(rowsDict)))
+JSON.stringify(_.flatten(_.values(rowsDict)),null,1)
