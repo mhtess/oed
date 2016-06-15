@@ -1,0 +1,19 @@
+var _ = underscore;
+var args = minimist.call(null, process.argv.slice(2));
+
+var experiments = project.categoryExperiments.slice(args.begin - 1, // 1-indexed
+                                                    args.end);
+
+var output = EIG({
+    mNameSample: function() { uniformDraw(['exemplar', 'prototype']) },
+    mFuncs: {exemplar: exemplarGroup, prototype: prototypeGroup},
+    xSample: function() { uniformDraw(experiments) },
+    ySample: function() {
+        var numAs = repeat(16, function() { return flip() ? 1 : 0 })
+        return {n: 1,
+                numAs: numAs }
+    },
+    usePredictiveY: true
+});
+
+JSON.stringify(output.support(), null, 1)
