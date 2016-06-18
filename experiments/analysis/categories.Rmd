@@ -104,4 +104,31 @@ qplot(data =  aigs.agg,
 
 ```
 
+make figure 4b from json:
+
+```{r}
+d = fromJSON(txt="../../code/fig4b.json")
+```
+
+```{r}
+d.agg = d %>%
+  group_by(x, n) %>%
+  summarise(mean.aig = mean(aig),
+            cl = ci.l(aig),
+            cu = ci.u(aig)) %>%
+  ungroup() %>%
+  mutate(x = factor(ifelse(x == 'ms', 'MS','Optimal'))) %>%
+  transform(Experiment = factor(x, levels = rev(levels(x))))
+```
+
+```{r 4b, fig.width = 6, fig.height = 3}
+qplot(data =  d.agg,
+      x = n,
+      y = mean.aig,
+      ymin = cl,
+      ymax = cu,
+      color = Experiment,
+      geom = c('point','errorbar', 'line')) + ylab("Actual information gain") + xlab("Number of participants") +
+  scale_color_manual(values = c("MS" = "red2", "Optimal" = "blue", "Other" = "grey60"))
+```
 

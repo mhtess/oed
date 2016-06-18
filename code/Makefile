@@ -1,6 +1,8 @@
 %.json : %.wppl
 	@webppl "$<" --require ./node_modules/underscore \
 		--require ./node_modules/webppl-oed \
+		--require ./node_modules/babyparse \
+		--require ./node_modules/minimist \
 		--require . \
 		| tee "$@"
 
