@@ -1,0 +1,71 @@
+var subjectResponses = babyparse.parseFiles('../experiments/data/category-data.csv', {header: true}).data;
+
+var convertCsvRow = function(obj) {
+  var responses = _.pairs(_.omit(obj, ['condition', 'workerId']));
+  var responsesSorted = pam(_.sortBy(responses, '0'),
+                            function(x) { return x[1] === 'TRUE' ? 1 : 0 });
+  return responsesSorted;
+}
+
+var msResponses = map(convertCsvRow, _.where(subjectResponses, {condition: 'ms'}));
+var opResponses = map(convertCsvRow, _.where(subjectResponses, {condition: 'opt-total'}));
+
+var subset = function(xs, n) {
+  if (n <= 0 || xs.length == 0) {
+    return [];
+  }
+  var x = uniformDraw(xs);
+  return append([x], subset(_.without(xs, x), n-1) );
+}
+
+var nsOp = _.range(1,opResponses.length+1);
+var nsMs = _.range(1,msResponses.length+1);
+
+var mFuncs = {exemplar: exemplarGroup, prototype: prototypeGroup};
+
+// TODO: write mapCartesian and rewrite using that
+
+var outputOp = pam(
+  nsOp,
+  function(n) {
+    var aigs = pam(
+      _.range(1,1001),
+      function(seed) {
+        util.seedRNG(seed);
+        var y = {n: n, numAs: columnSum(subset(opResponses, n)) };
+        //console.log(y);
+        var aig = AIG({mNameSample: function() { uniformDraw(['exemplar', 'prototype']) },
+                       mFuncs: mFuncs,
+                       x: opt,
+                       y: y
+                      });
+        return {n: n, x: 'op', seed: seed, aig: aig}
+      });
+
+    return aigs
+
+  });
+
+var outputMs = pam(
+  nsMs,
+  function(n) {
+    var aigs = pam(
+      _.range(1,1001),
+      function(seed) {
+        util.seedRNG(seed);
+        var y = {n: n, numAs: columnSum(subset(msResponses, n)) };
+        //console.log(y);
+        var aig = AIG({mNameSample: function() { uniformDraw(['exemplar', 'prototype']) },
+                       mFuncs: mFuncs,
+                       x: ms78,
+                       y: y
+                      });
+        return {n: n, x: 'ms', seed: seed, aig: aig}
+      });
+
+    return aigs
+  });
+
+
+var output = _.flatten(outputOp).concat(_.flatten(outputMs))
+JSON.stringify(output); // no strings cause it's a big file
