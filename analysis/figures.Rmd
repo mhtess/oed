@@ -2,9 +2,10 @@
 title: "paper figures"
 author: "mhtess and louyang"
 date: "May 11, 2016"
-output: 
-  html_document: 
+output:
+  html_document:
     self_contained: no
+  pdf_document: default
 ---
 
 # Packages, helper functions, and plot theme
@@ -47,7 +48,7 @@ ci.u <- function(x) {
 
 making figure 2a from fig2a.json:
 
-```{r 2a, fig.width = 7, fig.height = 3.5}
+```{r 2a, fig.width = 7, fig.height = 3.5, fig.ext = "pdf"}
 d = fromJSON(txt="../code/fig2a.json") %>%
   mutate(model = factor(model, levels=c("fair", "bias", "markov")),
          experiment = factor(experiment, levels=c("HTHT", "HHHT", "HHHH")))
@@ -69,7 +70,7 @@ ggplot(data = d) +
 
 making figure 2b from fig2b.json:
 
-```{r 2b, fig.width=5, fig.height=3.5}
+```{r 2b, fig.width=5, fig.height=3.5, fig.ext = "pdf"}
 d = fromJSON(txt="../code/fig2b.json") %>%
   rename(Experiment = experiment) %>%
   mutate(Experiment = factor(Experiment, levels=c("HTHT", "HHHT", "HHHH")))
@@ -94,7 +95,7 @@ direct.label(p,
 
 making figure 3 from fig3.json:
 
-```{r 3, fig.width=10.8, fig.height=4.05}
+```{r 3, fig.width=10.8, fig.height=4.05, fig.ext = "pdf"}
 d = fromJSON(txt="../code/fig3.json")
 
 d$comparison = factor(d$comparison, levels = c("fair-bias","bias-markov","fair-bias-markov"))
@@ -125,7 +126,7 @@ ggplot(data = d, mapping = aes(x = eig, y = aig)) +
 
 # Categories
 
-```{r 4b, fig.width = 6, fig.height = 3}
+```{r 4b, fig.width = 6, fig.height = 3, fig.ext = "pdf"}
 d = fromJSON(txt="../code/fig4b.json")
 
 d.agg = d %>%
