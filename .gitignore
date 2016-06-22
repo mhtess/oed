@@ -2,7 +2,7 @@
 *.log
 *.out
 *.synctex*
-*.pdf
+tex/*.pdf
 *.blg
 .Rproj.user
 .Rhistory
