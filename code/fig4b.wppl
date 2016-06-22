@@ -1,4 +1,4 @@
-var subjectResponses = babyparse.parseFiles('../experiments/data/category-data.csv', {header: true}).data;
+var subjectResponses = babyparse.parseFiles('../data/category-data.csv', {header: true}).data;
 
 var convertCsvRow = function(obj) {
   var responses = _.pairs(_.omit(obj, ['condition', 'workerId']));
@@ -67,5 +67,6 @@ var outputMs = pam(
   });
 
 
+// TODO: output csvs instead of json (smaller file size, quicker to read)
 var output = _.flatten(outputOp).concat(_.flatten(outputMs))
 JSON.stringify(output); // no strings cause it's a big file

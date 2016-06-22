@@ -3,7 +3,7 @@ var _ = underscore;
 
 var modelDict = {fair: fairGroup, bias: biasGroup, markov: markovGroup };
 
-var trialsRaw = project.readCsv('../experiments/data/coins-trials.csv')
+var trialsRaw = project.readCsv('../data/coins-trials.csv')
 
 var comparisons = ['fair-bias','bias-markov','fair-bias-markov'];
 
@@ -13,7 +13,6 @@ var trials = map(function(row) {
 }, trialsRaw);
 
 
-// TODO: map across different model comparisons
 var out = pam(
     comparisons,
     function(comparison) {

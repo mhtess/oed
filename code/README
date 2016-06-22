@@ -1,0 +1,9 @@
+Prerequisite:
+- npm install
+
+Figure 1b: make fig1b.json
+Figure 2a: make fig2a.json
+Figure 2b: make fig2b.json
+Figure 3:  make fig3.json
+Figure 4a:  make -j 10 fig4a (run on server, ~3 hours)
+Figure 4b:  make fig4b.json (~4 minutes)
