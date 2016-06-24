@@ -46,9 +46,30 @@ ci.u <- function(x) {
 
 # Coins
 
+```{r 1b, dev="pdf", fig.width = 11, fig.height = 4}
+d = fromJSON(txt="../code/fig1b.json") %>%
+  mutate(comparison = factor(comparison,
+                  levels = c("fair-bias", "bias-markov", "threeway"),
+                  labels = c(
+                    "Fair vs. Bias",
+                    "Bias vs. Markov",
+                    "Fair vs. Bias vs. Markov"
+                  )))
+
+ggplot(data = d, aes(x = experiment, y = eig))+
+    geom_bar(stat='identity', position=position_dodge())+
+    coord_flip()+
+    facet_wrap(~comparison)+
+    ylab("Expected Information Gain from 20 participants")+
+    xlab("Experiment")+
+    guides(fill=F)+
+  theme_paper()
+```
+
+
 making figure 2a from fig2a.json:
 
-```{r 2a, fig.width = 7, fig.height = 3.5, fig.ext = "pdf"}
+```{r 2a, dev="pdf", fig.width = 7, fig.height = 3.5}
 d = fromJSON(txt="../code/fig2a.json") %>%
   mutate(model = factor(model, levels=c("fair", "bias", "markov")),
          experiment = factor(experiment, levels=c("HTHT", "HHHT", "HHHH")))
@@ -70,7 +91,7 @@ ggplot(data = d) +
 
 making figure 2b from fig2b.json:
 
-```{r 2b, fig.width=5, fig.height=3.5, fig.ext = "pdf"}
+```{r 2b, dev="pdf", fig.width=5, fig.height=3.5}
 d = fromJSON(txt="../code/fig2b.json") %>%
   rename(Experiment = experiment) %>%
   mutate(Experiment = factor(Experiment, levels=c("HTHT", "HHHT", "HHHH")))
@@ -95,7 +116,7 @@ direct.label(p,
 
 making figure 3 from fig3.json:
 
-```{r 3, fig.width=10.8, fig.height=4.05, fig.ext = "pdf"}
+```{r 3, dev="pdf", fig.width=10.8, fig.height=4.05}
 d = fromJSON(txt="../code/fig3.json")
 
 d$comparison = factor(d$comparison, levels = c("fair-bias","bias-markov","fair-bias-markov"))
@@ -126,7 +147,38 @@ ggplot(data = d, mapping = aes(x = eig, y = aig)) +
 
 # Categories
 
-```{r 4b, fig.width = 6, fig.height = 3, fig.ext = "pdf"}
+```{r 4a, dev="pdf", fig.width = 6, fig.height = 3}
+ds = Map(function(x) { fromJSON(paste0("../code/fig4a/",x)) }, list.files("../code/fig4a"))
+
+eigs = unname(unlist(Map(function(e) { e$EIG }, ds)))
+
+d.eig = data.frame(eig = eigs)
+
+breaks = seq(from = 0, to = 0.09, by = 0.01/2)
+
+d.eigcut = d.eig %>%
+  transform(bucket = cut(eig,
+                         breaks = breaks,
+                         labels = breaks[2:length(breaks)]
+                         )) %>%
+  transform(bucket = as.numeric(as.character(bucket))) %>%
+  group_by(bucket) %>% summarise(count = n())
+
+d.eigcut = d.eigcut %>% transform(Experiment = ifelse(bucket == 0.03, "MS",
+                                                      ifelse(bucket == max(d.eigcut$bucket), "Optimal", "Other")))
+
+d.eigcut$Experiment = factor(d.eigcut$Experiment, levels = levels(d.eigcut$Experiment)[c(2,1,3)])
+
+ggplot(data = d.eigcut) + geom_bar(mapping = aes(x = bucket, y = count, fill = Experiment), stat = 'identity') +
+  ylab("Count") +
+  xlab("Expected information gain") +
+  theme_paper() +
+  scale_x_continuous(limits = c(0,0.09), breaks = seq(from = 0, to = 0.09, by = 0.09 / 3)) +
+  scale_fill_manual(breaks = c("Optimal", "MS"), values = c("MS" = "red2", "Optimal" = "blue", "Other" = "grey60"))
+```
+
+
+```{r 4b, dev="pdf", fig.width = 6, fig.height = 3}
 d = fromJSON(txt="../code/fig4b.json")
 
 d.agg = d %>%
