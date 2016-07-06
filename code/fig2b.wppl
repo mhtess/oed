@@ -16,7 +16,7 @@ var output = map(function(n) {
     mNameSample: function() { uniformDraw(modelNames) },
     mFuncs: modelDict,
     xSample: function() { uniformDraw(experiments) },
-    ySample: function() { var k = randomInteger(n); return [k, n-k] }
+    ySample: function() { var k = randomInteger(n + 1); return [k, n-k] }
   });
   // add n, format experiment name
   return map(function(res) { return _.extend(res, {n: n,

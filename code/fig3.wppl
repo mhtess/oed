@@ -28,7 +28,7 @@ var out = pam(
                     mNameSample: function() { uniformDraw(modelNames) },
                     mFuncs: modelDict,
                     xSample: function() { return sequence },
-                    ySample: function() { var k = randomInteger(n); return [k,n-k] }
+                    ySample: function() { var k = randomInteger(n + 1); return [k,n-k] }
                 })
 
                 // aig
