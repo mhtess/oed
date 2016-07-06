@@ -21,8 +21,6 @@ var subset = function(xs, n) {
 var nsOp = _.range(1,opResponses.length+1);
 var nsMs = _.range(1,msResponses.length+1);
 
-var mFuncs = {exemplar: exemplarGroup, prototype: prototypeGroup};
-
 // TODO: write mapCartesian and rewrite using that
 
 var outputOp = pam(
@@ -34,8 +32,7 @@ var outputOp = pam(
         util.seedRNG(seed);
         var y = {n: n, numAs: columnSum(subset(opResponses, n)) };
         //console.log(y);
-        var aig = AIG({mNameSample: function() { uniformDraw(['exemplar', 'prototype']) },
-                       mFuncs: mFuncs,
+        var aig = AIG({M: function() { uniformDraw([prototypeGroup, exemplarGroup]) },
                        x: opt,
                        y: y
                       });
@@ -55,8 +52,7 @@ var outputMs = pam(
         util.seedRNG(seed);
         var y = {n: n, numAs: columnSum(subset(msResponses, n)) };
         //console.log(y);
-        var aig = AIG({mNameSample: function() { uniformDraw(['exemplar', 'prototype']) },
-                       mFuncs: mFuncs,
+        var aig = AIG({M: function() { uniformDraw([prototypeGroup, exemplarGroup]) },
                        x: ms78,
                        y: y
                       });

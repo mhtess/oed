@@ -1,27 +1,31 @@
 var _ = underscore;
 
-var experiments = [
-  [true,true,true,true],
-  [true,true,true,false],
-  [true,false,true,false]
-];
-
 // for each model, generate model predictions
 
-var modelNames = ['fair', 'bias', 'markov'];
-var modelDict = {fair: fairGroup, bias: biasGroup, markov: markovGroup };
-
 var output = map(function(n) {
+
+  var experiments = [
+    {n: n, sequence: [true,true,true,true]},
+    {n: n, sequence: [true,true,true,false]},
+    {n: n, sequence: [true,false,true,false]}
+  ];
+
   var dist = EIG({
-    mNameSample: function() { uniformDraw(modelNames) },
-    mFuncs: modelDict,
-    xSample: function() { uniformDraw(experiments) },
-    ySample: function() { var k = randomInteger(n); return [k, n-k] }
+    M: function() { uniformDraw([fairGroup, biasGroup, markovGroup]) },
+    X: function() { uniformDraw(experiments) },
+    Y: function() { randomInteger(n + 1) }
   });
+  // Remove extra experiment info from new interface
+  var simpleDist = map(function(res) {
+      return {
+          EIG: res.EIG,
+          x: res.x.sequence
+      };
+  }, dist.support());
   // add n, format experiment name
   return map(function(res) { return _.extend(res, {n: n,
                                                    experiment: formatExperiment(res.x)}) },
-             dist.support())
+             simpleDist);
 }, _.range(1,30 + 1))
 
 JSON.stringify(_.flatten(output),null,1)

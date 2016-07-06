@@ -1,22 +1,30 @@
 var _ = underscore;
 
 
-var modelDict = {fair: fairGroup, bias: biasGroup, markov: markovGroup };
-
 var trialsRaw = project.readCsv('../data/coins-trials.csv')
 
-var comparisons = ['fair-bias','bias-markov','fair-bias-markov'];
+var comparisons = [
+    [fairGroup, biasGroup],
+    [biasGroup, markovGroup],
+    [fairGroup, biasGroup, markovGroup]
+]
 
 // remove spaces from the sequence field
 var trials = map(function(row) {
     return _.extend({}, row, {sequence: row.sequence.replace(/ /g,'')})
 }, trialsRaw);
 
+// From list of models to prettified string
+var comparisonToString = function(cmp) {
+    return pam(cmp, function(s) {
+        s.name.replace(/Group/, '')
+    }).join('-');
+};
+
 
 var out = pam(
     comparisons,
     function(comparison) {
-        var modelNames = comparison.split('-');
 
         var outputDict = pamObject(
             _.groupBy(trials, 'sequence'),
@@ -25,24 +33,22 @@ var out = pam(
 
                 var n = rows.length;
                 var eigDist = EIG({
-                    mNameSample: function() { uniformDraw(modelNames) },
-                    mFuncs: modelDict,
-                    xSample: function() { return sequence },
-                    ySample: function() { var k = randomInteger(n); return [k,n-k] }
+                    M: function() { uniformDraw(comparison) },
+                    X: function() { return {n: n, sequence: sequence} },
+                    Y: function() { randomInteger(n + 1) }
                 })
 
                 // aig
                 var frequencies = _.countBy(rows, 'response');
 
                 var aig = AIG({
-                    mNameSample: function() { uniformDraw(modelNames) },
-                    mFuncs: modelDict,
-                    x: sequence,
-                    y: [frequencies['H'], frequencies['T']]
+                    M: function() { uniformDraw(comparison) },
+                    x: {n: n, sequence: sequence},
+                    y: frequencies['H']
                 })
 
                 return {
-                    comparison: comparison,
+                    comparison: comparisonToString(comparison),
                     n: n,
                     experiment: seqString,
                     eig: eigDist.support()[0].EIG,
