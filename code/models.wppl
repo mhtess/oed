@@ -12,6 +12,7 @@ var fairSingle = cache(function(sequence) {
     return flip()
   })
 })
+Object.defineProperty(fairSingle, 'name', {value: 'fairSingle'});
 
 var biasSingle = cache(function(sequence) {
   Enumerate(function() {
@@ -21,6 +22,7 @@ var biasSingle = cache(function(sequence) {
     return flip(p);
   })
 });
+Object.defineProperty(biasSingle, 'name', {value: 'biasSingle'});
 
 var markovSingle = cache(function(sequence) {
   Enumerate(function() {
@@ -42,18 +44,16 @@ var markovSingle = cache(function(sequence) {
     return flip( transitionProb ) ? !last(sampled) : last(sampled);
   })
 });
+Object.defineProperty(markovSingle, 'name', {value: 'markovSingle'});
 
 var groupify = function(m) {
-  return function(sequence, counts) {
-    var yDist = m(sequence);
-
-    var numHeads = counts[0],
-        numTails = counts[1];
-
-    var p = Math.exp(score(yDist, true));
-
-    return score(Binomial({n: numHeads + numTails, p: p}), numHeads)
-  }
+    var gm = function(x, y) {
+        var yDist = m(x.sequence);
+        var p = Math.exp(yDist.score(true));
+        return Binomial({n: x.n, p: p}).score(y);
+    }
+    Object.defineProperty(gm, 'name', {value: m.name.replace('Single', 'Group')})
+    return gm;
 }
 
 var fairGroup = groupify(fairSingle),
@@ -148,6 +148,7 @@ var prototypeSingle = cache(function(x) {
     // get expected distribution on responses
     return pam(columnSum(dist), function(x) { return x / numSamples });
 })
+Object.defineProperty(prototypeSingle, 'name', {value: 'prototypeSingle'});
 
 var exemplarSingle = cache(function(x) {
     var as = x.as, bs = x.bs;
@@ -186,12 +187,13 @@ var exemplarSingle = cache(function(x) {
     // get expected distribution on responsesp
     return pam(columnSum(dist), function(x) { return x / numSamples });
 })
+Object.defineProperty(exemplarSingle, 'name', {value: 'exemplarSingle'});
 
-var categoryGroupify = function(model) {
+var categoryGroupify = function(m) {
     // responses is an object {n: n, numAs: [nA1, nA2, ...]}
     // e.g.,
-    return function(x, responses) {
-        var yDist = model(x);
+    var gm = function(x, responses) {
+        var yDist = m(x);
         var n = responses.n;
 
         var LL = sum(map2(function(p, k) { return score(Binomial({n: n, p: p}), k) },
@@ -200,6 +202,8 @@ var categoryGroupify = function(model) {
 
         return LL;
     }
+    Object.defineProperty(gm, 'name', {value: m.name.replace('Single', 'Group')})
+    return gm;
 }
 
 var exemplarGroup = categoryGroupify(exemplarSingle);

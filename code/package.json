@@ -12,7 +12,7 @@
     "babyparse": "^0.4.6",
     "minimist": "^1.2.0",
     "underscore": "^1.8.3",
-    "webppl-oed": "mhtess/webppl-oed#acb357a"
+    "webppl-oed": "mhtess/webppl-oed#ccd624c"
   },
   "webppl": {
     "wppl": [
