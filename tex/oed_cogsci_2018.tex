@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[10pt,letterpaper]{article}
 
 % to do (5/16)
 
@@ -15,21 +15,23 @@
 % before loading nips_2016
 %
 % to avoid loading the natbib package, add option nonatbib:
-\usepackage[nonatbib, final]{nips_2016}
+\usepackage{cogsci}
+\usepackage{pslatex}
+\usepackage{apacite}
 
 %\usepackage{nips_2016}
 
 % to compile a camera-ready version, add the [final] option, e.g.:
 % \usepackage[final]{nips_2016}
 
-\usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[T1]{fontenc}    % use 8-bit T1 fonts
+% \usepackage[utf8]{inputenc} % allow utf-8 input
+% \usepackage[T1]{fontenc}    % use 8-bit T1 fonts
 %\usepackage{hyperref}       % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{booktabs}       % professional-quality tables
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
-\usepackage{microtype}      % microtypography
+% \usepackage{microtype}      % microtypography
 \usepackage{amsmath}
 \usepackage{mathtools}
 \usepackage{fancyvrb}
@@ -501,7 +503,8 @@ Adaptive testing can be formulated as a problem of information gain of sequences
 %Our informativeness approach could be usefully integrated with for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
 In this paper, we showed case studies of our method in cognitive psychology but we believe that it is broadly useful, so we invite practitioners to test our method and system.
 
-\bibliographystyle{ieeetr}
-\bibliography{oed_nips_2016}
+% \bibliographystyle{ieeetr}
+\bibliographystyle{apacite}
+\bibliography{oed_cogsci_2018}
 
 \end{document}
