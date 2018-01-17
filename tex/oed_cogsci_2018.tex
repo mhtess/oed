@@ -264,7 +264,7 @@ Note that in the above snippet, and throughout, we omit the \texttt{options} obj
 WebPPL also supports expressing \emph{conditional} probability distributions.
 For instance, in the model above, we might be interested in what values of $x$ and $y$ could lead their sum to be greater than 2:
 
-\begin{lstlisting}[mathescape, label={code:forward-model-simple}]
+\begin{lstlisting}[mathescape, label={code:forward-model-complex}]
 var g = function() {
   var x = sample(Binomial({n: 4, p: 0.5}))
   var y = sample(Gaussian({mu: 0, sigma: 1}))
@@ -352,6 +352,8 @@ var markovCoin = function(seq) {
 
 \subsection{Predictions of optimal experiment design}
 
+\newsavebox{\LstBox}
+
 \begin{lrbox}{\LstBox}
 \begin{lstlisting}
 var groupify = function(model) {
@@ -390,8 +392,6 @@ The results of different model comparisons are in Fig.~\ref{fig:run-coin} below:
   \caption{Results for sequence prediction model comparisons}
   \label{fig:run-coin}
 \end{figure}
-
-\newsavebox{\LstBox}
 
 Consider the fair--bias comparison.
 Observe that several experiments that have 0 information gain (e.g., \lstinline{HTHT}).
