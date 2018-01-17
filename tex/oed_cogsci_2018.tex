@@ -17,7 +17,7 @@
 % to avoid loading the natbib package, add option nonatbib:
 \usepackage{cogsci}
 \usepackage{pslatex}
-\usepackage{apacite}
+\usepackage[natbibapa]{apacite}
 
 %\usepackage{nips_2016}
 
@@ -38,8 +38,7 @@
 \usepackage{multirow}
 \usepackage{color}
 \usepackage{textcomp}
-\usepackage[scaled=0.9]{inconsolata}
-
+\usepackage[scaled=0.8]{inconsolata}
 
 
 % HT http://tex.stackexchange.com/a/151987/41154
@@ -155,7 +154,7 @@ As such, designing experiments where models sufficiently diverge is driven in la
 This intuition may be biased in a number of ways, such as towards experiments that show qualitative differences between models even when more informative quantitative differences may exist.
 
 In principle, there is a better way---if we formally declare the space of models and space of experiments, optimal experiment design (OED) allows us to automate the search for good experiments (i.e., ones that strongly update our beliefs about a scientific question).
-However, while the mathematical foundations of OED are fairly straightforward \cite{Lindley1956}, it has not enjoyed widespread use in practice.
+However, while the mathematical foundations of OED are fairly straightforward \citep{Lindley1956}, it has not enjoyed widespread use in practice.
 Some OED systems are too specialized for general use and the more general systems require too much conceptual and implementational know-how to be widely adopted (e.g., users must supply their own objective function and derive a solution algorithm for it).
 In this work, we describe an automated system that is both general and practical---the user writes the competing models and space of possible experiments in a common language and a set of potentially informative experiments is then computed with no further input from the user.
 
@@ -245,7 +244,7 @@ Similarly, deterministic predictions about a single subject's responses can be m
 \subsection{Writing models as probabilistic programs}
 
 Because models are probability distributions, we have the user express their models in a programming language where probability distributions and operations on them are first-class objects.
-In particular, we use WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \cite{dippl}.
+In particular, we use WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \citep{dippl}.
 
 WebPPL supports sampling from a number of primitive probability distributions, which can be combined in various ways. For example, we can define a distribution that adds Gaussian noise to a Binomial random variable:
 
@@ -276,9 +275,8 @@ Infer(g)
 \end{lstlisting}
 Here, \texttt{condition} rejects any states where $x + y <$ 2.
 
-\textbf{TODO: give high level summary of how webppl-oed works.}
-
-Our OED code is available as a WebPPL package at \url{https://censored}. %--- \url{https://github.com/mhtess/webppl-oed}.
+Given a set of competing models and some details about the space of possible experiments and results, \texttt{webppl-oed} searches for experiments that have a high expected information gain.
+The software is available online at \url{https://censored}. %--- \url{https://github.com/mhtess/webppl-oed}.
 We next illustrate our system by applying it to distinguish toy models of sequence prediction.
 %\ndg{check nips anonymity requirements...}
 
@@ -286,7 +284,7 @@ We next illustrate our system by applying it to distinguish toy models of sequen
 \label{s:tutorial}
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might be unsure for the sequence \lstinline{THHTHTHT}.
-There are many hypotheses one might have about what underlies human intuitions about such sequences \cite{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
+There are many hypotheses one might have about what underlies human intuitions about such sequences \citep{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
 Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
 As in our earlier example, we consider an experimental setup where participants see four flips of the same coin and must predict the next flip.
 
@@ -354,48 +352,64 @@ var markovCoin = function(seq) {
 
 \subsection{Predictions of optimal experiment design}
 
-Using an uninformative prior for $p(y; x)$, we ran OED for three different model comparison: fair--bias, bias--Markov, and fair--bias--Markov and planned to collect data from 20 participants (rather than 1).
-\begin{figure}[t]
-(a) \underline{\textsf{Example input for fair-bias comparison:}}
+\begin{lrbox}{\LstBox}
 \begin{lstlisting}
-var n = 20;
-var fairGroup = groupify(fairCoin), biasGroup = groupify(biasCoin)
+var groupify = function(model) {
+  var groupified = function(x) {
+    var sequence = x.sequence, n = x.n;
+    var singleModel = model(sequence);
+    var p = Math.exp(singleModel.score(true))
+    Binomial({n: n, p: p})
+  }
+  groupified
+}
+\end{lstlisting}
+\end{lrbox}
+
+Using an uninformative prior for $p(y; x)$, we ran OED for three different model comparisons: fair--bias, bias--Markov, and fair--bias--Markov and planned to collect data from 20 participants (rather than 1).\footnote{\,Note that our models are of a single subject; we lift each single-participant model into a model of group responses using an i.i.d. linking function that we call \texttt{groupify}:
+\usebox{\LstBox}\\
+Here, \texttt{singleModel.score(true)} returns the log-probability of the value \texttt{true} under the \texttt{singleModel} distribution.}
+We run \texttt{OED} by writing:
+\begin{lstlisting}
+var n = 20,
+    fairGroup = groupify(fairCoin),
+    biasGroup = groupify(biasCoin)
 OED({
   M: function() { uniformDraw([fairGroup, biasGroup]) },
   X: function() {
-    { n: n, seq: uniformDraw(["HHHH","HHHT",...,"TTTT"]) }
+    {n: n, seq: uniformDraw(["HHHH",...,"TTTT"])}
   },
-  Y: function() { return randomInteger(n + 1) }
+  Y: function(x) { randomInteger(n + 1) }
 })
 \end{lstlisting}
-(b) \underline{\textsf{Output:}}\\
-\includegraphics[width=\columnwidth]{img/coin_eig_n20_ignorance.pdf}
-\caption{(a) OED call and (b) results for sequence prediction model comparisons with 20 participants.}
-\label{fig:run-coin}
+Here, we declare a uniform prior on models for \texttt{M}, an experiment space \texttt{X} with a fixed number of subjects and all valid coin sequences, and a result space \texttt{Y}, which is the uninformative prior over the number of \texttt{H} responses.
+The results of different model comparisons are in Fig.~\ref{fig:run-coin} below:
+
+\begin{figure}[h]
+  \includegraphics[width=\columnwidth]{img/coin_eig_n20_ignorance.pdf}
+  \caption{Results for sequence prediction model comparisons}
+  \label{fig:run-coin}
 \end{figure}
 
+\newsavebox{\LstBox}
 
-In the example call to \lstinline{OED} (Fig. \ref{fig:run-coin}a), we first lift each single-participant model into a model of group responses using an i.i.d. linking function \lstinline{groupify} (see supplement).
-The experiment space \lstinline{xSample} includes a fixed number of participants and the unique sequences.
-The response space \lstinline{ySample} is an uninformative prior over the number of \lstinline{H} responses.
-
-Consider the fair--bias comparison (Fig.~\ref{fig:run-coin}b, left).
+Consider the fair--bias comparison.
 Observe that several experiments that have 0 information gain (e.g., \lstinline{HTHT}).
 The models make exactly the same predictions in this case (albeit for different reasons), so the experiment has no distinguishing power.
 The best experiments are \lstinline{HHHH} and \lstinline{TTTT}.
 This is intuitive---the bias model would infer a strongly biased coin and make a strong prediction, while the fair coin model is unaffected by the observed sequence.
 
-Moving to the bias--Markov comparison (Fig.~\ref{fig:run-coin}b, middle), the best and worst experiments actually reverse.
+Moving to the bias--Markov comparison, the best and worst experiments actually reverse.
 Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative (because, as before, the models make similar predictions here), whereas \lstinline{HTHT} and \lstinline{THTH} are the most informative.
 This makes sense---the bias model learns a 0.5 probability of heads and so assigns equal probability of heads and tails to the next flip, whereas the Markov model learns that the transition probability is high and assigns high probability to the opposite of whatever outcome was observed last (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
-\begin{figure}[h]
+\begin{figure}[t]
             (a) \\ \includegraphics[width=1.0\columnwidth]{img/coin_predictions.pdf}\\ (b) \\ \includegraphics[width=1.0\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf}
   \caption{(a) Model predictions for top three experiments (HHHH, HHHT, HTHT) in the full comparison (b) Expected information gain for these experiments versus sample size.}
   \label{fig:coin_preds}
 \end{figure}
 
-In the full bair--bias--Markov comparison (Fig.~\ref{fig:run-coin}b, right), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
+In the full fair--bias--Markov comparison (Fig.~\ref{fig:run-coin}b, right), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}, a result that is non-obvious because we are comparing three models rather than two.
 The best experiment \lstinline{HHHH} is very good at separating the fair model from the other two models, while still predicting a difference between bias and Markov (Fig.~\ref{fig:coin_preds}a, right).
 The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference (Fig.~\ref{fig:coin_preds}a, middle), but this comes at the cost of less expected information gain overall.
@@ -413,20 +427,19 @@ We validated our system by collecting human judgements for all 16 experiments an
 We randomly assigned 351 participants to an experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then predicted the next coin flip (either heads or tails).
 
-\begin{figure}[h]
+\begin{figure}[t]
  \includegraphics[width=1.0\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
  \caption{Actual vs. Expected Information Gain for each experiment}
   \label{fig:aig_vs_eig}
 \end{figure}
 
-For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are uneven due to randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
+For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{\,N's are uneven due to randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
 
 
 \section{Case study 2: Category learning}
 
 Here, we explore a more complex and realistic space of models and experiments.
-\textbf{in addition, the models are non-bayesian.}
 In particular, we analyze a classic paper on the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
 Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as the ``5-4 experiment'') where the models made diverging predictions and found that the results supported the exemplar model.
 Subsequently, many other authors followed their lead, replicating and using this experiment to test other competing models.
@@ -445,7 +458,7 @@ Both the exemplar and prototype models are classifiers that map inputs (objects 
 The exemplar model assumes people store information about every instance of the category they have observed; categorizing an object is thus a function of the object's similarity to all of the examples of category A versus the similarity to all of B's examples.
 By contrast, the prototype model assumes that people store a measure of central tendency for each category---a prototype.
 Categorization of an object is thus a function of its similarity to the A prototype versus its similarity to the B prototype.
-For details and representation of these models in WebPPL, see the supplement.
+For space, we omit these model implementations but refer interested readers to the source code available online.
 
 \subsection{Experiments}
 
@@ -464,7 +477,7 @@ Using the predictive prior for $p(y; x)$, we computed the expected information g
 Thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
 Indeed, the MS experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
 
-Why is the MS experiment ineffective?
+Why is the MS experiment less effective?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts that an object is an A while the other predicts it is a B).
 The experiment they designed indeed predicts a qualitative difference for one object but this difference has a small magnitude and comes at the expense of little information gain from the remaining objects.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the objects simultaneously.
@@ -491,40 +504,42 @@ Thus, the optimal experiment provides the same amount of information for a third
 
 \section{Related work}
 
-The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics \cite{vanDenBerg2003}, chemistry \cite{Huan2010}, biology \cite{Vanlier2012, Liepe2013}, psychology \cite{Myung2009}, statistics \cite{Lindley1956}, and machine learning \cite{Golovin2010}.
+The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics \citep{vanDenBerg2003}, chemistry \citep{Huan2010}, biology \citep{Vanlier2012, Liepe2013}, psychology \citep{Myung2009}, statistics \citep{Lindley1956}, and machine learning \citep{Golovin2010}.
 
 These papers, however, often implement OED for relatively limited cases, specializing to particular model classes and committing to a single inference technique.
-For example, in systems biology, Liepe et al. \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
+For example, in systems biology, \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
 Their information measure (Shannon entropy) is similar to ours, but they focus on a narrow family of models and commit to a bespoke inference technique (an ABC scheme based on SMC).
-In psychology, Myung \& Pitt \cite{Myung2009} devised a general design optimization method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
+In psychology, \cite{Myung2009} devised a general design optimization method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
 For example, they compared six memory retention models using Fisher Information Approximation as a utility function and performed inference using a custom annealed SMC algorithm.
-Such ``bring-your-own'' requirements impose a significant burden on practitioners and are a real barrier to entry.
+Such ``bring-your-own'' requirements impose a significant burden on users and are a real barrier to entry.
 
-By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
-Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
+By contrast, our OED system is general and practical, which allows users to rapidly explore different spaces of models, experiments, and inference algorithms.
+In addition, it naturally handles certain challenging features of cognitive science experiments: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions} to convert model output into predictions about data.
+Finally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
 
 \section{Conclusion}
 
-Practitioners aim to design experiments that yield informative results.
-Our approach partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
-With our approach, the scientist writes her hypotheses as probabilistic programs, sketches a space of possible experiments, and hands these to OED for experiment selection.
-We stress that our work \emph{complements} practitioners; it does not replace them.
+Cognitive scientists aim to design experiments that yield informative results.
+\texttt{webppl-oed} partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
+With our approach, the scientist writes her models as probabilistic programs, sketches a space of possible experiments, and hands these to OED for experiment selection.
+We stress that our work \emph{complements} scientists; it does not replace them.
 Our tool eliminates the need to manually comb large spaces for good experiments; we hope this will free scientists and engineers to work on the more interesting problems---devising empirical paradigms and building models.
 
 Our approach suggests a number of interesting directions for future work.
+First, OED can be computationally challenging, so there is still room for optimizing search algorithms.
+
 %First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
-We cast the OED problem as a problem of inference and this might suggest particular inference techniques.
-For instance, if a particular response is quite unlikely (i.e., $p(y)$ is negligible), it may be acceptable to have a less precise estimate of information gain for that response.
-Additionally, while our framework \emph{can} accommodate different costs of experiments using a prior distribution, the focus of our work is on finding \emph{informative} experiments.
-It could be useful to integrate our system into multi-objective optimization systems for balancing multiple design considerations (e.g., informativeness, cost, ethics).
-Finally, we have explored the trajectory of information gain as the number of \emph{i.i.d.} observations increases.
-Observations need not independent, however.
-Adaptive testing can be formulated as a problem of information gain of sequences of experiments, which produce dependent and non-identical responses.
-%Third, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive tests).
+Second, we have examined model comparison problems where there are a finite number of models.
+We believe that our approach also works in (1) parameter learning settings where the goal is to conduct experiments that best update beliefs about continuous parameters of a model, and (2) model comparison problems where a finite number of models each have continuous parameters that are unknown and must be integrated over.
+
+Second, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive tests).
+Adaptive testing can be formulated as a problem of information gain of \emph{sequences} of experiments, which produce dependent and non-identical responses.
+Some preliminary work suggests that \texttt{webppl-oed} can be profitably extended to the adaptive setting.
+
+
+%
 %Fourth, we have ignored the cost of experiments, but it would be worth explicitly taking this into account.
 %Our informativeness approach could be usefully integrated with for real-world applications (e.g., MRI studies of rare patient populations, expensive aerospace experiments).
-In this paper, we showed case studies of our method in cognitive psychology but we believe that it is broadly useful, so we invite practitioners to test our method and system.
-\textbf{handle parameter inference}
 
 % \bibliographystyle{ieeetr}
 \bibliographystyle{apacite}
