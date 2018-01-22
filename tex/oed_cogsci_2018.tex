@@ -169,7 +169,7 @@ We first describe our framework in general terms and then apply it in two case s
 %Psychological experiments also have certain challenging features: human participants give noisy responses, experimental results are sensitive to the size of one's sample, and computational models often do not make direct predictions about experimental data, instead requiring \emph{linking functions} to convert model output into predictions about data.
 %Our system naturally addresses these concerns.
 First, we consider the problem of distinguishing three toy models of human sequence prediction.
-Second, we go beyond toy models and analyze a classic paper on human category learning that compared two models using a hand-designed experiment.
+Second, we go beyond toy models and analyze a classic paper \citep{medin78:pr} on human category learning that compared two models using a hand-designed experiment.
 Our OED system discovers experiments that are several times more effective than the original in an information-theoretic sense.
 Our work opens a number of rich areas for future development, which we explore in the discussion.
 
@@ -259,7 +259,7 @@ Infer(g)
 Here, \lstinline{g} is a function that defines a sampling procedure for our compound distribution.
 \lstinline{g} implicitly represents a probability distribution, but to reify this into an actual distribution, we must perform inference \texttt{Infer(g, options)}.
 This separation between \emph{what} we wish to compute from \emph{how} we try to compute it is useful when writing larger, more complex models.
-Note that in the above snippet, and throughout, we omit the \texttt{options} object, which specifies which inference algorithm to use.\footnote{\,WebPPL currently provides these inference algorithms: MCMC (MH, HMC), SMC, enumeration for discrete models, and variational inference.}
+Note that in the above snippet, and throughout, we omit the \texttt{options} object, which specifies which inference algorithm to use.\footnote{\,WebPPL currently provides these inference algorithms: MCMC (MH, HMC), SMC, enumeration, and variational inference.}
 
 WebPPL also supports expressing \emph{conditional} probability distributions.
 For instance, in the model above, we might be interested in what values of $x$ and $y$ could lead their sum to be greater than 2:
@@ -303,7 +303,7 @@ var fairCoin = function(seq) {
 Here, \texttt{flip(0.5)} is shorthand for \texttt{sample(Bernoulli({p:0.5}))}.
 Note the type signature of this model---it takes as input an experiment and returns a distribution on possible results of that experiment.
 
-In $m_{\text{bias}}$, people assume the coin has some unknown bias, learn it from observations\footnote{The line that uses \texttt{condition} constrains likely values of the coin weight---this mechanism is used to represent learning in Bayesian models of cognition. For more, see the Learning as Conditional Inference chapter of \url{probmods.org}.}, and use it to predict the next coin flip:
+In $m_{\text{bias}}$, people assume the coin has some unknown bias, learn it from observations\footnote{\,The line that uses \texttt{condition} constrains likely values of the coin weight---this mechanism is used to represent learning in Bayesian models of cognition. For more, see the Learning as Conditional Inference chapter of \url{probmods.org}.}, and use it to predict the next coin flip:
 \begin{lstlisting}[upquote=true]
 var biasCoin = function(seq) {
   Infer(function(){
@@ -440,7 +440,7 @@ Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable p
 \section{Case study 2: Category learning}
 
 Here, we explore a more complex and realistic space of models and experiments.
-In particular, we analyze a classic paper on the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
+In particular, we analyze a classic paper on the psychology of categorization by \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
 Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as the ``5-4 experiment'') where the models made diverging predictions and found that the results supported the exemplar model.
 Subsequently, many other authors followed their lead, replicating and using this experiment to test other competing models.
 Here, we ask: how good was the MS 5-4 experiment?
