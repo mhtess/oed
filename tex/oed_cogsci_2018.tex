@@ -155,7 +155,7 @@ This intuition may be biased in a number of ways, such as towards experiments th
 
 In principle, there is a better way---if we formally declare the space of models and space of experiments, optimal experiment design (OED) allows us to automate the search for good experiments (i.e., ones that strongly update our beliefs about a scientific question).
 However, while the mathematical foundations of OED are fairly straightforward \citep{Lindley1956}, it has not enjoyed widespread use in practice.
-Some OED systems are too specialized for general use and the more general systems require too much conceptual and implementational know-how to be widely adopted (e.g., users must supply their own objective function and derive a solution algorithm for it).
+Some OED systems are too specialized for general use and the more general systems require too much statistical and computational know-how to be widely adopted (e.g., users must supply their own objective function and derive a solution algorithm for it).
 In this work, we describe an automated system that is both general and practical---the user writes the competing models and space of possible experiments in a common language and a set of potentially informative experiments is then computed with no further input from the user.
 
 % a key obstacle has hindered its use in practice: a complex calculation is required to formulate the objective for each new set of models and experiments, which has brought out a pluralism of idiosyncratic approaches \cite{Chaloner1995}.
@@ -504,12 +504,11 @@ Thus, the optimal experiment provides the same amount of information for a third
 
 \section{Related work}
 
-The basic intuition behind OED---to find experiments that maximize some expected measure of informativeness---has been independently discovered in a number of fields, including physics \citep{vanDenBerg2003}, chemistry \citep{Huan2010}, biology \citep{Vanlier2012, Liepe2013}, psychology \citep{Myung2009}, statistics \citep{Lindley1956}, and machine learning \citep{Golovin2010}.
+The basic intuition behind OED---to find experiments that maximize some measure of expected informativeness---has been independently discovered in a number of fields, including physics \citep{vanDenBerg2003}, chemistry \citep{Huan2010}, biology \citep{Vanlier2012, Liepe2013}, psychology \citep{Myung2009}, statistics \citep{Lindley1956}, and machine learning \citep{Golovin2010}.
 
-These papers, however, often implement OED for relatively limited cases, specializing to particular model classes and committing to a single inference technique.
-For example, in systems biology, \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
-Their information measure (Shannon entropy) is similar to ours, but they focus on a narrow family of models and commit to a bespoke inference technique (an ABC scheme based on SMC).
-In psychology, \cite{Myung2009} devised a general design optimization method but this method requires researchers to select their own utility function for the value of an experiment and implement inference on their own.
+Previous work, however, has either been too narrow for general use or required too much statistical and computational expertise.
+For example, \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
+\cite{Myung2009} described a more general optimization method but this requires users to select their own utility function for the value of an experiment and implement inference on their own.
 For example, they compared six memory retention models using Fisher Information Approximation as a utility function and performed inference using a custom annealed SMC algorithm.
 Such ``bring-your-own'' requirements impose a significant burden on users and are a real barrier to entry.
 
