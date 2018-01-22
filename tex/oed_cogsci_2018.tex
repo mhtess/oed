@@ -207,10 +207,10 @@ We wish to update this belief distribution by conducting an experiment where we 
 There are 16 possible experiments (all combinations of \lstinline{H} and \lstinline{T} for 4 flips) and $2^n$ possible outcomes---predictions of heads or tails for each of $n$ human participants.
 Each model makes a prediction about how people would respond after seeing some particular sequence of flips.
 In other words, a model defines a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
-For convenience, we write our models in terms of a what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
+For convenience, we write our models in terms of what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
 
 How informative would running the experiment \lstinline{HHTT} be?
-$m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely)---if we ran our experiment with a single participant, neither experimental result would update our beliefs about the models, so this is a poor experiment.
+$m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely as the next flip)---if we ran our experiment with a single participant, neither experimental result would update our beliefs about the models, so this is a poor experiment.
 By contrast, the experiment \lstinline{HHHH} would be much more informative.
 Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$.
 In this case, \emph{either} experimental response would be informative.
@@ -234,12 +234,13 @@ If, however, we think $M$ may not contain the true model, then an uninformative 
 
 It is worth pointing out that we commit to a Bayesian perspective only for the model comparison problem; the models themselves need not be Bayesian---they only need to define a probability distribution specifying predictions for different experiments.
 Additionally, our method does not rely on exactly finding the global maximum $x^*$.
-OED can still be useful, as it can it find good experiments that we would not have discovered by hand.
+Approximated OED can still be useful, as it can it find good experiments that we would not have discovered by hand.
 
 Finally, it is worth acknowledging that not all computational models yield probability distributions on experiment results.
 For instance, models may make deterministic predictions about what should happen in an experiment.
 In some cases, however, it is possible to make additional assumptions that yield probabilities.
 For example, a deterministic prediction can be interpreted as a mean, median, or modal tendency of subjects' responses and that actual responses are spread around this value.
+(Indeed, this is the implicit assumption behind standard data analysis used for such models.)
 Similarly, deterministic predictions about a single subject's responses can be made probabilistic by assuming that subjects respond with some noise level.
 
 \subsection{Writing models as probabilistic programs}
@@ -258,7 +259,7 @@ var g = function() {
 Infer(g)
 \end{lstlisting}
 Here, \lstinline{g} is a function that defines a sampling procedure for our compound distribution.
-\lstinline{g} implicitly represents a probability distribution, but to reify this into an actual distribution, we must perform inference \texttt{Infer(g, options)}.
+\lstinline{g} implicitly represents a probability distribution, but to reify this into an actual distribution, we must perform inference via \texttt{Infer(g, options)}.
 This separation between \emph{what} we wish to compute from \emph{how} we try to compute it is useful when writing larger, more complex models.
 Note that in the above snippet, and throughout, we omit the \texttt{options} object, which specifies which inference algorithm to use.\footnote{\,WebPPL currently provides these inference algorithms: MCMC (MH, HMC), SMC, enumeration for discrete models, and variational inference.}
 
@@ -309,9 +310,9 @@ In $m_{\text{bias}}$, people assume the coin has some unknown bias, learn it fro
 \begin{lstlisting}[upquote=true]
 var biasCoin = function(seq) {
   Infer(function(){
-    var w = uniform(0,1),
-        coinFlip = function(){ flip(w) },
-        sampledSeq = repeat(seq.length, coinFlip)
+    var w = uniform(0,1)
+    var coinFlip = function(){ flip(w) }
+    var sampledSeq = repeat(seq.length, coinFlip)
     condition(arrayEquals(seq,sampledSeq))
     coinFlip()
   })
@@ -419,14 +420,14 @@ Participants pressed a key to sequentially reveal the sequence of 4 flips and th
   \label{fig:aig_vs_eig}
 \end{figure}
 
-For each experiment $x$ and result $y$, we computed the expected information gain from running our empirical sample of participants\footnote{N's are uneven due to randomization. We use the empirical N's for EIG in comparisons to AIG.} and compared this to the actual information gain, $\dkl{P(M \mid Y = y, X = x)}{P(M)}$, for the three model comparison scenarios.
+For each experiment $x$, we computed the expected information gain from running our empirical sample size of participants\footnote{N's are uneven due to randomization. We use the empirical N's for expected information gain in comparisons to actual information gain.} and compared this to the actual information gained from the empirical data, $\dkl{P(M \mid Y = y_\text{actual}, X = x)}{P(M)}$. We did this for the three model comparison scenarios described earlier.
 Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
 
 
 \section{Case study 2: Category learning}
 
-Here, we explore a more complex and realistic space of models and experiments.
-\textbf{in addition, the models are non-bayesian.}
+Here, we explore a more complex and theoretically impoortant set of models and experiments.
+\textbf{TODO in addition, the models are non-bayesian.}
 In particular, we analyze a classic paper on the psychology of categorization by Medin and Schaffer \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
 Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as the ``5-4 experiment'') where the models made diverging predictions and found that the results supported the exemplar model.
 Subsequently, many other authors followed their lead, replicating and using this experiment to test other competing models.
@@ -464,7 +465,7 @@ Using the predictive prior for $p(y; x)$, we computed the expected information g
 Thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
 Indeed, the MS experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
 
-Why is the MS experiment ineffective?
+Why is the MS experiment relatively ineffective?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts that an object is an A while the other predicts it is a B).
 The experiment they designed indeed predicts a qualitative difference for one object but this difference has a small magnitude and comes at the expense of little information gain from the remaining objects.
 The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the objects simultaneously.
@@ -501,7 +502,7 @@ For example, they compared six memory retention models using Fisher Information 
 Such ``bring-your-own'' requirements impose a significant burden on practitioners and are a real barrier to entry.
 
 By contrast, we show that OED can be expressed as a generic, concise, and flexible function in a probabilistic programming language, which allows practitioners to rapidly explore different spaces of models, experiments, and inference algorithms.
-Additionally, our work is the first to (1) demonstrate that expected information gain is a reliable predictor of actual information gain and to (2) characterize the cost benefits of OED.
+Additionally, our work is the first to demonstrate that expected information gain is a reliable predictor of actual information gain. 
 
 \section{Conclusion}
 
