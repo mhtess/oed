@@ -277,9 +277,14 @@ Infer(g)
 \end{lstlisting}
 Here, \texttt{condition} rejects any states where $x + y <$ 2.
 
-Given a set of competing models and some details about the space of possible experiments and results, \texttt{webppl-oed} searches for experiments that have a high EIG.
-The software is available online at \break\url{https://github.com/mhtess/webppl-oed}.
-We next illustrate our system by applying it to distinguish toy models of sequence prediction.
+Given a space of competing models, a space of possible experiments, and a probability distribution on results for different experiments (i.e., $p(y; x)$), our system \texttt{webppl-oed} searches for experiments that have high EIG.
+In abstract terms, \texttt{webppl-oed} calculates $\mathrm{EIG}(x)$ by sampling from the result distribution $p(y; x)$.
+For each sample $y$, it performs inference to obtain a posterior distribution on models and then measures the KL divergence of this posterior from the prior.
+It then takes the expectation of these KL divergence values.
+The main bottleneck in this process is posterior inference, which takes a good deal of expertise to implement correctly and is also computationally challenging.
+\texttt{webppl-oed} insulates end users from these technical concerns, allowing them to concentrate on scientific questions rather than engineering details.
+The software is available online at \break\url{github.com/mhtess/webppl-oed}.
+We next demonstrate it by using it to distinguish toy models of sequence prediction.
 %\ndg{check nips anonymity requirements...}
 
 \section{Case study 1: Sequence prediction}
