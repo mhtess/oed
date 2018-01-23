@@ -134,7 +134,7 @@ An essential part of cognitive science is designing experiments that distinguish
 This requires patience and ingenuity---there is often a large space of possible experiments one could run but only a small subset that might yield informative results.
 But we need not comb this space by hand---if we use formal models and explicitly declare the space of experiments, we can automate the search for good experiments, looking for those with high \emph{expected information gain}.
 Here, we present an automated system for experiment design called \texttt{webppl-oed}.
-In our system, users simply declare their models and experiment space; in return, they receive a list of experiments ranked by their expected information value.
+In our system, users simply declare their models and experiment space; in return, they receive a list of experiments ranked by their expected information gain.
 We demonstrate our system in two case studies, where we use it to design experiments in studies of sequence prediction and categorization.
 %, but the framework is general to any domain where probabilistic models are used to represent theories.
 We find strong empirical validation that our automatically designed experiments were indeed optimal.
@@ -220,26 +220,27 @@ The goal of OED is to automate this kind of reasoning.
 Now, we provide formal details.
 We wish to compare a set of models $M$ in terms of how well they account for empirical phenomena.
 A model $m$ is a conditional distribution $P_m(Y \mid X)$ representing the likelihood of empirical results $y$ for different possible experiments $x$.
-We adopt a Bayesian model comparison approach---we begin with a prior on models $P(M)$ and aim to conduct an experiment $x^*$ that maximally updates this distribution, providing as much information as possible.
-That is, we wish to maximize the \emph{information gain} $\dkl{ P(M \mid X = x^*) }{ P(M) }$.
-%$$x^{*} = \argmax_{x} \dkl{ P(M \mid X = x) }{ P(M) }.$$
-\emph{A priori}, we do not know what the result of any particular experiment will be, so we compute the \emph{expected information gain} by marginalizing over the possible results $y$:
+We adopt a Bayesian model comparison approach---we start with a prior on models $P(M)$ and seek an experiment whose result will maximally update this prior.
+\emph{A priori}, we do not know what will happen if we run experiment $x$.
+If we were to actually run $x$ and obtain result $y$, then we would have an actual information gain (AIG) of:
 \begin{align}
-  x^{*} &= \argmax_{x} {\mathbb E}_{p(y ; x)} \dkl{ P(M \mid X = x, Y = y) }{ P(M) }  \label{eq:oed}
+  \mathrm{AIG}(x) &= \dkl{P(M \mid Y = y, X = x)}{P(M)} \label{eq:aig}
 \end{align}
-where $p(y ; x)$ is the probability of observing result $y$ for experiment $x$.
-If we have reason to believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models $p(y ; x) = {\mathbb E}_{p(m)} p_m(y \mid x)$.
-If, however, we think $M$ may not contain the true model, then an uninformative prior $p(y ; x) \propto 1$ may be more appropriate.
+where $D_\mathrm{KL}$ is KL-divergence. We can compute the \emph{expected information gain} (EIG) of $x$ by imagining the many different results that it could give and combining them---that is, we can marginalize over $y$:
+\begin{align}
+  \mathrm{EIG}(x) &= {\mathbb E}_{p(y ; x)} \dkl{ P(M \mid X = x, Y = y) }{ P(M) }  \label{eq:oed}
+\end{align}
+where $p(y ; x)$ is the probability of observing $y$ for $x$.
+If we believe that $M$ contains the true model of the data, then a suitable choice for $p(y ; x)$ is the predictive distribution implied by the models $p(y ; x) = {\mathbb E}_{p(m)} p_m(y \mid x)$.
+If, however, we believe that $M$ does not contain the true model, then an uninformative distribution $p(y ; x) \propto 1$ may be more appropriate.
 
-It is worth pointing out that we commit to a Bayesian perspective only for the model comparison problem; the models themselves need not be Bayesian---they only need to define a probability distribution specifying predictions for different experiments.
-Additionally, our method does not rely on exactly finding the global maximum $x^*$.
-Approximated OED can still be useful, as it can it find good experiments that we would not have discovered by hand.
+Note that we commit to a Bayesian approach only for the model comparison problem; the models themselves need not be Bayesian---they only need to define a probability distribution specifying predictions for different experiments.
+Also, OED does not need to find the experiment with the absolute highest EIG to be useful---approximate OED can still find experiments that outperform those designed by hand.
 
-Finally, it is worth acknowledging that not all computational models yield probability distributions on experiment results.
-For instance, models may make deterministic predictions about what should happen in an experiment.
-In some cases, however, it is possible to make additional assumptions that yield probabilities.
-For example, a deterministic prediction can be interpreted as a mean, median, or modal tendency of subjects' responses and that actual responses are spread around this value.
-(Indeed, this is the implicit assumption behind standard data analysis used for such models.)
+Finally, we acknowledge that not all computational models yield probability distributions on experiment results.
+For instance, models may make deterministic predictions.
+However, it may be possible to make further assumptions that yield probabilities.
+For example, a deterministic prediction can be interpreted as a mean of subjects' responses and that actual responses are spread around this value (indeed, this is the implicit assumption behind standard data analysis used for such models).
 Similarly, deterministic predictions about a single subject's responses can be made probabilistic by assuming that subjects respond with some noise level.
 
 \subsection{Writing models as probabilistic programs}
@@ -276,7 +277,7 @@ Infer(g)
 \end{lstlisting}
 Here, \texttt{condition} rejects any states where $x + y <$ 2.
 
-Given a set of competing models and some details about the space of possible experiments and results, \texttt{webppl-oed} searches for experiments that have a high expected information gain.
+Given a set of competing models and some details about the space of possible experiments and results, \texttt{webppl-oed} searches for experiments that have a high EIG.
 The software is available online at \break\url{https://github.com/mhtess/webppl-oed}.
 We next illustrate our system by applying it to distinguish toy models of sequence prediction.
 %\ndg{check nips anonymity requirements...}
@@ -360,7 +361,7 @@ var groupify = function(model) {
 \end{lstlisting}
 \end{lrbox}
 
-Using an uninformative prior for $p(y; x)$, we ran OED for three different model comparisons: fair--bias, bias--Markov, and fair--bias--Markov and planned to collect data from 20 participants (rather than 1).\footnote{\,Our models are of a single subject but we lift each single-participant model into a model of group responses using an i.i.d. linking function that we call \texttt{groupify}:
+Using a uniform distribution for $p(y; x)$, we ran OED for three different model comparisons: fair--bias, bias--Markov, and fair--bias--Markov and planned to collect data from 20 participants (rather than 1).\footnote{\,Our models are of a single subject but we lift each single-participant model into a model of group responses using an i.i.d. linking function that we call \texttt{groupify}:
 \usebox{\LstBox}\\
 Here, \texttt{singleModel.score(true)} returns the log-probability of the value \texttt{true} under the \texttt{singleModel} distribution.}
 We run \texttt{OED} by writing:
@@ -396,17 +397,17 @@ This makes sense---the bias model learns a weight of 0.5 and so assigns equal pr
 
 \begin{figure}[t]
             (a) \\ \includegraphics[width=1.0\columnwidth]{img/coin_predictions.pdf}\\ (b) \\ \includegraphics[width=1.0\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf}
-  \caption{(a) Model predictions for top three experiments (HHHH, HHHT, HTHT) in the full comparison (b) Expected information gain for these experiments versus sample size.}
+  \caption{For top three experiments in full comparison, (a) model predictions and (b) EIG versus sample size.}
   \label{fig:coin_preds}
 \end{figure}
 
 In the full fair--bias--Markov comparison (Fig.~\ref{fig:run-coin}b, right), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}, a result that is non-obvious because we are comparing three models rather than two.
 The best experiment \lstinline{HHHH} is very good at separating the fair model from the other two models, while still predicting a difference between bias and Markov (Fig.~\ref{fig:coin_preds}a, right).
-The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference (Fig.~\ref{fig:coin_preds}a, middle), but this comes at the cost of less expected information gain overall.
+The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference (Fig.~\ref{fig:coin_preds}a, middle), but this comes at the cost of less EIG overall.
 An automated design tool is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
 
-Finally, expected information gain of an experiment varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
+Finally, an experiment's EIG varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
 This function is non-linear and, crucially, the rank ordering of experiments can change.
 For the the full model comparison, the experiments \lstinline{HTHT} and \lstinline{HHHT} switch places after 12 participants.
 This is particularly relevant when three models are being compared, as small quantitative differences between two models may amplify as the sample size grows.
@@ -414,18 +415,19 @@ This is particularly relevant when three models are being compared, as small qua
 
 
 \subsection{Empirical validation}
-We validated our system by collecting human judgements for all 16 experiments and comparing expected information gain with the actual information gain from the empirical results.
-We randomly assigned 351 participants to an experiment (all of the 16 experiments were completed by $\geq$20 unique participants).
+We validated our system by collecting human judgements for all 16 experiments and comparing \emph{expected} information gain (EIG) with the \emph{actual} information gain (AIG) from the empirical results.
+We randomly assigned 351 participants to an experiment.
+All of the 16 experiments were completed by $\geq$20 unique participants.\footnote{\,N's were uneven due to randomization. We use the empirical N's for comparing EIG to AIG.}
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then predicted the next coin flip (either heads or tails).
 
 \begin{figure}[t]
  \includegraphics[width=1.0\columnwidth]{img/coin_eig_aig_scatter_noText.pdf}
- \caption{Actual vs. Expected Information Gain for each experiment}
+ \caption{AIG vs. EIG for each experiment}
   \label{fig:aig_vs_eig}
 \end{figure}
 
-For each experiment $x$, we computed the expected information gain from running our empirical sample of participants\footnote{\,N's are uneven due to randomization. We use the empirical N's for expected information gain in comparisons to actual information gain.} and compared this to the actual information gained from the empirical data, $\dkl{P(M \mid Y = y_\text{actual}, X = x)}{P(M)}$. We did this for the three model comparison scenarios described earlier.
-Figure \ref{fig:aig_vs_eig} shows that expected information gain is a reliable predictor of the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
+For each of the three model comparison scenarios described earlier, we compared EIG to AIG for every experiment $x$.
+Figure \ref{fig:aig_vs_eig} shows that EIG is a reliable predictor of AIG---the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
 
 
 \section{Case study 2: Category learning}
@@ -464,7 +466,7 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 
 \subsection{Predictions of optimal experimental design}
 
-Using the predictive prior for $p(y; x)$, we computed the expected information gain for all 933 experiments and found that the best experiment (for a single participant) had an expected information gain of 0.08 nats, whereas the MS 5-4 experiment had an expected information gain of only 0.03 nats.
+Using the predictive prior for $p(y; x)$, we computed the EIG for all 933 experiments and found that the best experiment (for a single participant) had an EIG of 0.08 nats, whereas the MS 5-4 experiment had an EIG of only 0.03 nats.
 Thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
 Indeed, the MS experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
 
@@ -478,16 +480,16 @@ The optimal experiment is better able to quantitatively disambiguate the models 
 \includegraphics[width=1.0\columnwidth]{img/category-eig-dist.pdf}\\
 (b) \\
 \includegraphics[width=1.0\columnwidth]{img/category-aig-curve.pdf}
-\caption{(a) Distribution of expected information gain for all possible category learning experiments for a single participant. MS has low expected information gain. (b) Actual information gain versus number of experimental participants included in analysis (error bars are 95\% bootstrapped confidence intervals). MS requires three times as many participants to achieve maximum actual information gain.}
+\caption{(a) Distribution of EIG for all category learning experiments on a single participant. MS has low EIG. (b) AIG versus number of participants included in analysis (error bars are 95\% bootstrapped confidence intervals). MS requires three times as many participants to achieve maximum AIG.}
 \label{fig:dist}
 \end{figure}
 
 \subsection{Empirical validation}
 
-To validate our expected information gain calculations, we ran the MS 5-4 and the optimal experiment with 60 participants each.
+To validate our EIG calculations, we ran the MS 5-4 and the optimal experiment with 60 participants each.
 Figure~\ref{fig:dist}b shows that the optimal experiment we found for a single participant is indeed better than the MS experiment ($n$=1, blue greater than red).
 For $n$=1, the mean actual information gain for the optimal experiment is 0.15, whereas it is 0.026 for the MS experiment.
-This 5-fold difference in informativity is even greater than the 2.5-fold difference  predicted by expected information gain.
+This 5-fold difference in informativity is even greater than the 2.5-fold difference predicted by EIG.
 In addition, by incrementally introducing more data, we observe that both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum whereas the MS experiment takes around 30.
 Thus, the optimal experiment provides the same amount of information for a third of the experimental cost.
 
