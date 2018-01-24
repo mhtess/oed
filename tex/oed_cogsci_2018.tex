@@ -519,9 +519,10 @@ Additionally, our work is the first to demonstrate that expected information gai
 
 Cognitive scientists aim to design experiments that yield informative results.
 \texttt{webppl-oed} partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
-With our approach, the scientist writes her models as probabilistic programs, sketches a space of possible experiments, and hands these to OED for experiment selection.
+With our approach, the scientist writes her models as probabilistic programs, defines a space of possible experiments and results, and hands these to OED for experiment selection.
 We stress that our work \emph{complements} scientists; it does not replace them.
-Our tool eliminates the need to manually comb large spaces for good experiments; we hope this will free scientists and engineers to work on the more interesting problems---devising empirical paradigms and building models.
+Our tool merely eliminates the need to manually consider large spaces of good experiments, which can be time consuming, tedious, and prone to bias, such as a preference for qualitative differences at the expense of ultimate quantitative information gain.
+The real ingenuity--devising empirical paradigms and building models--must still come from the scientist.
 
 Our approach suggests a number of interesting directions for future work.
 First, OED can be computationally challenging, so there is still room for optimizing search algorithms.
