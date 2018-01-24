@@ -520,19 +520,18 @@ Additionally, our work is the first to demonstrate that expected information gai
 Cognitive scientists aim to design experiments that yield informative results.
 \texttt{webppl-oed} partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
 With our approach, the scientist writes her models as probabilistic programs, defines a space of possible experiments and results, and hands these to OED for experiment selection.
-We stress that our work \emph{complements} scientists; it does not replace them.
-Our tool merely eliminates the need to manually consider large spaces of good experiments, which can be time consuming, tedious, and prone to bias, such as a preference for qualitative differences at the expense of ultimate quantitative information gain.
+We stress that the tool \emph{complements} scientists; it does not replace them.
+Our tool merely eliminates the need to manually consider large spaces of potential experiments, which can be time consuming, tedious, and prone to bias, such as a preference for qualitative differences at the expense of ultimate quantitative information gain.
 The real ingenuity--devising empirical paradigms and building models--must still come from the scientist.
 
 Our approach suggests a number of interesting directions for future work.
-First, OED can be computationally challenging, so there is still room for optimizing search algorithms.
-
-%First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
-Second, we have examined model comparison problems where there are a finite number of models.
+First, we have examined model comparison problems where there are a finite number of models.
 We believe that our approach also works in (1) parameter learning settings where the goal is to conduct experiments that best update beliefs about continuous parameters of a model, and (2) model comparison problems where a finite number of models each have continuous parameters that are unknown and must be integrated over.
 
-Second, we have restricted attention to ``one-shot'' experiments, but it would be interesting to extend our work to sequential settings (e.g., adaptive tests).
-Adaptive testing can be formulated as a problem of information gain of \emph{sequences} of experiments, which produce dependent and non-identical responses.
+%First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
+
+Second, we have restricted attention to ``one-shot'' experiments, but it would be useful to extend our work to sequential settings such as adaptive testing.
+Adaptive testing can be formulated as a problem of information gain of \emph{sequences} of experiments, which produce dependent and non-iid responses.
 Some preliminary work suggests that \texttt{webppl-oed} can be profitably extended to the adaptive setting.
 
 
