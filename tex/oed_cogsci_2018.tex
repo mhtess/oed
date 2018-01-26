@@ -198,15 +198,17 @@ Our work opens a number of rich areas for future development, which we explore i
 \section{Experiment design framework}
 \label{s:bayes}
 We begin with a concrete example before giving formal details.
-Imagine that we are studying how people predict values for sequence data (e.g., flips of a possibly-trick coin).
-We want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased, and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown (expressed as a uniform prior on the unit interval) but that can be learned from data.
+Imagine that we are studying how people predict elements in a sequence (e.g., flips of a possibly-trick coin).
+We want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased (i.e.,  \lstinline{H} and  \lstinline{T} are equally likely), and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown  but that can be learned from data.
+%(expressed as a uniform prior on the unit interval)
 %People would see a sequence of outcomes, and be asked to predict the next outcome.
 \emph{A priori}, we do not believe either model more than the other; in Bayesian terms, we have a uniform prior on the models.
-We wish to update this belief distribution by conducting an experiment where we show people four flips of the same coin and ask them to predict what will happen on the next flip.
-There are 16 possible experiments (all combinations of \lstinline{H} and \lstinline{T} for 4 flips) and $2^n$ possible outcomes---predictions of heads or tails for each of $n$ human participants.
-Each model makes a prediction about how people would respond after seeing some particular sequence of flips.
-In other words, a model defines a probability distribution on $\{0,1\}^n$ conditional on the experiment $x$.
+We wish to update this belief distribution over models by conducting an experiment where we show people four flips of the same coin and ask them to predict what will happen on the next flip.
+There are 16 possible \emph{experiments} (sequences of \lstinline{H} and \lstinline{T} for the 4 flips that we show to participants); as each participant responds by predicting either \lstinline{H} or \lstinline{T}, there are $2^n$ possible \emph{outcomes} for $n$ participants.
+Each model predicts how people would respond after seeing some particular sequence of flips (experiment).
+Formally, a model defines a probability distribution on \{\lstinline{H}, \lstinline{T}\}$^n$ conditional on the experiment $x$.
 For convenience, we write our models in terms of what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
+\mht{this is a meaty paragraph.. consider streamlining or breaking into 2}
 
 How informative would running the experiment \lstinline{HHTT} be?
 $m_{\text{fair}}$ and $m_{\text{bias}}$ are identical here (heads and tails are equally likely as the next flip)---if we ran our experiment with a single participant, neither experimental result would update our beliefs about the models, so this is a poor experiment.
