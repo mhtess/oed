@@ -249,7 +249,8 @@ Finally, OED does not need to do exact Bayesian computation to be useful---appro
 
 \subsection{Writing models as probabilistic programs}
 
-Because models are probability distributions, we have the user express their models in a programming language where probability distributions and operations on them are first-class objects.
+Models are probability distributions. 
+As such, we have the user express their models in a programming language where probability distributions and operations on them are first-class objects.
 In particular, we use WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \citep{dippl}.
 
 WebPPL supports sampling from a number of primitive probability distributions, which can be combined in various ways. For example, we can define a distribution that adds Gaussian noise to a Binomial random variable:
