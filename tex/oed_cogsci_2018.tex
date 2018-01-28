@@ -204,7 +204,7 @@ We want to compare two models: $m_{\text{fair}}$, in which people believe the co
 %People would see a sequence of outcomes, and be asked to predict the next outcome.
 \emph{A priori}, one model is not preferred over the other; in Bayesian terms, we have a uniform prior on the models.
 We wish to update this belief distribution over models by conducting an experiment where we show people 4 flips of the same coin and ask them to predict what will happen on the next flip.
-There are 16 possible \emph{experiments} (i.e., sequences of \lstinline{H} and \lstinline{T} for the 4 flips); as each participant responds by predicting either \lstinline{H} or \lstinline{T}, there are $2^n$ possible \emph{outcomes} for $n$ participants.
+There are 16 possible \emph{experiments} (i.e., sequences of \lstinline{H} and \lstinline{T} for the 4 flips)\footnote{\,Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.}; as each participant responds by predicting either \lstinline{H} or \lstinline{T}, there are $2^n$ possible \emph{outcomes} for $n$ participants.
 The models predict how people will respond after seeing some particular sequence of flips (experiment).
 Formally, a model defines a probability distribution on \{\lstinline{H}, \lstinline{T}\}$^n$ conditional on the experiment $x$.
 For convenience, we write our models in terms of what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
@@ -295,15 +295,15 @@ We next demonstrate it by using it to distinguish toy models of sequence predict
 \section{Case study 1: Sequence prediction}
 \label{s:tutorial}
 
-Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas we might be unsure for the sequence \lstinline{THHTHTHT}.
+Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas the sequence \lstinline{THHTHTHT} is less suggestive of a particular next outcome.
 There are many hypotheses one might have about what underlies human intuitions about such sequences \citep{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
-Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of a \lstinline{H} outcome) that they can learn from data, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from the data.
+Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of an \lstinline{H} outcome) that they can learn from observations, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from observations.
 As in our earlier example, we consider an experimental setup where participants see four flips of the same coin and must predict the next flip.
 
 \subsection{Formalization}
 
 The model space $M$ is $\{m_{\text{fair}}, m_{\text{bias}}, m_{\text{markov}}\}$.
-For now, we assume that the experiment will collect data from just a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size of 1 and sequence space.\footnote{\,Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.}
+For now, we assume that the experiment will collect data from just a single participant, so the experiment space $X$ is the Cartesian product $\{1\} \times \{\texttt{H}, \texttt{T}\}^4$ representing the fixed sample size of 1 and sequence space.
 Finally, $Y$ is the response set $\{\texttt{H}, \texttt{T}\}^1$.
 
 Under $m_{\text{fair}}$, people assume that the coin always has an equal probability of coming up heads or tails:
@@ -313,7 +313,7 @@ var fairCoin = function(seq) {
 }
 \end{lstlisting}
 Here, \texttt{flip(0.5)} is shorthand for \texttt{sample(Bernoulli({p:0.5}))}.
-Note the type signature of this model---it takes as input an experiment and returns a distribution on possible results of that experiment.
+Note the type signature of this model---it takes as input an experiment (\texttt{seq}) and returns a distribution on possible results of that experiment (the output of \texttt{flip(..)}).
 
 Under $m_{\text{bias}}$, people assume that the coin has some unknown bias, learn it from past observations\footnote{\,The line that uses \texttt{condition} constrains likely values of the coin weight---this mechanism is used to represent learning in Bayesian models of cognition. For more, see the Learning as Conditional Inference chapter of the online textbook \url{http://probmods.org}.}, and use it to predict the next flip:
 \begin{lstlisting}[upquote=true]
@@ -321,10 +321,10 @@ var coinWeights = [0.01, 0.10, 0.20, ..., 0.90, 0.99];
 var biasCoin = function(seq) {
   Infer(function(){
     var w = uniformDraw(coinWeights)
-    var coinFlip = function(){ flip(w) }
-    var sampledSeq = repeat(seq.length, coinFlip)
-    condition(arrayEquals(seq,sampledSeq))
-    coinFlip()
+    var biasedCoinFlip = function(){ flip(w) }
+    var predictedSeq = repeat(seq.length,biasedCoinFlip)
+    condition(arrayEquals(seq,predictedSeq))
+    biasedCoinFlip()
   })
 }
 \end{lstlisting}
@@ -334,21 +334,21 @@ Under $m_{\text{markov}}$, people assume that the flips are generated by a Marko
 var markovCoin = function(seq1) {
   Infer(function(){
     var p = uniformDraw(coinWeights)
-    var sampleOne = function(lastFlip) {
+    var markovFlip = function(lastFlip) {
       flip(p) ? !lastFlip : lastFlip
     }
 	  var sampleSeq = function(n, seqSoFar) {
       if (n == 0) {
         seqSoFar
       } else {
-        var nextFlip = sampleOne(last(seqSoFar))
+        var nextFlip = markovFlip(last(seqSoFar))
         var nextSeq = append(seqSoFar, nextFlip)
         sampleSequence(n - 1, nextSeq)
       }
     }
 	  var seq2 = sampleSeq(seq1.length - 1, [flip(0.5)])
     condition(arrayEquals(seq1, seq2))
-    sampleOne(last(sampledSeq))
+    markovFlip(last(sampledSeq))
   })
 }
 \end{lstlisting}
