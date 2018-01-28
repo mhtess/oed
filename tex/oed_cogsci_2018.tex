@@ -407,7 +407,7 @@ This makes sense---the bias model learns a weight of 0.5 and so assigns equal pr
 
 \begin{figure}[t]
             (a) \\ \includegraphics[width=1.0\columnwidth]{img/coin_predictions.pdf}\\ (b) \\ \includegraphics[width=1.0\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf}
-  \caption{For top three experiments in full comparison, (a) model predictions and (b) EIG versus sample size.}
+  \caption{Top three experiments in three-way model comparison: (a) model predictions and (b) EIG versus sample size.}
   \label{fig:coin_preds}
 \end{figure}
 
@@ -426,7 +426,7 @@ This is particularly relevant when three models are being compared, as small qua
 
 \subsection{Empirical validation}
 We validated our system by collecting human judgements for all 16 experiments and comparing \emph{expected} information gain (EIG) with the \emph{actual} information gain (AIG) from the empirical results.
-We randomly assigned 351 participants to an experiment.
+We randomly assigned 351 participants to a single experiment (sequence).
 All of the 16 experiments were completed by $\geq$20 unique participants.\footnote{\,N's were uneven due to randomization. We use the empirical N's for comparing EIG to AIG.}
 Participants pressed a key to sequentially reveal the sequence of 4 flips and then predicted the next coin flip (either heads or tails).
 
@@ -439,6 +439,7 @@ Participants pressed a key to sequentially reveal the sequence of 4 flips and th
 For each of the three model comparison scenarios described earlier, we compared EIG to AIG for every experiment $x$.
 Figure \ref{fig:aig_vs_eig} shows that EIG is a reliable predictor of AIG---the empirical value of an experiment (minimum $r$ = 0.857). This indicates that the OED tool could be relied on to automatically choose good experiments for this case study.
 
+\mht{is it possible to talk about deviations? if my memory serves me correct, it's not because of the prior on responses... but is it because people are using a different model}
 
 \section{Case study 2: Category learning}
 
@@ -446,7 +447,7 @@ Here, we explore a more complex and theoretically important set of models and ex
 In addition, whereas the previous section considered Bayesian models, here we consider non-Bayesian models of category learning.
 In particular, we analyze a classic paper on the psychology of categorization by \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
 Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as the ``5-4 experiment'') where the models made diverging predictions and found that the results supported the exemplar model.
-Subsequently, many other authors followed their lead, replicating and using this experiment to test other competing models.
+Subsequently, many other authors followed their lead, replicating and using the 5-4 experiment to test other competing models.
 Here, we ask: how good was the MS 5-4 experiment?
 Could they have run an experiment that would have distinguished the two models with less data?
 %was more information-theoretically efficient?
@@ -479,12 +480,12 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 
 Using the predictive prior for $p(y; x)$, we computed the EIG for all 933 experiments and found that the best experiment (for a single participant) had an EIG of 0.08 nats, whereas the MS 5-4 experiment had an EIG of only 0.03 nats.
 Thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
-Indeed, the MS experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
+Indeed, the MS 5-4 experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
 
 Why is the MS experiment relatively ineffective?
 One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts that an object is an A while the other predicts it is a B).
-The experiment they designed indeed predicts a qualitative difference for one object but this difference has a small magnitude and comes at the expense of little information gain from the remaining objects.
-The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all the objects simultaneously.
+The experiment they designed indeed predicts a qualitative difference for \emph{one object} but this difference has a small magnitude and comes at the cost of little information gain from the remaining objects.
+The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all test objects simultaneously.
 
 \begin{figure}[t]
 (a) \\
