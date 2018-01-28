@@ -282,10 +282,10 @@ Infer(g)
 \end{lstlisting}
 Here, \texttt{condition} rejects any states where $x + y <$ 2.
 
-Given a space of competing models, a space of possible experiments, and a probability distribution on results for different experiments (i.e., $p(y; x)$), our system \texttt{webppl-oed} searches for experiments that have high EIG.
-In abstract terms, \texttt{webppl-oed} calculates $\mathrm{EIG}(x)$ by sampling from the result distribution $p(y; x)$.
+Given a set of competing models written as WebPPL functions, a space of possible experiments (inputs to the models), and expectations about the results for different experiments (i.e., $p(y; x)$, again written in WebPPL), our system \texttt{webppl-oed} searches for experiments that have high EIG as defined in Eq.~\ref{eq:oed}.
+In abstract terms, \texttt{webppl-oed} calculates $\mathrm{EIG}(x)$ by sampling imagined experiment results from $p(y; x)$.
 For each sample $y$, it performs inference to obtain a posterior distribution on models and then measures the KL divergence of this posterior from the prior.
-It then takes the expectation of these KL divergence values.
+The average of these KL divergences is an estimate of EIG.
 The main bottleneck in this process is posterior inference, which takes a good deal of expertise to implement correctly and is also computationally challenging.
 \texttt{webppl-oed} insulates end users from these technical concerns, allowing them to concentrate on scientific questions rather than engineering details.
 The software is available online at \break\url{github.com/mhtess/webppl-oed}.
@@ -525,9 +525,9 @@ Additionally, our work is the first to demonstrate that expected information gai
 
 Cognitive scientists aim to design experiments that yield informative results.
 \texttt{webppl-oed} partially automates experiment design, searching for experiments that maximally update beliefs about the model distribution.
-With our approach, the scientist writes their models as probabilistic programs, defines a space of possible experiments and results, and hands these to OED for experiment selection.
+With our approach, scientists write their models as probabilistic programs, define a space of possible experiments and results, and hand these to OED for experiment selection.
 We stress that the tool \emph{complements} scientists; it does not replace them.
-Our tool merely eliminates the need to manually comb large spaces of potential experiments, which is time consuming, tedious, and prone to bias, such as a preference for qualitative differences at the expense of ultimate quantitative information gain.
+Our tool merely eliminates the need to manually comb large spaces of potential experiments, which is time consuming, tedious, and prone to bias, such as a preference for local qualitative differences at the expense of ultimate quantitative information gain.
 The real ingenuity---devising empirical paradigms and building models---must still come from the scientist.
 
 Our approach suggests a number of interesting directions for future work.
