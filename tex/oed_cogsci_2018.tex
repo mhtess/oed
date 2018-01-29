@@ -95,12 +95,18 @@
    captionpos=b
 }
 
-
-
 \usepackage[ruled,vlined]{algorithm2e}
 
 \newcommand{\ud}{\,\mathrm{d}}
 \DeclareMathOperator*{\argmax}{arg\,max}
+
+% HT https://tex.stackexchange.com/a/30726/41154
+\newcommand\blfootnote[1]{%
+  \begingroup
+  \renewcommand\thefootnote{}\footnote{#1}%
+  \addtocounter{footnote}{-1}%
+  \endgroup
+}
 
 
 \title{\texttt{webppl-oed}: A practical optimal experiment design system}
@@ -117,14 +123,13 @@
 
 \author{
   Long Ouyang*, Michael Henry Tessler*, Daniel Ly, Noah D. Goodman\\
-  Departments of Psychology and  Computer Science\\
+  Departments of Psychology and Computer Science\\
   Stanford University\\
   Stanford, CA 94305 \\
   \texttt{\{louyang, mtessler, ngoodman\}@stanford.edu}\\
 }
 
 \begin{document}
-% \nipsfinalcopy is no longer used
 
 \maketitle
 
@@ -143,6 +148,7 @@ We find strong empirical validation that our automatically designed experiments 
 
 \end{abstract}
 
+\blfootnote{* authors contributed equally}
 %\mht{I think in practice ``the space of possible experiments'' is the same thing as an ``empirical paradigm''. This terminology may be useful in our exposition.}
 
 \section{Introduction}
