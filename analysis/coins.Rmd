@@ -85,55 +85,109 @@ ggplot(., aes(x=n, y=eig,
 ```
 
 Actual information gain vs. Expected information gain (using empirical Ns)
+```{r}
+d = fromJSON(txt="../code/fig3.json")
+d$comparison = factor(d$comparison, levels = c("fair-bias","bias-markov","fair-bias-markov"))
+comparison_labeller = function(labels) {
+  labels %>% transform(comparison = c("fair-bias" = "Fair vs. Bias",
+                                      "bias-markov" = "Bias vs. Markov",
+                                      "fair-bias-markov" = "Fair vs. Bias vs. Markov")[as.character(comparison)])
+}
+labels = d %>%
+  group_by(comparison) %>%
+  summarise(label = corr_eqn(eig,aig)) %>%
+  merge(data.frame(x = c(0.1, 0.5, 0.4),
+                   y = c(0.6, 0.1, 0.8),
+                   comparison = c("fair-bias","bias-markov","fair-bias-markov")))
+ggplot(data = d, mapping = aes(x = eig, y = aig)) +
+  facet_wrap( ~ comparison, scales = 'free', labeller = comparison_labeller) +
+  stat_smooth(method='lm', color='black', lty=2, alpha=0.6, size = 0.3) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_text(aes(label = experiment)) +
+  geom_text(data=labels, aes(x=x, y=y, label=label), parse = TRUE)+
+  xlab("Expected information gain") +
+  ylab("Actual information gain") +
+  scale_y_continuous(limits = c(-0.1,1.2), breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2)) +
+  theme_paper()
+
+```
+
+```{r}
+d = fromJSON(txt="../code/fig3.json")
+d$comparison = factor(d$comparison, levels = c("fair-bias","bias-markov","fair-bias-markov"))
+comparison_labeller = function(labels) {
+  labels %>% transform(comparison = c("fair-bias" = "Fair vs. Bias",
+                                      "bias-markov" = "Bias vs. Markov",
+                                      "fair-bias-markov" = "Fair vs. Bias vs. Markov")[as.character(comparison)])
+}
+labels = d %>%
+  group_by(comparison) %>%
+  summarise(label = corr_eqn(eig,aig)) %>%
+  merge(data.frame(x = c(0.1, 0.5, 0.4),
+                   y = c(0.6, 0.1, 0.8),
+                   comparison = c("fair-bias","bias-markov","fair-bias-markov")))
+ggplot(data = d, mapping = aes(x = eig, y = aig)) +
+  xlim(-0.01, 1.2) + 
+  ylim(-0.01, 1.2) +
+  facet_wrap( ~ comparison, scales = 'fixed', labeller = comparison_labeller) +
+  geom_point(size = 2, alpha = 0.6) +
+  geom_abline()
+
+```
+
+
+
 ```{r, fig.height=3.5, fig.width=7}
 
-# d<-read.csv("../data/coins-eig-vs-aig-empiricalN-ignorance.csv")
-# 
-# d.tidy <- d %>% 
-#   filter(models != "fairVmarkov") %>%
-#   mutate(models = factor(models, 
-#                   levels = c("fairVbias", "biasVmarkov",
-#                                      "fairVbiasVmarkov"),
-#                   labels = c(
-#                     "fair vs. bias",
-#                     "bias vs. markov",
-#                     "fair vs. bias vs. markov")))
-#   
-# 
-# 
-# labels <- data.frame(x = c(0.1, 0.5, 0.4), 
-#                     y = c(0.6, 0.1, 0.8),
-#                     m = c("fair vs. bias",
-#                     "bias vs. markov",
-#                     "fair vs. bias vs. markov")
-#                     ) %>%
-#   group_by(m) %>%
-#   mutate(label = with(d.tidy %>% filter(models==m),
-#                           corr_eqn(eig,aig))) %>%
-#   ungroup() %>%
-#   rename(models = m)
-# 
-# # spearman correlations
-# d.tidy %>%
-#   group_by(models) %>%
-#   summarize(cor(aig,eig, method='spearman'))
-# 
-#   
-# ggplot(d.tidy, aes(x = eig, y = aig, 
-#                 #fill=models, 
-#                 label=experiment))+
-#   #geom_jitter(shape=21, size=3)+
-#   geom_jitter(size=2)+
-#   geom_smooth(method='lm', color='black', lty=2, alpha=0.6, size = 0.3)+
-#     #geom_point(shape = 21, position=position_jitter())+
-#     geom_text(data=labels, aes(x=x, y=y, label=label), parse = TRUE)+
-#     #geom_text(check_overlap = TRUE, position=position_jitter())+
-#     facet_wrap(~models, scales='free')+
-#     xlab("Expected Information Gain")+
-#     ylab("Actual Information Gain")+
-#     guides(fill=F)+
-#   coord_fixed(ratio=1)+
-#   theme_paper()
+d <- fromJSON("../code/fig3.json")
+
+
+
+d.tidy <- d %>%
+  filter(models != "fairVmarkov") %>%
+  mutate(models = factor(models,
+                  levels = c("fairVbias", "biasVmarkov",
+                                     "fairVbiasVmarkov"),
+                  labels = c(
+                    "fair vs. bias",
+                    "bias vs. markov",
+                    "fair vs. bias vs. markov")))
+
+
+
+labels <- data.frame(x = c(0.1, 0.5, 0.4),
+                    y = c(0.6, 0.1, 0.8),
+                    m = c("fair vs. bias",
+                    "bias vs. markov",
+                    "fair vs. bias vs. markov")
+                    ) %>%
+  group_by(m) %>%
+  mutate(label = with(d.tidy %>% filter(models==m),
+                          corr_eqn(eig,aig))) %>%
+  ungroup() %>%
+  rename(models = m)
+
+# spearman correlations
+d.tidy %>%
+  group_by(models) %>%
+  summarize(cor(aig,eig, method='spearman'))
+
+
+ggplot(d.tidy, aes(x = eig, y = aig,
+                #fill=models,
+                label=experiment))+
+  #geom_jitter(shape=21, size=3)+
+  geom_jitter(size=2)+
+  geom_smooth(method='lm', color='black', lty=2, alpha=0.6, size = 0.3)+
+    #geom_point(shape = 21, position=position_jitter())+
+    geom_text(data=labels, aes(x=x, y=y, label=label), parse = TRUE)+
+    #geom_text(check_overlap = TRUE, position=position_jitter())+
+    facet_wrap(~models, scales='free')+
+    xlab("Expected Information Gain")+
+    ylab("Actual Information Gain")+
+    guides(fill=F)+
+  coord_fixed(ratio=1)+
+  theme_paper()
 # 
 # #ggsave("~/Documents/research/oed/oed/writing/nips2016/img/coin_eig_aig_scatter_noText.pdf", height = 3.5, width = 7)
 
