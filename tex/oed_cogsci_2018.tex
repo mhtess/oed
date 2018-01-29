@@ -199,7 +199,7 @@ Our work opens a number of rich areas for future development, which we explore i
 \label{s:bayes}
 %We begin with a concrete example before giving formal details.
 Imagine that we are studying how people predict elements in a sequence (e.g., flips of a possibly-trick coin).
-We want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased (i.e.,  \lstinline{H} and  \lstinline{T} are equally likely), and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown  to them. 
+We want to compare two models: $m_{\text{fair}}$, in which people believe the coin is unbiased (i.e.,  \lstinline{H} and  \lstinline{T} are equally likely), and $m_{\text{bias}}$, in which people believe the coin has a bias that is unknown  to them.
 %(expressed as a uniform prior on the unit interval)
 %People would see a sequence of outcomes, and be asked to predict the next outcome.
 \emph{A priori}, one model is not preferred over the other; in Bayesian terms, we have a uniform prior on the models.
@@ -236,7 +236,7 @@ If we believe that $M$ contains the true model of the data, then a suitable choi
 If, however, we believe that $M$ does not contain the true model, then an uninformative distribution $p(y ; x) \propto 1$ may be more appropriate.
 
 Note that we commit to a Bayesian approach only for model comparison; the models themselves need not be Bayesian nor even probabilistic.
-If the models define a probability distribution specifying predictions for different experiments, they can be be used without further assumptions. 
+If the models define a probability distribution specifying predictions for different experiments, they can be be used without further assumptions.
 Models that make deterministic predictions can be made into such a probability distribution by having predictions serve as the mean of subjects' responses with actual responses being normally-distributed around this value; indeed, this implicit assumption underlies standard data analysis used for such models.
 %Similarly, deterministic predictions about a single subject's responses can be made probabilistic by assuming that subjects respond with some noise level.
 Finally, OED does not need to do exact Bayesian computation to be useful---approximate OED can still find experiments that outperform those designed by hand.
@@ -249,7 +249,7 @@ Finally, OED does not need to do exact Bayesian computation to be useful---appro
 
 \subsection{Writing models as probabilistic programs}
 
-Models are probability distributions. 
+Models are probability distributions.
 As such, we have the user express their models in a programming language where probability distributions and operations on them are first-class objects.
 In particular, we use WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \citep{dippl}.
 
@@ -531,12 +531,13 @@ Our tool merely eliminates the need to manually comb large spaces of potential e
 The real ingenuity---devising empirical paradigms and building models---must still come from the scientist.
 
 Our approach suggests a number of interesting directions for future work.
-First, we have examined model comparison problems where there are a finite number of models.
+First, OED can be computationally challenging---our software currently does not scale up to huge response or experiment spaces, so there is still room for optimizing search algorithms.
+Second, we have examined model comparison problems where there are a finite number of models.
 We believe that our approach also works in (1) parameter learning settings where the goal is to conduct experiments that best update beliefs about continuous parameters of a model, and (2) model comparison problems where a finite number of models each have continuous parameters that are unknown and must be integrated over.
 
 %First, we chose KL divergence between posterior and prior as our informativeness measure because it is a well-known divergence function, but other choices (e.g., TV distance) might also be suitable.
 
-Second, we have restricted attention to ``one-shot'' experiments, but it would be useful to extend our work to sequential settings such as adaptive testing.
+Lastly, we have restricted attention to ``one-shot'' experiments, but it would be useful to extend our work to sequential settings such as adaptive testing.
 Adaptive testing can be formulated as a problem of information gain of \emph{sequences} of experiments, which produce dependent and non-iid responses.
 Some preliminary work suggests that \texttt{webppl-oed} can be profitably extended to the adaptive setting.
 
