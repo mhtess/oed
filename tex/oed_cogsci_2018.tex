@@ -404,7 +404,7 @@ The results of different model comparisons are below:
 \end{figure}
 
 Consider the fair--bias comparison (Fig.~\ref{fig:run-coin}, left).
-Several experiments have 0 information gain (e.g., \lstinline{HTHT})---the models make exactly the same predictions in this case (albeit for different reasons, as discussed in the previous section), so the experiment has no distinguishing power.
+Several experiments have 0 information gain (e.g., \lstinline{HTHT})---the models make exactly the same predictions in this case (albeit for different reasons, as discussed earlier), so the experiment has no distinguishing power.
 The best experiments are \lstinline{HHHH} and \lstinline{TTTT}.
 This is intuitive---the bias model infers a strongly biased coin and makes a strong prediction, while the fair coin model is unaffected by past observations.
 
@@ -502,9 +502,9 @@ The optimal experiment better disambiguates the models by maximizing the informa
 
 \begin{figure}[h]
 (a) \\
-\includegraphics[width=0.9\columnwidth]{img/category-eig-dist.pdf}\\
+\includegraphics[width=0.85\columnwidth]{img/category-eig-dist.pdf}\\
 (b) \\
-\includegraphics[width=0.9\columnwidth]{img/category-aig-curve.pdf}
+\includegraphics[width=0.85\columnwidth]{img/category-aig-curve.pdf}
 \caption{(a) Distribution of EIG for all category learning experiments on a single participant. MS has low EIG. (b) AIG versus number of participants in analysis (error bars are 95\% bootstrapped confidence intervals). MS requires more participants to achieve maximum AIG.}
 \label{fig:dist}
 \end{figure}
