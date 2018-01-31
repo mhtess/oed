@@ -303,7 +303,7 @@ We next demonstrate it by using it to distinguish toy models of sequence predict
 \label{s:tutorial}
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas the sequence \lstinline{THHTHTHT} is less suggestive of a particular next outcome.
-There are many hypotheses one might have about what underlies human intuitions about such sequences \citep{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
+Several hypotheses have been articulated about what underlies human intuitions about such sequences \citep{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
 Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of an \lstinline{H} outcome) that they can learn from observations, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from observations.
 As in our earlier example, we consider an experimental setup where participants see four flips of the same coin and must predict the next flip.
 
@@ -403,12 +403,12 @@ The results of different model comparisons are below:
   \label{fig:run-coin}
 \end{figure}
 
-Consider the fair--bias comparison (Fig.~\ref{fig:run-coin}b, left).
-Several experiments have 0 information gain (e.g., \lstinline{HTHT})---the models make exactly the same predictions in this case (albeit for different reasons), so the experiment has no distinguishing power.
+Consider the fair--bias comparison (Fig.~\ref{fig:run-coin}, left).
+Several experiments have 0 information gain (e.g., \lstinline{HTHT})---the models make exactly the same predictions in this case (albeit for different reasons, as discussed in the previous section), so the experiment has no distinguishing power.
 The best experiments are \lstinline{HHHH} and \lstinline{TTTT}.
 This is intuitive---the bias model infers a strongly biased coin and makes a strong prediction, while the fair coin model is unaffected by past observations.
 
-In the bias--Markov comparison (Fig.~\ref{fig:run-coin}b, middle), the best and worst experiments actually reverse.
+In the bias--Markov comparison (Fig.~\ref{fig:run-coin}, middle), the best and worst experiments actually reverse.
 Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative (because, as before, the models make similar predictions here), whereas \lstinline{HTHT} and \lstinline{THTH} are the most informative.
 This makes sense---the bias model learns a weight of 0.5 and so assigns equal probability of heads and tails to the next flip, whereas the Markov model learns that the transition probability is high and assigns high probability to the opposite of the most recent flip (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
@@ -418,11 +418,11 @@ This makes sense---the bias model learns a weight of 0.5 and so assigns equal pr
   \label{fig:coin_preds}
 \end{figure}
 
-In the full fair--bias--Markov comparison (Fig.~\ref{fig:run-coin}b, right), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
+In the full fair--bias--Markov comparison (Fig.~\ref{fig:run-coin}, right), the worst experiments (e.g., \lstinline{TTHH}) are again cases where all models make similar predictions.
 The best experiments are \lstinline{TTTT} and \lstinline{HHHH}, a result that is non-obvious because we are comparing three models rather than two.
 The best experiment \lstinline{HHHH} is very good at separating the fair model from the other two models, while still predicting a difference between bias and Markov (Fig.~\ref{fig:coin_preds}a, right).
-The second best experiment, \lstinline{HHHT}, better distinguishes the bias model from the Markov model as it predicts a qualitative difference (Fig.~\ref{fig:coin_preds}a, middle), but this comes at the cost of less EIG overall.
-An automated design tool is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative difference.
+The second best experiment, \lstinline{HHHT}, predicts three qualitatively different responses for the three models: bias model above baseline, Markov model below baseline, and fair model at baseline (Fig.~\ref{fig:coin_preds}a, middle), but this comes at the cost of less EIG overall.
+An automated design tool is especially useful in these settings, where human intuition would likely favor the qualitative over the quantitative differences.
 
 Finally, an experiment's EIG varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
 This function is non-linear and, crucially, the rank ordering of experiments can change.
