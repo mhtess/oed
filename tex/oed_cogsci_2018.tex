@@ -126,7 +126,7 @@
   Departments of Psychology and Computer Science\\
   Stanford University\\
   Stanford, CA 94305 \\
-  \texttt{\{louyang, mtessler, ngoodman\}@stanford.edu}\\
+  \texttt{\{louyang, mhtessler, ngoodman\}@stanford.edu}\\
 }
 
 \begin{document}
@@ -137,7 +137,7 @@
 
 An essential part of cognitive science is designing experiments that distinguish competing models.
 This requires patience and ingenuity---there is often a large space of possible experiments one could run but only a small subset that might yield informative results.
-But we need not comb this space by hand---if we use formal models and explicitly declare the space of experiments, we can automate the search for good experiments, looking for those with high \emph{expected information gain}.
+We need not comb this space by hand: If we use formal models and explicitly declare the space of experiments, we can automate the search for good experiments, looking for those with high \emph{expected information gain}.
 Here, we present an automated system for experiment design called \texttt{webppl-oed}.
 In our system, users simply declare their models and experiment space; in return, they receive a list of experiments ranked by their expected information gain.
 We demonstrate our system in two case studies, where we use it to design experiments in studies of sequence prediction and categorization.
@@ -148,21 +148,21 @@ We find strong empirical validation that our automatically designed experiments 
 
 \end{abstract}
 
-\blfootnote{* authors contributed equally}
+\blfootnote{* Authors contributed equally to this work.}
 %\mht{I think in practice ``the space of possible experiments'' is the same thing as an ``empirical paradigm''. This terminology may be useful in our exposition.}
 
 \section{Introduction}
 %\lou{start off more generally, don't specialize too much for psychology.}
 %\ndg{agree: first talk about OED in general, and why we should do OED within a PPL setup, then talk about psych as a target domain.}
 Cognitive scientists often design experiments to test competing computational models.
-Good experiments are ones where the models make different predictions, but there are typically many possible experiments one could run.
-As such, designing experiments where models sufficiently diverge is driven in large part by intuition, rather than by systematic search of the experiment space.
+Good experiments are ones where the models make different predictions, but there is typically a large space of possible experiments one could run.
+Rather than systematically search the experiment space, scientists often rely on intuition to design experiments where models sufficiently diverge.
 This intuition may be biased in a number of ways, such as towards experiments that show qualitative differences between models even when more informative quantitative differences may exist.
 
 In principle, there is a better way---if we formally declare the space of models and space of experiments, optimal experiment design (OED) allows us to automate the search for good experiments (i.e., ones that strongly update our beliefs about a scientific question).
 However, while the mathematical foundations of OED are fairly straightforward \citep{Lindley1956}, it has not enjoyed widespread use in practice.
-Some OED systems are too specialized for general use and the more general systems require too much statistical and computational know-how to be widely adopted (e.g., users must supply their own objective function and derive a solution algorithm for it).
-In this work, we describe an automated system that is both general and practical---the user writes the competing models and space of possible experiments in a common language and a set of potentially informative experiments is then computed with no further input from the user.
+Some OED systems are too specialized for general use; others are more general but require too much statistical and computational know-how to be widely adopted (e.g., users must supply their own objective function and derive a solution algorithm for it).
+In this work, we describe an automated system that is both general and practical---the user writes the competing models and space of possible experiments in a common language; a set of potentially informative experiments is then computed with no further input from the user.
 
 % a key obstacle has hindered its use in practice: a complex calculation is required to formulate the objective for each new set of models and experiments, which has brought out a pluralism of idiosyncratic approaches \cite{Chaloner1995}.
 % Adapting the general formulation to one's specific problem can be sufficiently difficult and time-consuming to deter working scientists from using OED.
@@ -176,7 +176,7 @@ We first describe our framework in general terms and then apply it in two case s
 %Our system naturally addresses these concerns.
 First, we consider the problem of distinguishing three toy models of human sequence prediction.
 Second, we go beyond toy models and analyze a classic paper \citep{medin78:pr} on human category learning that compared two models using a hand-designed experiment.
-Our OED system discovers experiments that are several times more effective than the original in an information-theoretic sense.
+Our OED system discovers experiments that are several times more effective (in an information-theoretic sense) than the original.
 Our work opens a number of rich areas for future development, which we explore in the discussion.
 
 %We conclude by highlighting the generality of the approach and areas of future work.
@@ -210,13 +210,14 @@ We want to compare two models: $m_{\text{fair}}$, in which people believe the co
 %People would see a sequence of outcomes, and be asked to predict the next outcome.
 \emph{A priori}, one model is not preferred over the other; in Bayesian terms, we have a uniform prior on the models.
 We wish to update this belief distribution over models by conducting an experiment where we show people 4 flips of the same coin and ask them to predict what will happen on the next flip.
-There are 16 possible \emph{experiments} (i.e., sequences of \lstinline{H} and \lstinline{T} for the 4 flips)\footnote{\,Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.}; as each participant responds by predicting either \lstinline{H} or \lstinline{T}, there are $2^n$ possible \emph{outcomes} for $n$ participants.
-The models predict how people will respond after seeing some particular sequence of flips (experiment).
+There are 16 possible \emph{experiments} (i.e., sequences of \lstinline{H} and \lstinline{T} for the 4 flips);\footnote{\,Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.} as each participant responds by predicting either \lstinline{H} or \lstinline{T}, there are $2^n$ possible \emph{outcomes} for $n$ participants.
+The models predict how people will respond in an experiment (i.e., after seeing some particular sequence of flips).
 Formally, a model defines a probability distribution on \{\lstinline{H}, \lstinline{T}\}$^n$ conditional on the experiment $x$.
-For convenience, we write our models in terms of what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{\,We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with subject-wise parameters).}
+For convenience, we write our models in terms of what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{\,We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with participant-wise parameters).}
 
 Should we run experiment \lstinline{HHTT}?
-$m_{\text{fair}}$ always predicts \lstinline{H} and \lstinline{T} with equal probability; for this experiment, $m_{\text{bias}}$ learns that the bias favors \lstinline{H} and \lstinline{T} equally, and thus also makes the same prediction: regardless of the observed outcome (person predicts \lstinline{H} or \lstinline{T}), the data cannot update our beliefs about the models, so this is a poor experiment.
+$m_{\text{fair}}$ always predicts \lstinline{H} and \lstinline{T} with equal probability; for this experiment, $m_{\text{bias}}$ learns that the bias favors \lstinline{H} and \lstinline{T} equally, and thus also makes the same prediction. 
+Regardless of the observed outcome (person predicts \lstinline{H} or \lstinline{T}), the data cannot update our beliefs about the models, so this is a poor experiment.
 By contrast, the experiment \lstinline{HHHH} would be much more informative.
 Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$.
 In this case, \emph{either} experimental response would be informative.
@@ -270,12 +271,12 @@ var g = function() {
 Infer(g)
 \end{lstlisting}
 Here, \lstinline{g} is a function that defines a sampling procedure for our compound distribution.
-\lstinline{g} implicitly represents a probability distribution, but to reify this into an actual distribution, we must perform inference via \texttt{Infer(g, options)}.
+\lstinline{g} implicitly represents a probability distribution; to reify this into an actual distribution, we must perform inference via \texttt{Infer(g, options)}.
 This separation between \emph{what} we wish to compute from \emph{how} we try to compute it is useful when writing larger, more complex models.
 Note that in the above snippet, and throughout, we omit the \texttt{options} object, which specifies which inference algorithm to use.\footnote{\,WebPPL currently provides these inference algorithms: MCMC (MH, HMC), SMC, enumeration, and variational inference.}
 
 WebPPL also supports expressing \emph{conditional} probability distributions.
-For instance, in the model above, we might be interested in what values of $x$ and $y$ could lead their sum to be greater than 2:
+For instance, in the model above, we might be interested in what values of $x$ and $y$ could lead their sum to be greater than or equal to 2:
 
 \begin{lstlisting}[mathescape, label={code:forward-model-complex}]
 var g = function() {
