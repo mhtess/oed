@@ -4,6 +4,7 @@ library(dplyr)
 library(ggplot2)
 library(directlabels)
 library(memoise)
+library(readr)
 theme_set(theme_classic(16) +
 theme(
     axis.line.x = element_line(colour = "black"),
@@ -131,4 +132,97 @@ qplot(data =  d.agg,
       geom = c('point','errorbar', 'line')) + ylab("Actual information gain") + xlab("Number of participants") +
   scale_color_manual(values = c("MS" = "red2", "Optimal" = "blue", "Other" = "grey60"))
 ```
+
+
+# examine optimal experiment
+
+```{r}
+which.max(eigs) # 34
+#print(dfs[[3]]$x$as[[4]])
+#print(dfs[[3]]$x$bs[[4]])
+
+print('as')
+print(apply(ifelse(dfs[[3]]$x$as[[4]], 1, 0), 1, function(x) { paste(x, collapse = "" )}))
+print('')
+print('bs')
+print(apply(ifelse(dfs[[3]]$x$bs[[4]], 1, 0), 1, function(x) { paste(x, collapse = "" )}))
+
+```
+
+
+# compare optimal and ms model predictions
+
+```{r}
+dpred = read_csv('../data/categories-prototype-exemplar-predictions.csv',
+                 col_types = cols(stim = col_character())) 
+```
+
+
+```{r}
+d.viz = dpred %>% transform(model = ifelse(str_sub(model, 1, 1) == 'e', 'X', 'P')) %>% transform(experiment = c(ms = 'MS', opt = 'Optimal')[experiment])
+
+dpred.lines = d.viz %>% select(-prediction5k) %>% spread(model, prediction) %>% mutate(catx = (X < 0.5), catp = (P < 0.5), qual.diff = (catx != catp))
+
+
+
+ggplot(data = d.viz, mapping = aes(x = stim)) +
+  facet_grid(. ~ experiment) +
+    geom_linerange(data = dpred.lines,
+                 mapping = aes(ymin = X,ymax = P)) +
+  geom_text(mapping = aes(x = stim,
+                           y = prediction,
+                           label = model),
+            color = 'steelblue3',
+            size = 4) + 
+  geom_hline(yintercept = 0.5, color = 'gray50') + ylab("Model predictions") + xlab("Stimulus") +
+  theme(axis.text.x = element_text(angle = -45, size = 10, hjust = 0))
+
+```
+
+```{r}
+BinToDec <- function(x) 
+    sum(2^(which(rev(unlist(strsplit(as.character(x), "")) == 1))-1))
+
+dpred.lines = dpred %>% select(-prediction5k) %>% spread(model, prediction) %>%
+  mutate(stim.num = sapply(stim, BinToDec),
+         x = ifelse(experiment == 'ms', 0, 0) + stim.num)
+
+ggplot(mapping = aes(x = stim)) +
+    geom_errorbar(data = dpred.lines,
+                  mapping = aes(x = x,
+                                color = experiment,
+                                ymin = exemplar,ymax = prototype)) +
+  geom_hline(yintercept = 0.5, color = 'gray50')
+```
+
+
+absolute values of predictions are obscuring differences
+
+
+
+
+```{r}
+dpred.lines = dpred %>% select(-prediction5k) %>% spread(model, prediction) %>%
+  mutate(diff = abs(exemplar - prototype))
+
+ggplot() +
+  geom_point(data = dpred.lines %>% select(-exemplar, -prototype) %>% spread(experiment, diff),
+             mapping = aes(x = ms,y = opt)) + geom_abline() + xlim(0, 0.16) + ylim(0, 0.16)
+
+ggplot() +
+  geom_bar(data = dpred.lines %>% rename(Experiment = experiment) %>% transform(Experiment = ifelse(Experiment == 'ms', 'MS', 'Optimal')),
+           mapping = aes(x = stim, y = diff, fill = Experiment), stat = 'identity', position = 'dodge') + 
+  xlab("Object") + 
+  ylab("Difference between\nmodel predictions") + 
+  theme_paper() + 
+  theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
+  scale_fill_manual(values = c("MS" = "indianred", "Optimal" = "steelblue2"))
+```
+
+
+
+
+
+
+
 

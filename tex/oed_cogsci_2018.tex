@@ -216,7 +216,7 @@ Formally, a model defines a probability distribution on \{\lstinline{H}, \lstinl
 For convenience, we write our models in terms of what a single person would do and assume that all people respond according to the same model, i.e., participant responses are i.i.d.\footnote{\,We use this simple linking function throughout this paper but our approach handles arbitrary linking functions (e.g., hierarchical models with participant-wise parameters).}
 
 Should we run experiment \lstinline{HHTT}?
-$m_{\text{fair}}$ always predicts \lstinline{H} and \lstinline{T} with equal probability; for this experiment, $m_{\text{bias}}$ learns that the bias favors \lstinline{H} and \lstinline{T} equally, and thus also makes the same prediction. 
+$m_{\text{fair}}$ always predicts \lstinline{H} and \lstinline{T} with equal probability; for this experiment, $m_{\text{bias}}$ learns that the bias favors \lstinline{H} and \lstinline{T} equally, and thus also makes the same prediction.
 Regardless of the observed outcome (person predicts \lstinline{H} or \lstinline{T}), the data cannot update our beliefs about the models, so this is a poor experiment.
 By contrast, the experiment \lstinline{HHHH} would be much more informative.
 Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$.
@@ -427,7 +427,7 @@ An automated design tool is especially useful in these settings, where human int
 Finally, an experiment's EIG varies as a function of sample size (Fig.~\ref{fig:coin_preds}b).
 This function is non-linear and, crucially, the rank ordering of experiments can change.
 For the the full model comparison, the experiments \lstinline{HTHT} and \lstinline{HHHT} switch places after 12 participants.
-This is particularly relevant when three models are being compared, as small quantitative differences between two models may amplify as the sample size grows.
+This is particularly relevant when three models are being compared; small quantitative differences between two models may grow with the sample size.
 %In our example here, the optimal experiment with 1 participant is the same as with 30 participants.
 
 
@@ -451,7 +451,7 @@ Figure \ref{fig:aig_vs_eig} shows that EIG is a reliable predictor of AIG---the 
 Here, we explore a more complex and theoretically important set of models and experiments.
 In addition, whereas the previous section considered Bayesian models, here we consider non-Bayesian models of category learning.
 In particular, we analyze a classic paper on the psychology of categorization by \cite{medin78:pr} that aimed to distinguish two competing models of category learning -- the \emph{exemplar model} and the \emph{prototype model}.
-Using intuition, Medin and Schaffer (MS) designed an experiment (often referred to as the ``5-4 experiment'') where the models made diverging predictions and found that the results supported the exemplar model.
+By hand, Medin and Schaffer (MS) designed an experiment (often referred to as the ``5-4 experiment'') where the models made diverging predictions and found that the results supported the exemplar model.
 Subsequently, many other authors followed their lead, replicating and using the 5-4 experiment to test other competing models.
 Here, we ask: how good was the MS 5-4 experiment?
 Could they have run an experiment that would have distinguished the two models with less data?
@@ -483,38 +483,46 @@ There are, up to permutation, 933 experiments that satisfy these constraints.
 
 \subsection{Predictions of optimal experimental design}
 
-Using the predictive prior for $p(y; x)$, we computed the EIG for all 933 experiments and found that the best experiment (for a single participant) had an EIG of 0.08 nats, whereas the MS 5-4 experiment had an EIG of only 0.03 nats.
-Thus, the optimal experiment is expected to be 2.5 times more informative than the MS experiment.
-Indeed, the MS 5-4 experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
+Using the predictive prior for $p(y; x)$, we computed EIG for all 933 experiments and found that the optimal experiment (for a single participant) sets the As to be \texttt{0001, 0011, 1100, 1110, 1111} and the Bs to be \texttt{0100, 0110, 1000, 1010}. By contrast, the MS experiment sets the As as \texttt{1110, 1010, 1011, 1101, 0111} and the Bs as \texttt{1100, 0110, 0001, 0000}.
+The optimal experiment had an EIG of 0.08 nats while the MS experiment had an EIG of only 0.03 nats, a 2.5-fold difference.
+Indeed, the MS experiment is near the bottom third of all experiments (Fig.~\ref{fig:dist}a).
 
 Why is the MS experiment relatively ineffective?
-One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference (i.e., when one model predicts that an object is an A while the other predicts it is a B).
-The experiment they designed indeed predicts a qualitative difference for \emph{one object} but this difference has a small magnitude and comes at the cost of little information gain from the remaining objects.
-The optimal experiment is better able to quantitatively disambiguate the models by maximizing the information from all test objects simultaneously.
+One reason is that Medin and Schaffer prioritized experiments that predict a qualitative categorization difference.
+In particular, they argued that the prototype model predicts that object \texttt{1110} should be easier to learn than object \texttt{1010}, whereas the exemplar model predicts the reverse.
+However, this qualitative difference between two objects comes at the cost of little information gain from the remaining objects (Fig~\ref{fig:category-model-diffs}).
+The optimal experiment better disambiguates the models by maximizing the information from all test objects simultaneously.
 
 \begin{figure}[t]
+  \includegraphics[width=0.9\columnwidth]{img/category-model-diffs.pdf}
+  \caption{Difference between prototype and exemplar model predictions by object in the MS and optimal experiments. Optimal experiment has greater differences for most objects.}
+  \label{fig:category-model-diffs}
+\end{figure}
+
+
+\begin{figure}[h]
 (a) \\
-\includegraphics[width=1.0\columnwidth]{img/category-eig-dist.pdf}\\
+\includegraphics[width=0.9\columnwidth]{img/category-eig-dist.pdf}\\
 (b) \\
-\includegraphics[width=1.0\columnwidth]{img/category-aig-curve.pdf}
-\caption{(a) Distribution of EIG for all category learning experiments on a single participant. MS has low EIG. (b) AIG versus number of participants included in analysis (error bars are 95\% bootstrapped confidence intervals). MS requires three times as many participants to achieve maximum AIG.}
+\includegraphics[width=0.9\columnwidth]{img/category-aig-curve.pdf}
+\caption{(a) Distribution of EIG for all category learning experiments on a single participant. MS has low EIG. (b) AIG versus number of participants in analysis (error bars are 95\% bootstrapped confidence intervals). MS requires more participants to achieve maximum AIG.}
 \label{fig:dist}
 \end{figure}
 
 \subsection{Empirical validation}
 
-To validate our EIG calculations, we ran the MS 5-4 and the optimal experiment with 60 participants each.
+To validate our EIG calculations, we ran the MS and optimal experiment with 60 participants each.
 Figure~\ref{fig:dist}b shows that the optimal experiment we found for a single participant is indeed better than the MS experiment ($n$=1, blue greater than red).
-For $n$=1, the mean actual information gain for the optimal experiment is 0.15, whereas it is 0.026 for the MS experiment.
-This 5-fold difference in informativity is even greater than the 2.5-fold difference predicted by EIG.
-In addition, by incrementally introducing more data, we observe that both experiments achieve maximal actual information gain but the optimal experiment takes only 10 participants to asymptote to this maximum whereas the MS experiment takes around 30.
-Thus, the optimal experiment provides the same amount of information for a third of the experimental cost.
+For $n$=1, the mean actual information gain (AIG) for the optimal experiment is 0.15, whereas it is 0.026 for the MS experiment.
+This 5-fold difference is even greater than the 2.5-fold difference predicted by EIG.
+In addition, by incrementally introducing more data, we observe that both experiments eventually reach maximal AIG but the optimal experiment takes only 10 participants to do so whereas the MS experiment takes around 30 participants.
+Thus, the optimal experiment could provide the same amount of information for a third of the experimental cost.
 
 % and illustrates how automated experiment design can outperform human intuition. In particular, this case study demonstrates the efficacy of OED in psychology for discrete and non-ordinal experiment spaces, large combinatoric experiment spaces, and parametric model classes.
 
 \section{Related work}
 
-The basic intuition behind OED---to find experiments that maximize some measure of expected informativeness---has been independently discovered in a number of fields, including physics \citep{vanDenBerg2003}, chemistry \citep{Huan2010}, biology \citep{Vanlier2012, Liepe2013}, psychology \citep{Myung2009}, statistics \citep{Lindley1956}, and machine learning \citep{Golovin2010}.
+The basic intuition behind OED---to find experiments that maximize some measure of expected informativeness---has been independently discovered in a number of fields, including physics \citep{vanDenBerg2003}, chemistry \citep{Huan2010}, biology \citep{Vanlier2012, Liepe2013}, psychology \citep{Myung2009}, and statistics \citep{Lindley1956}.%., and machine learning \citep{Golovin2010}.
 
 Previous work, however, has either been too narrow for general use or required too much statistical and computational expertise.
 For example, \cite{Liepe2013} devised a method for finding experiments that optimize information gain for parameters of biomolecular models (ODEs with Gaussian noise).
