@@ -304,7 +304,7 @@ We next demonstrate it by using it to distinguish toy models of sequence predict
 
 Human judgments about sequences are surprisingly systematic and nonuniform across equally likely outcomes -- for example, we might strongly believe the next coin flip in the sequence \lstinline{HHTTHHTT} will be \lstinline{H}, whereas the sequence \lstinline{THHTHTHT} is less suggestive of a particular next outcome.
 Several hypotheses have been articulated about what underlies human intuitions about such sequences \citep{goodfellow38:jep, falk81:pme, Griffiths2004_nips}.
-Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias (i.e., the probability of an \lstinline{H} outcome) that they can learn from observations, (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from observations.
+Here, we consider three simple models of people's beliefs: (a) \emph{Fair coin}: people assume the coin is fair, (b) \emph{Bias coin}: people believe the coin has some unknown bias that they can estimate from data (i.e., learning the probability of an \lstinline{H} outcome), (c) \emph{Markov coin}: people believe the coin has some probability of transitioning between spans of \lstinline{H} and \lstinline{T} outcomes, also learnable from observations.
 As in our earlier example, we consider an experimental setup where participants see four flips of the same coin and must predict the next flip.
 
 \subsection{Formalization}
