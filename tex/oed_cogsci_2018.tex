@@ -209,7 +209,7 @@ We want to compare two cognitive models of people's behavior: $m_{\text{fair}}$,
 %(expressed as a uniform prior on the unit interval)
 %People would see a sequence of outcomes, and be asked to predict the next outcome.
 \emph{A priori}, one model is not preferred over the other; in Bayesian terms, we have a uniform prior on the models.
-We wish to update this belief distribution over models by conducting an experiment where we show people 4 flips of the same coin and ask them to predict what will happen on the next flip.
+We wish to update our beliefs about these models through an experiment where we show people 4 flips of the same coin and ask them to predict what will happen on the next flip.
 There are 16 possible \emph{experiments} (i.e., sequences of \lstinline{H} and \lstinline{T} for the 4 flips);\footnote{\,Our notion of ``experiment'' is quite general, including traditional components like stimulus properties (e.g., coin sequence) as well as other components like dependent measure and sample size.} as each participant responds by predicting either \lstinline{H} or \lstinline{T}, there are $2^n$ possible \emph{outcomes} for $n$ participants.
 The models predict how people will respond in an experiment (i.e., after seeing some particular sequence of flips).
 Formally, a model defines a probability distribution on \{\lstinline{H}, \lstinline{T}\}$^n$ conditional on the experiment $x$.
@@ -219,7 +219,7 @@ Should we run experiment \lstinline{HHTT}?
 $m_{\text{fair}}$ always predicts \lstinline{H} and \lstinline{T} with equal probability; for this experiment, $m_{\text{bias}}$ learns that the bias favors \lstinline{H} and \lstinline{T} equally, and thus also makes the same prediction.
 Regardless of the observed outcome (person predicts \lstinline{H} or \lstinline{T}), the data cannot update our beliefs about the models, so this is a poor experiment.
 By contrast, the experiment \lstinline{HHHH} would be much more informative.
-Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$.
+Under $m_{\text{fair}}$, $p(\texttt{H}) = \frac{1}{2}$ but under $m_{\text{bias}}$, $p(\texttt{H}) = \frac{5}{6}$ (this is the updated probability of heads after estimating the coin bias).
 In this case, \emph{either} experimental response would be informative.
 If the participant predicted heads, this would favor $m_{\text{bias}}$ and if she predicted tails, this would favor $m_{\text{fair}}$.
 \lstinline{HHHH} is a better experiment than \lstinline{HHTT} for disambiguating the models.
@@ -259,8 +259,7 @@ Finally, OED does not need to do exact Bayesian computation to be useful---appro
 Models are probability distributions.
 As such, we have the user express their models in a programming language where probability distributions and operations on them are first-class objects.
 In particular, we use WebPPL (\url{webppl.org}), a small but feature-rich probabilistic programming language embedded in Javascript \citep{dippl}.
-
-WebPPL supports sampling from a number of primitive probability distributions, which can be combined in various ways. For example, we can define a distribution that adds Gaussian noise to a Binomial random variable:
+WebPPL supports sampling from primitive probability distributions and combining these samples in various ways, e.g., adding Gaussian noise to a Binomial random variable:
 
 \begin{lstlisting}[mathescape, label={code:forward-model-simple}]
 var g = function() {
@@ -270,13 +269,13 @@ var g = function() {
 }
 Infer(g)
 \end{lstlisting}
-Here, \lstinline{g} is a function that defines a sampling procedure for our compound distribution.
-\lstinline{g} implicitly represents a probability distribution; to reify this into an actual distribution, we must perform inference via \texttt{Infer(g, options)}.
+The function \lstinline{g} defines a sampling procedure for our compound distribution.
+This \emph{implicitly} represents a probability distribution; to reify this into an actual distribution, we must perform inference via \texttt{Infer(g, options)}.
 This separation between \emph{what} we wish to compute from \emph{how} we try to compute it is useful when writing larger, more complex models.
 Note that in the above snippet, and throughout, we omit the \texttt{options} object, which specifies which inference algorithm to use.\footnote{\,WebPPL currently provides these inference algorithms: MCMC (MH, HMC), SMC, enumeration, and variational inference.}
 
 WebPPL also supports expressing \emph{conditional} probability distributions.
-For instance, in the model above, we might be interested in what values of $x$ and $y$ could lead their sum to be greater than or equal to 2:
+For instance, in the model above, we might ask what values of $x$ and $y$ could lead their sum to be greater than or equal to 2:
 
 \begin{lstlisting}[mathescape, label={code:forward-model-complex}]
 var g = function() {
