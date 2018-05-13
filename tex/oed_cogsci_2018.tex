@@ -413,7 +413,7 @@ Now, \lstinline{HHHH} and \lstinline{TTTT} are the least informative (because, a
 This makes sense---the bias model learns a weight of 0.5 and so assigns equal probability of heads and tails to the next flip, whereas the Markov model learns that the transition probability is high and assigns high probability to the opposite of the most recent flip (\lstinline{T} for \lstinline{THTH} and \lstinline{H} for \lstinline{HTHT}).
 
 \begin{figure}[t]
-            (a) \\ \includegraphics[width=1.0\columnwidth]{img/coin_predictions.pdf}\\ (b) \\ \includegraphics[width=1.0\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf}
+            (a) \\ \includegraphics[width=0.9\columnwidth]{img/coin_predictions.pdf}\\ (b) \\ \includegraphics[width=0.9\columnwidth]{img/coin_eig_3way_nsubj_wlegend.pdf}
   \caption{Top three experiments in three-way model comparison: (a) model predictions and (b) EIG versus sample size.}
   \label{fig:coin_preds}
 \end{figure}
@@ -494,8 +494,8 @@ However, this qualitative difference between two objects comes at the cost of li
 The optimal experiment better disambiguates the models by maximizing the information from all test objects simultaneously.
 
 \begin{figure}[t]
-  \includegraphics[width=0.9\columnwidth]{img/category-model-diffs.pdf}
-  \caption{Difference between prototype and exemplar model predictions by object in the MS and optimal experiments. Optimal experiment has greater differences for most objects.}
+  \includegraphics[width=0.85\columnwidth]{img/category-model-diffs.pdf}
+  \caption{In MS and optimal experiments, the divergence between model predictions (i.e., the absolute value of the difference in probabilities of being classified as an A by the two models). The models diverge more in the optimal experiment.}
   \label{fig:category-model-diffs}
 \end{figure}
 
