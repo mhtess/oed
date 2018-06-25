@@ -41,7 +41,7 @@ theme_paper <- function(base_size = 12, base_family = "Helvetica") {
     legend.box =         NULL,
     
     panel.background =   element_rect(fill = "white", colour = NA),
-    panel.border =       element_rect(fill = NA, colour = "black"),
+    #panel.border =       element_rect(fill = NA, colour = "black"),
     panel.grid.major =   element_line(colour = "white", size = 0.2),
     panel.grid.minor =   element_line(colour = "white", size = 0.5),
     panel.margin =       unit(0.5, "lines"),
