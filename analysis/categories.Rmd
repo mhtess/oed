@@ -213,7 +213,7 @@ ggplot() +
   geom_bar(data = dpred.lines %>% rename(Experiment = experiment) %>% transform(Experiment = ifelse(Experiment == 'ms', 'MS', 'Optimal')),
            mapping = aes(x = stim, y = diff, fill = Experiment), stat = 'identity', position = 'dodge') + 
   xlab("Object") + 
-  ylab("Difference between\nmodel predictions") + 
+  ylab("Absolute difference\nin model predictions") + 
   theme_paper() + 
   theme(axis.text.x = element_text(angle = -45, hjust = 0)) +
   scale_fill_manual(values = c("MS" = "indianred", "Optimal" = "steelblue2"))
